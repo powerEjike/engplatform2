@@ -17,3 +17,9 @@ Install Node.js, then initialise the Next.js web dashboard and Expo mobile app.
 - Added sample project data to demonstrate portfolio progress, schedule health, variation exposure, and late-report attention.
 - Built a responsive layout that adapts from desktop to mobile widths.
 - Firebase-backed data and authentication remain the next implementation step.
+
+## 2026-09-12 — Shared product data foundation
+
+- Added shared TypeScript types for companies, users, projects, BOQ items, site reports, and variations.
+- Added shared progress calculations and site-report validation rules.
+- Documented the tenant data structure and national project-location support.

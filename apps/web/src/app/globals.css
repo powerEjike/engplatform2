@@ -36,6 +36,9 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .metric-card.warning strong { color: #9a6e10; }
 
 .section-heading { align-items: end; display: flex; justify-content: space-between; margin: 56px 0 18px; }
+.portfolio-actions { align-items: end; display: flex; gap: 10px; }
+.state-filter { color: #567064; display: grid; font-size: 0.7rem; font-weight: 800; gap: 5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.state-filter select { appearance: none; background: white; border: 1px solid #cddbd1; border-radius: 9px; color: #1e4934; font: inherit; font-size: 0.84rem; font-weight: 700; letter-spacing: 0; min-width: 156px; padding: 11px 34px 11px 12px; text-transform: none; }
 .project-table { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
 .project-table-head, .project-row { align-items: center; display: grid; gap: 20px; grid-template-columns: 1.55fr 1.1fr 1fr 1.12fr 0.9fr; padding: 19px 22px; }
 .project-table-head { background: #f8faf8; color: #789084; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -56,4 +59,4 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .secondary { background: white; border: 1px solid #9dceb0; color: #216741; white-space: nowrap; }
 
 @media (max-width: 1050px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .project-table { overflow-x: auto; } .project-table-head, .project-row { min-width: 850px; } }
-@media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } .portfolio-actions { align-items: stretch; flex-direction: column; width: 100%; } .state-filter select { width: 100%; } }

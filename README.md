@@ -1,6 +1,6 @@
 # engplatform2
 
-Engineering and construction project management platform for construction firms in Abuja.
+Engineering and construction project management platform for construction firms across Nigeria.
 
 ## What this platform will do
 

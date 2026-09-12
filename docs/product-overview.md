@@ -2,7 +2,7 @@
 
 ## Purpose
 
-engplatform2 helps mid-size engineering and construction firms replace fragmented Excel, WhatsApp, and paper reporting with a dependable project-management platform.
+engplatform2 helps mid-size engineering and construction firms across Nigeria replace fragmented Excel, WhatsApp, and paper reporting with a dependable project-management platform. The product may begin validation in Abuja, but it supports projects in any state.
 
 ## MVP users
 

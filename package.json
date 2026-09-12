@@ -1,0 +1,13 @@
+{
+  "name": "engplatform2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Engineering and construction project management platform",
+  "workspaces": ["apps/*", "packages/*", "functions"],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": { "node": ">=22" }
+}

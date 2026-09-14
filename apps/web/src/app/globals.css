@@ -99,6 +99,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .project-title-row { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 26px; }
 .project-title-actions { align-items: flex-end; display: flex; flex-direction: column; gap: 12px; }
 .compact-action { border-radius: 9px; font-size: 0.86rem; font-weight: 800; padding: 10px 14px; }
+.text-action { color: #3d7357; font-size: 0.8rem; font-weight: 800; text-decoration: underline; }
 .project-title-row h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 9px; }
 .project-title-row p:last-child { color: #658074; margin: 0; }
 .contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }

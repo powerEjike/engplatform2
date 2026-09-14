@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { formatNaira } from "@/lib/dashboard-data";
 import { useAuth } from "@/components/auth-provider";
 import { useProjects } from "@/hooks/use-projects";
+import { useProjectProgress } from "@/hooks/use-project-progress";
 
 export default function Home() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
+  const { progressByProject } = useProjectProgress(profile?.companyId, projects);
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
@@ -20,9 +22,9 @@ export default function Home() {
       : projects.filter((project) => project.state === selectedState),
     [projects, selectedState],
   );
-  const totalExposure = visibleProjects.reduce(
-    (total) => total, 0);
-  const averageProgress = 0;
+  const totalExposure = 0;
+  const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
+  const averageProgress = progressProjects.length === 0 ? 0 : Math.round(progressProjects.reduce((total, project) => total + (progressByProject[project.id]?.percentage ?? 0), 0) / progressProjects.length);
   const reportsNeedingAttention = visibleProjects.length;
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function Home() {
             <p>Active projects</p><strong>{visibleProjects.length}</strong><span>{selectedState === "All states" ? "Across all states" : `In ${selectedState}`}</span>
           </article>
           <article className="metric-card">
-            <p>Portfolio progress</p><strong>{averageProgress}%</strong><span>Available after BOQ setup</span>
+            <p>Portfolio progress</p><strong>{averageProgress}%</strong><span>{progressProjects.length === 0 ? "Available after BOQ setup" : "From completed BOQ value"}</span>
           </article>
           <article className="metric-card highlight">
             <p>Variation exposure</p><strong>{formatNaira(totalExposure)}</strong><span>Available after variations are raised</span>
@@ -94,15 +96,16 @@ export default function Home() {
           <div className="project-table-head"><span>Project</span><span>Progress</span><span>Schedule</span><span>Variation exposure</span><span>Latest report</span></div>
           {areProjectsLoading && <p className="empty-state">Loading your projects…</p>}
           {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
-          {visibleProjects.map((project) => (
-            <article className="project-row" key={project.id}>
+          {visibleProjects.map((project) => {
+            const progress = Math.round(progressByProject[project.id]?.percentage ?? 0);
+            return <article className="project-row" key={project.id}>
               <div><Link className="project-name-link" href={`/projects/${project.id}`}><h3>{project.name}</h3></Link><p>{project.clientName} · {project.state}</p></div>
-              <div className="progress-cell"><div className="progress-label"><span>0%</span></div><div className="progress-track"><span style={{ width: "0%" }} /></div></div>
+              <div className="progress-cell"><div className="progress-label"><span>{progress}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
               <span className="status on_track">Setup</span>
               <strong className="exposure">{formatNaira(0)}</strong>
               <span className="report-date">No reports yet</span>
-            </article>
-          ))}
+            </article>;
+          })}
         </section>
 
         <section className="attention-card" id="variations">

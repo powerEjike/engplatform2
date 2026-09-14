@@ -54,7 +54,7 @@ export default function Home() {
             <p className="eyebrow">Portfolio overview</p>
             <h1>Good morning, Ejike.</h1>
           </div>
-          <div className="profile"><span className="avatar">PE</span><span>Director</span></div>
+        <a className="profile" href="/login"><span className="avatar">PE</span><span>Director</span></a>
         </header>
 
         <section className="summary-grid" aria-label="Portfolio summary">

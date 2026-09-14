@@ -6,6 +6,8 @@
 - **Web:** Next.js for Project Managers, Quantity Surveyors, and Directors.
 - **Backend:** Firebase Authentication, Firestore, Cloud Storage, and Cloud Functions.
 
+The web application initialises Firebase through environment variables stored in `apps/web/.env.local`. This file stays only on the developer's computer and is excluded from GitHub.
+
 ## Design principles
 
 1. Data is partitioned under `companies/{companyId}` to protect each firm's records.

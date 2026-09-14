@@ -33,6 +33,8 @@ export default function Home() {
 
   if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Checking your secure workspace…</main>;
 
+  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><section className="engineer-projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && projects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet.</p>}{projects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
+
   return (
     <div className="app-shell">
       <aside className="sidebar">

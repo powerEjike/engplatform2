@@ -169,5 +169,14 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .valuation-breakdown strong { color: #244e39; }
 .valuation-breakdown .valuation-net { background: #e4f2e9; color: #1d5638; font-size: 1rem; font-weight: 800; }
 .valuation-breakdown .valuation-net strong { font-size: 1.15rem; }
+.valuation-register { background: white; border: 1px solid #dfe8e1; border-radius: 14px; margin-top: 22px; padding: 26px; }
+.valuation-list { display: grid; gap: 10px; margin-top: 20px; }
+.valuation-row { align-items: center; border: 1px solid #e2ebe5; border-radius: 10px; display: grid; gap: 16px; grid-template-columns: 1.25fr 1fr 0.9fr 1fr; padding: 16px; }
+.valuation-certificate { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+.valuation-row h3 { color: #1d4833; font-size: 0.93rem; margin: 6px 0 0; }
+.valuation-row p { color: #668074; display: grid; font-size: 0.75rem; gap: 4px; margin: 0; }
+.valuation-row strong { color: #294f3c; font-size: 0.9rem; }
+.valuation-row .valuation-due strong { color: #177044; font-size: 1rem; }
 @media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
+@media (max-width: 650px) { .valuation-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

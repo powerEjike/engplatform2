@@ -1,25 +1,6 @@
-# Dependencies and build output
-node_modules/
-.next/
-dist/
-coverage/
-expo/
-.expo/
-
-# Secrets and local settings
-.env
+functions/lib/
+functions/node_modules/
+apps/web/node_modules/
+apps/web/.next/
+*.tsbuildinfo
 .env.local
-.env.*.local
-!.env.example
-
-# Firebase and Expo local files
-.firebase/
-firebase-debug.log
-*.jks
-*.keystore
-*.p8
-
-# Operating system and editor files
-.DS_Store
-Thumbs.db
-.vscode/

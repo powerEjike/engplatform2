@@ -143,7 +143,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-section h2 { font-size: 1.12rem; margin-bottom: 7px; }
 .report-section > p { color: #6a8276; font-size: 0.87rem; line-height: 1.5; }
 .report-date-field { color: #315342; display: grid; font-size: 0.84rem; font-weight: 800; gap: 8px; max-width: 230px; }
-.report-date-field input, .report-labour-field input, .report-issue-field textarea, .report-line input { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
+.report-date-field input, .report-labour-field input, .report-labour-field select, .report-issue-field textarea, .report-line input { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
 .report-lines { display: grid; gap: 10px; margin-top: 16px; }
 .report-line { align-items: center; border: 1px solid #e3ece6; border-radius: 10px; display: grid; gap: 14px; grid-template-columns: 1fr 150px; padding: 14px; }
 .report-line h3 { color: #1d4833; font-size: 0.93rem; margin: 4px 0 0; }

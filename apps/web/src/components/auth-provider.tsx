@@ -2,7 +2,7 @@
 
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
     setIsLoading(false);
   }), []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (!user) {
       setProfile(null);
       return;
@@ -47,11 +47,11 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
     } finally {
       setIsProfileLoading(false);
     }
-  };
+  }, [user]);
 
-  useEffect(() => { void refreshProfile(); }, [user]);
+  useEffect(() => { void Promise.resolve().then(refreshProfile); }, [refreshProfile]);
 
-  const value = useMemo(() => ({ user, isLoading, profile, isProfileLoading, refreshProfile, signOutUser: () => signOut(auth) }), [user, isLoading, profile, isProfileLoading]);
+  const value = useMemo(() => ({ user, isLoading, profile, isProfileLoading, refreshProfile, signOutUser: () => signOut(auth) }), [user, isLoading, profile, isProfileLoading, refreshProfile]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

@@ -18,7 +18,6 @@ export function useProjectProgress(companyId: string | undefined, projects: Proj
 
   useEffect(() => {
     if (!companyId) return;
-    setProgressByProject({});
     const unsubscribes = projects.map((project) => onSnapshot(collection(db, "companies", companyId, "projects", project.id, "boqItems"), (snapshot) => {
       const items = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem);
       setProgressByProject((current) => ({ ...current, [project.id]: calculateProgress(items) }));

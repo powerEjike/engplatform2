@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from "firebase/firestore";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { BoqItem } from "@engplatform2/shared-types";
+import type { BoqItem, Variation } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { formatNaira } from "@/lib/dashboard-data";
@@ -21,6 +21,7 @@ export default function ProjectWorkspacePage() {
   const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
   const project = projects.find((item) => item.id === projectId);
   const [items, setItems] = useState<BoqItem[]>([]);
+  const [variations, setVariations] = useState<Variation[]>([]);
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -37,7 +38,15 @@ export default function ProjectWorkspacePage() {
     });
   }, [profile, projectId]);
 
+  useEffect(() => {
+    if (!profile || !projectId) return;
+    return onSnapshot(collection(db, "companies", profile.companyId, "projects", projectId, "variations"), (snapshot) => {
+      setVariations(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Variation));
+    });
+  }, [profile, projectId]);
+
   const plannedValue = useMemo(() => items.reduce((total, item) => total + item.plannedQuantity * item.rate, 0), [items]);
+  const variationExposure = useMemo(() => variations.filter((item) => item.status !== "rejected").reduce((total, item) => total + item.estimatedValue, 0), [variations]);
 
   const update = (key: keyof BoqForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -59,6 +68,13 @@ export default function ProjectWorkspacePage() {
       setError("We could not save this BOQ item. Check that the latest Firestore rules have been published, then try again.");
     } finally { setSaving(false); }
   };
+  const updateVariation = async (variation: Variation, approved: boolean) => {
+    if (!profile || !user) return;
+    const rejectionReason = approved ? "" : window.prompt("Why is this variation being rejected?")?.trim();
+    if (!approved && !rejectionReason) return;
+    try { await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "variations", variation.id), approved ? { status: "approved", approvedBy: user.uid, approvedAt: serverTimestamp() } : { status: "rejected", rejectionReason, approvedBy: user.uid, approvedAt: serverTimestamp() }); }
+    catch { setError("We could not update this variation. Please try again."); }
+  };
 
   if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening project workspace…</main>;
   if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;
@@ -71,5 +87,6 @@ export default function ProjectWorkspacePage() {
     </section>
     <section className="boq-card"><div className="boq-header"><div><p className="eyebrow">Cost plan</p><h2>BOQ items</h2></div><p className="boq-total">Planned BOQ value<strong>{formatNaira(plannedValue)}</strong></p></div>{items.length === 0 ? <p className="boq-empty">No BOQ items yet. Start with the major contract work items, such as preliminaries, foundation, structure, finishes, or services.</p> : <div className="boq-list">{items.map((item) => <article className="boq-item" key={item.id}><div className="boq-item-top"><div><span className="boq-item-number">{item.section} · {item.itemNumber}</span><h3>{item.description}</h3></div><strong>{formatNaira(item.plannedQuantity * item.rate)}</strong></div><p className="boq-item-meta">{item.plannedQuantity.toLocaleString()} {item.unit} × {formatNaira(item.rate)} per {item.unit}</p></article>)}</div>}</section>
     </div>
+    <section className="variation-register"><div className="boq-header"><div><p className="eyebrow">Change control</p><h2>Variation register</h2></div><p className="boq-total">Open exposure<strong>{formatNaira(variationExposure)}</strong></p></div>{variations.length === 0 ? <p className="boq-empty">No variations have been raised for this project.</p> : <div className="variation-list">{variations.map((variation) => <article className="variation-row" key={variation.id}><div><span className={`variation-status ${variation.status}`}>{variation.status.replaceAll("_", " ")}</span><h3>{variation.description}</h3><p>{variation.reason}</p></div><div className="variation-actions"><strong>{formatNaira(variation.estimatedValue)}</strong>{variation.status === "pending_director_approval" && profile.role === "director" && <div><button type="button" onClick={() => void updateVariation(variation, true)}>Approve</button><button className="reject-button" type="button" onClick={() => void updateVariation(variation, false)}>Reject</button></div>}</div></article>)}</div>}</section>
   </div></main>;
 }

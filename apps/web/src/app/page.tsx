@@ -16,11 +16,10 @@ export default function Home() {
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
+  const [selectedStatus, setSelectedStatus] = useState("All statuses");
   const visibleProjects = useMemo(
-    () => selectedState === "All states"
-      ? projects
-      : projects.filter((project) => project.state === selectedState),
-    [projects, selectedState],
+    () => projects.filter((project) => (selectedState === "All states" || project.state === selectedState) && (selectedStatus === "All statuses" || project.status === selectedStatus)),
+    [projects, selectedState, selectedStatus],
   );
   const totalExposure = visibleProjects.reduce((total, project) => total + (activityByProject[project.id]?.variationExposure ?? 0), 0);
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
@@ -86,6 +85,12 @@ export default function Home() {
               <select value={selectedState} onChange={(event) => setSelectedState(event.target.value)}>
                 <option>All states</option>
                 {states.map((state) => <option key={state}>{state}</option>)}
+              </select>
+            </label>
+            <label className="state-filter">
+              <span>Project status</span>
+              <select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)}>
+                <option>All statuses</option><option value="active">Active</option><option value="on_hold">On hold</option><option value="completed">Completed</option>
               </select>
             </label>
             <Link className="primary-action" href="/projects/new">+ Add project</Link>

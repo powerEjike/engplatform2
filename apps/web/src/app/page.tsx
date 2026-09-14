@@ -12,7 +12,7 @@ export default function Home() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
-  const { progressByProject } = useProjectProgress(profile?.companyId, projects);
+  const { progressByProject, activityByProject } = useProjectProgress(profile?.companyId, projects);
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
@@ -22,10 +22,10 @@ export default function Home() {
       : projects.filter((project) => project.state === selectedState),
     [projects, selectedState],
   );
-  const totalExposure = 0;
+  const totalExposure = visibleProjects.reduce((total, project) => total + (activityByProject[project.id]?.variationExposure ?? 0), 0);
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
   const averageProgress = progressProjects.length === 0 ? 0 : Math.round(progressProjects.reduce((total, project) => total + (progressByProject[project.id]?.percentage ?? 0), 0) / progressProjects.length);
-  const reportsNeedingAttention = visibleProjects.length;
+  const reportsNeedingAttention = visibleProjects.filter((project) => !activityByProject[project.id]?.latestReportDate).length;
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -98,12 +98,13 @@ export default function Home() {
           {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
           {visibleProjects.map((project) => {
             const progress = Math.round(progressByProject[project.id]?.percentage ?? 0);
+            const activity = activityByProject[project.id];
             return <article className="project-row" key={project.id}>
               <div><Link className="project-name-link" href={`/projects/${project.id}`}><h3>{project.name}</h3></Link><p>{project.clientName} · {project.state}</p></div>
               <div className="progress-cell"><div className="progress-label"><span>{progress}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
-              <span className="status on_track">Setup</span>
-              <strong className="exposure">{formatNaira(0)}</strong>
-              <span className="report-date">No reports yet</span>
+              <span className="status on_track">{progressByProject[project.id]?.plannedValue ? "Live" : "Setup"}</span>
+              <strong className="exposure">{formatNaira(activity?.variationExposure ?? 0)}</strong>
+              <span className="report-date">{activity?.latestReportDate ? new Date(`${activity.latestReportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short" }) : "No reports yet"}</span>
             </article>;
           })}
         </section>

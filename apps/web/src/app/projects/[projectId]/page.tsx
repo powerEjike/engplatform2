@@ -1,0 +1,75 @@
+"use client";
+
+import Link from "next/link";
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import type { BoqItem } from "@engplatform2/shared-types";
+import { useAuth } from "@/components/auth-provider";
+import { db } from "@/lib/firebase";
+import { formatNaira } from "@/lib/dashboard-data";
+import { useProjects } from "@/hooks/use-projects";
+
+type BoqForm = { itemNumber: string; description: string; section: string; unit: string; plannedQuantity: string; rate: string };
+const initialForm: BoqForm = { itemNumber: "", description: "", section: "", unit: "", plannedQuantity: "", rate: "" };
+
+export default function ProjectWorkspacePage() {
+  const params = useParams<{ projectId: string }>();
+  const projectId = params.projectId;
+  const router = useRouter();
+  const { user, profile, isLoading, isProfileLoading } = useAuth();
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const project = projects.find((item) => item.id === projectId);
+  const [items, setItems] = useState<BoqItem[]>([]);
+  const [form, setForm] = useState<BoqForm>(initialForm);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/login");
+    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+  }, [isLoading, isProfileLoading, profile, router, user]);
+
+  useEffect(() => {
+    if (!profile || !projectId) return;
+    return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => {
+      setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem));
+    });
+  }, [profile, projectId]);
+
+  const plannedValue = useMemo(() => items.reduce((total, item) => total + item.plannedQuantity * item.rate, 0), [items]);
+
+  const update = (key: keyof BoqForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!profile || !user) return;
+    const plannedQuantity = Number(form.plannedQuantity);
+    const rate = Number(form.rate);
+    if (!form.itemNumber.trim() || !form.description.trim() || !form.unit.trim() || !Number.isFinite(plannedQuantity) || plannedQuantity <= 0 || !Number.isFinite(rate) || rate < 0) {
+      setError("Enter an item number, description, unit, planned quantity, and rate.");
+      return;
+    }
+    setSaving(true); setError("");
+    try {
+      await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), {
+        itemNumber: form.itemNumber.trim(), description: form.description.trim(), section: form.section.trim() || "General", unit: form.unit.trim(), plannedQuantity, rate, cumulativeQuantityCompleted: 0, createdAt: serverTimestamp(), createdBy: user.uid,
+      });
+      setForm(initialForm);
+    } catch {
+      setError("We could not save this BOQ item. Check that the latest Firestore rules have been published, then try again.");
+    } finally { setSaving(false); }
+  };
+
+  if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening project workspace…</main>;
+  if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;
+
+  return <main className="project-workspace"><div className="workspace-content">
+    <Link className="back-link" href="/">← Back to portfolio</Link>
+    <div className="project-title-row"><div><p className="eyebrow">Project BOQ</p><h1>{project.name}</h1><p>{project.clientName} · {project.location}, {project.state}</p></div><div className="contract-summary"><span>Contract sum</span><strong>{formatNaira(project.contractSum)}</strong></div></div>
+    <div className="boq-layout"><section className="boq-card"><p className="eyebrow">Add cost item</p><h2>Build your BOQ</h2><p>Add the contract quantities and agreed rates. The platform will use these items for site progress and valuations.</p>
+      <form className="boq-form" onSubmit={submit}><label>Item number<input value={form.itemNumber} onChange={(event) => update("itemNumber", event.target.value)} placeholder="e.g. 1.01" required /></label><label>Description<input value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="e.g. Excavation for foundation" required /></label><label>Section (optional)<input value={form.section} onChange={(event) => update("section", event.target.value)} placeholder="e.g. Substructure" /></label><div className="boq-number-fields"><label>Unit<input value={form.unit} onChange={(event) => update("unit", event.target.value)} placeholder="m³, m², No." required /></label><label>Planned quantity<input inputMode="decimal" value={form.plannedQuantity} onChange={(event) => update("plannedQuantity", event.target.value)} placeholder="0" required /></label></div><label>Rate per unit (₦)<input inputMode="decimal" value={form.rate} onChange={(event) => update("rate", event.target.value)} placeholder="0" required /></label>{error && <p className="form-error">{error}</p>}<button disabled={saving}>{saving ? "Saving item…" : "Add BOQ item"}</button></form>
+    </section>
+    <section className="boq-card"><div className="boq-header"><div><p className="eyebrow">Cost plan</p><h2>BOQ items</h2></div><p className="boq-total">Planned BOQ value<strong>{formatNaira(plannedValue)}</strong></p></div>{items.length === 0 ? <p className="boq-empty">No BOQ items yet. Start with the major contract work items, such as preliminaries, foundation, structure, finishes, or services.</p> : <div className="boq-list">{items.map((item) => <article className="boq-item" key={item.id}><div className="boq-item-top"><div><span className="boq-item-number">{item.section} · {item.itemNumber}</span><h3>{item.description}</h3></div><strong>{formatNaira(item.plannedQuantity * item.rate)}</strong></div><p className="boq-item-meta">{item.plannedQuantity.toLocaleString()} {item.unit} × {formatNaira(item.rate)} per {item.unit}</p></article>)}</div>}</section>
+    </div>
+  </div></main>;
+}

@@ -55,6 +55,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .project-table-head { background: #f8faf8; color: #789084; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
 .project-row { border-top: 1px solid #edf1ee; }
 .project-row h3 { color: #1b4030; font-size: 0.94rem; margin-bottom: 5px; }
+.project-name-link h3 { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 160ms ease; }
+.project-name-link:hover h3 { text-decoration-color: currentColor; }
 .project-row p, .report-date { color: #71857a; font-size: 0.79rem; margin: 0; }
 .progress-label { color: #386150; font-size: 0.8rem; font-weight: 800; margin-bottom: 7px; }
 .progress-track { background: #e5eee8; border-radius: 99px; height: 7px; overflow: hidden; }
@@ -91,4 +93,34 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .project-form-card { max-width: 620px; }
 .date-fields { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
 .form-error { background: #fde9e6; border-radius: 7px; color: #9b3f33; font-size: 0.86rem; line-height: 1.4; margin: -5px 0 0; padding: 10px; }
+.project-workspace { background: #f3f6f3; min-height: 100vh; padding: 38px 24px 70px; }
+.workspace-content { margin: 0 auto; max-width: 1040px; }
+.back-link { color: #3f7257; display: inline-block; font-size: 0.88rem; font-weight: 800; margin-bottom: 26px; }
+.project-title-row { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 26px; }
+.project-title-row h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 9px; }
+.project-title-row p:last-child { color: #658074; margin: 0; }
+.contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }
+.contract-summary span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
+.contract-summary strong { font-size: 1.1rem; }
+.boq-layout { display: grid; gap: 22px; grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.45fr); }
+.boq-card { background: white; border: 1px solid #dfe8e1; border-radius: 14px; padding: 26px; }
+.boq-card h2 { font-size: 1.25rem; margin-bottom: 8px; }
+.boq-card > p { color: #678075; font-size: 0.88rem; line-height: 1.5; }
+.boq-form { display: grid; gap: 14px; margin-top: 22px; }
+.boq-form label { color: #315342; display: grid; font-size: 0.8rem; font-weight: 800; gap: 7px; }
+.boq-form input, .boq-form select { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
+.boq-form button { margin-top: 4px; }
+.boq-number-fields { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.boq-header { align-items: flex-start; display: flex; gap: 16px; justify-content: space-between; }
+.boq-total { color: #477160; font-size: 0.82rem; font-weight: 800; text-align: right; }
+.boq-total strong { color: #1d4a33; display: block; font-size: 1.1rem; margin-top: 4px; }
+.boq-list { display: grid; gap: 10px; margin-top: 20px; }
+.boq-item { border: 1px solid #e2ebe5; border-radius: 10px; padding: 15px; }
+.boq-item-top { align-items: flex-start; display: flex; gap: 12px; justify-content: space-between; }
+.boq-item-number { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.boq-item h3 { color: #1c4631; font-size: 0.95rem; line-height: 1.4; margin: 5px 0 0; }
+.boq-item strong { color: #24543b; font-size: 0.88rem; white-space: nowrap; }
+.boq-item-meta { color: #6b8377; font-size: 0.8rem; margin: 12px 0 0; }
+.boq-empty { background: #f7faf8; border: 1px dashed #c9d9cf; border-radius: 10px; color: #648074; font-size: 0.9rem; line-height: 1.5; margin: 20px 0 0; padding: 22px; }
+@media (max-width: 760px) { .project-workspace { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .contract-summary { margin-top: 18px; } .boq-card + .boq-card { margin-top: 18px; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

@@ -27,7 +27,10 @@ service cloud.firestore {
       match /projects/{projectId} {
         allow read: if isMember(companyId);
         allow create, update: if isDirector(companyId);
-        match /{subcollection}/{documentId} { allow read: if isMember(companyId); }
+        match /{subcollection}/{documentId} {
+          allow read: if isMember(companyId);
+          allow create, update: if isDirector(companyId);
+        }
       }
     }
   }

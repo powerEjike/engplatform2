@@ -11,6 +11,7 @@ export default function Home() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
+  const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
   const visibleProjects = useMemo(
@@ -95,7 +96,7 @@ export default function Home() {
           {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
           {visibleProjects.map((project) => (
             <article className="project-row" key={project.id}>
-              <div><h3>{project.name}</h3><p>{project.clientName} · {project.state}</p></div>
+              <div><Link className="project-name-link" href={`/projects/${project.id}`}><h3>{project.name}</h3></Link><p>{project.clientName} · {project.state}</p></div>
               <div className="progress-cell"><div className="progress-label"><span>0%</span></div><div className="progress-track"><span style={{ width: "0%" }} /></div></div>
               <span className="status on_track">Setup</span>
               <strong className="exposure">{formatNaira(0)}</strong>
@@ -110,7 +111,7 @@ export default function Home() {
             <h2>{projects.length === 0 ? "Create your first project" : "Set up your project BOQ next"}</h2>
             <p>{projects.length === 0 ? "Add a project to begin tracking work, reports, variations, and valuations." : "Import BOQ items so the platform can calculate real progress."}</p>
           </div>
-          <Link className="secondary" href={projects.length === 0 ? "/projects/new" : "#projects"}>{projects.length === 0 ? "Add project" : "View projects"}</Link>
+          <Link className="secondary" href={firstProjectId ? `/projects/${firstProjectId}` : "/projects/new"}>{firstProjectId ? "Set up BOQ" : "Add project"}</Link>
         </section>
       </main>
     </div>

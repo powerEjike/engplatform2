@@ -61,8 +61,10 @@ export default function Home() {
             <p className="eyebrow">Portfolio overview</p>
             <h1>Good morning, {profile.name.split(" ")[0]}.</h1>
           </div>
-          <div className="profile"><span className="avatar">{user.email?.slice(0, 2).toUpperCase() ?? "U"}</span><span>{profile.role.replace("_", " ")}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
+          <div className="profile"><span className="avatar">{profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span><span className="role-label">Role: {profile.role.replace("_", " ")}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
         </header>
+
+        <section className="role-banner"><div><p className="eyebrow">Signed-in workspace</p><h2>{profile.role.replaceAll("_", " ")}</h2><p>{profile.role === "director" ? "Portfolio oversight, team governance, final approvals, and company control." : profile.role === "project_manager" ? "Project delivery, issues, project updates, and variation decisions." : "Your access is tailored to your assigned project responsibilities."}</p></div><span>{profile.companyName}</span></section>
 
         <section className="summary-grid" aria-label="Portfolio summary">
           <article className="metric-card">

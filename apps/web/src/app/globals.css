@@ -104,6 +104,12 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }
 .contract-summary span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
 .contract-summary strong { font-size: 1.1rem; }
+.budget-summary { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); margin: 0 0 22px; }
+.budget-summary article { background: white; border: 1px solid #dfe8e1; border-radius: 11px; padding: 15px; }
+.budget-summary span { color: #668074; display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 6px; text-transform: uppercase; }
+.budget-summary strong { color: #224c37; font-size: 1.05rem; }
+.budget-summary .budget-overrun { background: #fff7f5; border-color: #edc4bd; }
+.budget-summary .budget-overrun strong { color: #a44a3c; }
 .boq-layout { display: grid; gap: 22px; grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.45fr); }
 .boq-card { background: white; border: 1px solid #dfe8e1; border-radius: 14px; padding: 26px; }
 .boq-card h2 { font-size: 1.25rem; margin-bottom: 8px; }
@@ -189,6 +195,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .valuation-row strong { color: #294f3c; font-size: 0.9rem; }
 .valuation-row .valuation-due strong { color: #177044; font-size: 1rem; }
 @media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
+@media (max-width: 650px) { .budget-summary { grid-template-columns: 1fr; } }
 @media (max-width: 650px) { .valuation-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 650px) { .report-history-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

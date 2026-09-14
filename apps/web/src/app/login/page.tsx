@@ -2,9 +2,10 @@
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { useAuth } from "@/components/auth-provider";
 
 const friendlyError = (code: string) => {
   if (code === "auth/invalid-credential") return "That email address or password is not correct.";
@@ -15,10 +16,15 @@ const friendlyError = (code: string) => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user) router.replace("/");
+  }, [router, user]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

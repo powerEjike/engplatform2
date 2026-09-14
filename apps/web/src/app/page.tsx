@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatNaira, portfolioProjects, type ProjectHealth } from "@/lib/dashboard-data";
+import { useAuth } from "@/components/auth-provider";
 
 const scheduleLabel: Record<ProjectHealth, string> = {
   on_track: "On track",
@@ -10,6 +12,8 @@ const scheduleLabel: Record<ProjectHealth, string> = {
 };
 
 export default function Home() {
+  const router = useRouter();
+  const { user, isLoading, signOutUser } = useAuth();
   const states = [...new Set(portfolioProjects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
   const visibleProjects = useMemo(
@@ -27,6 +31,12 @@ export default function Home() {
     (project) => project.lastReport.includes("days"),
   ).length;
   const attentionProject = visibleProjects.find((project) => project.lastReport.includes("days"));
+
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/login");
+  }, [isLoading, router, user]);
+
+  if (isLoading || !user) return <main className="auth-loading">Checking your secure workspace…</main>;
 
   return (
     <div className="app-shell">
@@ -54,7 +64,7 @@ export default function Home() {
             <p className="eyebrow">Portfolio overview</p>
             <h1>Good morning, Ejike.</h1>
           </div>
-        <a className="profile" href="/login"><span className="avatar">PE</span><span>Director</span></a>
+        <div className="profile"><span className="avatar">{user.email?.slice(0, 2).toUpperCase() ?? "U"}</span><span>{user.email ?? "Signed in"}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
         </header>
 
         <section className="summary-grid" aria-label="Portfolio summary">

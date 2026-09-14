@@ -29,3 +29,9 @@ Install Node.js, then initialise the Next.js web dashboard and Expo mobile app.
 - Added the Firebase web connection module using local environment variables.
 - Added an Email/Password sign-in screen using Firebase Authentication.
 - The next step is to create the first Director account and enforce authenticated access to the dashboard.
+
+## 2026-09-14 — Protected dashboard access
+
+- Added a shared Firebase Authentication provider for the web dashboard.
+- Unauthenticated visitors are redirected to the sign-in page.
+- Added authenticated-user display and sign-out functionality.

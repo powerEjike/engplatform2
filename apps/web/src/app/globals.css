@@ -25,6 +25,8 @@ h1 { color: #123d29; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.055em
 h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom: 0; }
 .profile { align-items: center; color: #426052; display: flex; font-size: 0.9rem; font-weight: 700; gap: 9px; }
 .avatar { align-items: center; background: #d6eddf; border-radius: 50%; color: #145c3b; display: inline-flex; font-size: 0.72rem; height: 36px; justify-content: center; width: 36px; }
+.sign-out { background: transparent; border: 0; color: #477060; font-size: 0.78rem; padding: 4px; text-decoration: underline; }
+.auth-loading { align-items: center; color: #416453; display: flex; justify-content: center; min-height: 100vh; }
 
 .summary-grid { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); }
 .metric-card { background: white; border: 1px solid #dfe8e1; border-radius: 13px; min-height: 145px; padding: 21px; }

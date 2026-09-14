@@ -98,6 +98,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .back-link { color: #3f7257; display: inline-block; font-size: 0.88rem; font-weight: 800; margin-bottom: 26px; }
 .project-title-row { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 26px; }
 .project-title-actions { align-items: flex-end; display: flex; flex-direction: column; gap: 12px; }
+.compact-action { border-radius: 9px; font-size: 0.86rem; font-weight: 800; padding: 10px 14px; }
 .project-title-row h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 9px; }
 .project-title-row p:last-child { color: #658074; margin: 0; }
 .contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }
@@ -145,5 +146,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-issue-field textarea { min-height: 92px; resize: vertical; }
 .report-submit-row { align-items: center; display: flex; gap: 16px; justify-content: space-between; }
 .report-submit-row p { margin: 0; }
+.variation-value { background: #edf7f0; border: 1px solid #c4e4cf; border-radius: 10px; color: #28573f; padding: 14px; }
+.variation-value span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
+.variation-value strong { font-size: 1.3rem; }
 @media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

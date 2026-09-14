@@ -108,6 +108,22 @@ export interface Variation {
   supportingPhotoIds: string[];
 }
 
+export interface Valuation {
+  id: string;
+  projectId: string;
+  certificateNumber: string;
+  valuationDate: string;
+  completedBoqValue: number;
+  approvedVariationValue: number;
+  grossValue: number;
+  retentionRate: number;
+  retentionAmount: number;
+  netAmountDue: number;
+  status: "draft" | "issued";
+  createdBy: string;
+  createdAt: string;
+}
+
 export interface ValidationIssue {
   field: string;
   message: string;

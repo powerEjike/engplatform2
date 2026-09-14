@@ -163,5 +163,11 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .variation-actions div { display: flex; gap: 7px; }
 .variation-actions button { font-size: 0.78rem; padding: 8px 10px; }
 .variation-actions .reject-button { background: #fff; border: 1px solid #d4978d; color: #994235; }
+.valuation-breakdown { background: #f7faf8; border: 1px solid #dce8e0; border-radius: 10px; display: grid; gap: 0; overflow: hidden; }
+.valuation-breakdown p { align-items: center; border-bottom: 1px solid #e2ebe5; color: #587264; display: flex; font-size: 0.88rem; justify-content: space-between; margin: 0; padding: 13px 15px; }
+.valuation-breakdown p:last-child { border-bottom: 0; }
+.valuation-breakdown strong { color: #244e39; }
+.valuation-breakdown .valuation-net { background: #e4f2e9; color: #1d5638; font-size: 1rem; font-weight: 800; }
+.valuation-breakdown .valuation-net strong { font-size: 1.15rem; }
 @media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

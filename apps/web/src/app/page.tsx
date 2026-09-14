@@ -98,11 +98,12 @@ export default function Home() {
           {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
           {visibleProjects.map((project) => {
             const progress = Math.round(progressByProject[project.id]?.percentage ?? 0);
+            const scheduleHealth = progressByProject[project.id]?.scheduleHealth ?? "on_track";
             const activity = activityByProject[project.id];
             return <article className="project-row" key={project.id}>
               <div><Link className="project-name-link" href={`/projects/${project.id}`}><h3>{project.name}</h3></Link><p>{project.clientName} · {project.state}</p></div>
               <div className="progress-cell"><div className="progress-label"><span>{progress}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
-              <span className="status on_track">{progressByProject[project.id]?.plannedValue ? "Live" : "Setup"}</span>
+              <span className={`status ${scheduleHealth}`}>{progressByProject[project.id]?.plannedValue ? scheduleHealth.replace("_", " ") : "Setup"}</span>
               <strong className="exposure">{formatNaira(activity?.variationExposure ?? 0)}</strong>
               <span className="report-date">{activity?.latestReportDate ? new Date(`${activity.latestReportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short" }) : "No reports yet"}</span>
             </article>;

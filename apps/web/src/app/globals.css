@@ -150,6 +150,14 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .variation-value span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
 .variation-value strong { font-size: 1.3rem; }
 .variation-register { background: white; border: 1px solid #dfe8e1; border-radius: 14px; margin-top: 22px; padding: 26px; }
+.report-register { background: white; border: 1px solid #dfe8e1; border-radius: 14px; margin-top: 22px; padding: 26px; }
+.report-history { display: grid; gap: 10px; margin-top: 20px; }
+.report-history-row { align-items: center; border: 1px solid #e2ebe5; border-radius: 10px; display: grid; gap: 16px; grid-template-columns: 1.3fr 0.6fr 0.6fr 1.4fr; padding: 16px; }
+.report-history-date { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.report-history-row h3 { color: #1d4833; font-size: 0.93rem; margin: 6px 0 0; }
+.report-history-row p { color: #688176; display: grid; font-size: 0.74rem; gap: 4px; margin: 0; }
+.report-history-row strong { color: #294f3c; font-size: 0.9rem; }
+.report-history-note { font-size: 0.82rem !important; line-height: 1.4; }
 .variation-list { display: grid; gap: 10px; margin-top: 20px; }
 .variation-row { align-items: flex-start; border: 1px solid #e2ebe5; border-radius: 10px; display: flex; gap: 20px; justify-content: space-between; padding: 16px; }
 .variation-row h3 { color: #1d4833; font-size: 0.95rem; margin: 8px 0 6px; }
@@ -179,4 +187,5 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .valuation-row .valuation-due strong { color: #177044; font-size: 1rem; }
 @media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
 @media (max-width: 650px) { .valuation-row { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 650px) { .report-history-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }

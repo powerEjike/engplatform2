@@ -4,7 +4,7 @@ import Link from "next/link";
 import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from "firebase/firestore";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { BoqItem, Valuation, Variation } from "@engplatform2/shared-types";
+import type { BoqItem, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { formatNaira } from "@/lib/dashboard-data";
@@ -23,6 +23,7 @@ export default function ProjectWorkspacePage() {
   const [items, setItems] = useState<BoqItem[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [valuations, setValuations] = useState<Valuation[]>([]);
+  const [reports, setReports] = useState<SiteReport[]>([]);
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -36,6 +37,13 @@ export default function ProjectWorkspacePage() {
     if (!profile || !projectId) return;
     return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => {
       setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem));
+    });
+  }, [profile, projectId]);
+
+  useEffect(() => {
+    if (!profile || !projectId) return;
+    return onSnapshot(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports"), (snapshot) => {
+      setReports(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as SiteReport).sort((left, right) => right.reportDate.localeCompare(left.reportDate)));
     });
   }, [profile, projectId]);
 
@@ -95,6 +103,7 @@ export default function ProjectWorkspacePage() {
     </section>
     <section className="boq-card"><div className="boq-header"><div><p className="eyebrow">Cost plan</p><h2>BOQ items</h2></div><p className="boq-total">Planned BOQ value<strong>{formatNaira(plannedValue)}</strong></p></div>{items.length === 0 ? <p className="boq-empty">No BOQ items yet. Start with the major contract work items, such as preliminaries, foundation, structure, finishes, or services.</p> : <div className="boq-list">{items.map((item) => <article className="boq-item" key={item.id}><div className="boq-item-top"><div><span className="boq-item-number">{item.section} · {item.itemNumber}</span><h3>{item.description}</h3></div><strong>{formatNaira(item.plannedQuantity * item.rate)}</strong></div><p className="boq-item-meta">{item.plannedQuantity.toLocaleString()} {item.unit} × {formatNaira(item.rate)} per {item.unit}</p></article>)}</div>}</section>
     </div>
+    <section className="report-register"><div className="boq-header"><div><p className="eyebrow">Site activity</p><h2>Daily reports</h2></div><Link className="secondary compact-action" href={`/projects/${projectId}/reports/new`}>Add report</Link></div>{reports.length === 0 ? <p className="boq-empty">No daily reports have been submitted for this project.</p> : <div className="report-history">{reports.map((report) => <article className="report-history-row" key={report.id}><div><span className="report-history-date">{new Date(`${report.reportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span><h3>{report.lineItems.length} BOQ item{report.lineItems.length === 1 ? "" : "s"} updated</h3></div><p><span>Labour</span><strong>{report.labourCount}</strong></p><p><span>Issues</span><strong>{report.issues.length}</strong></p><p className="report-history-note">{report.issues[0]?.note ?? "No issues recorded"}</p></article>)}</div>}</section>
     <section className="variation-register"><div className="boq-header"><div><p className="eyebrow">Change control</p><h2>Variation register</h2></div><p className="boq-total">Open exposure<strong>{formatNaira(variationExposure)}</strong></p></div>{variations.length === 0 ? <p className="boq-empty">No variations have been raised for this project.</p> : <div className="variation-list">{variations.map((variation) => <article className="variation-row" key={variation.id}><div><span className={`variation-status ${variation.status}`}>{variation.status.replaceAll("_", " ")}</span><h3>{variation.description}</h3><p>{variation.reason}</p></div><div className="variation-actions"><strong>{formatNaira(variation.estimatedValue)}</strong>{variation.status === "pending_director_approval" && profile.role === "director" && <div><button type="button" onClick={() => void updateVariation(variation, true)}>Approve</button><button className="reject-button" type="button" onClick={() => void updateVariation(variation, false)}>Reject</button></div>}</div></article>)}</div>}</section>
     <section className="valuation-register"><div className="boq-header"><div><p className="eyebrow">Payment certificates</p><h2>Valuation register</h2></div><Link className="secondary compact-action" href={`/projects/${projectId}/valuations/new`}>Create valuation</Link></div>{valuations.length === 0 ? <p className="boq-empty">No payment certificates have been issued for this project.</p> : <div className="valuation-list">{valuations.map((valuation) => <article className="valuation-row" key={valuation.id}><div><span className="valuation-certificate">{valuation.certificateNumber}</span><h3>{new Date(`${valuation.valuationDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</h3></div><p><span>Gross value</span><strong>{formatNaira(valuation.grossValue)}</strong></p><p><span>Retention</span><strong>{formatNaira(valuation.retentionAmount)}</strong></p><p className="valuation-due"><span>Net due</span><strong>{formatNaira(valuation.netAmountDue)}</strong></p></article>)}</div>}</section>
   </div></main>;

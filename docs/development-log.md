@@ -35,3 +35,8 @@ Install Node.js, then initialise the Next.js web dashboard and Expo mobile app.
 - Added a shared Firebase Authentication provider for the web dashboard.
 - Unauthenticated visitors are redirected to the sign-in page.
 - Added authenticated-user display and sign-out functionality.
+
+## 2026-09-14 — Company onboarding foundation
+
+- Added a first-time Director workflow that creates a company and its initial user profile.
+- Added initial Firestore security rules, including safe Director-company bootstrap.

@@ -13,7 +13,7 @@ const scheduleLabel: Record<ProjectHealth, string> = {
 
 export default function Home() {
   const router = useRouter();
-  const { user, isLoading, signOutUser } = useAuth();
+  const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const states = [...new Set(portfolioProjects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
   const visibleProjects = useMemo(
@@ -34,9 +34,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-  }, [isLoading, router, user]);
+    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+  }, [isLoading, isProfileLoading, profile, router, user]);
 
-  if (isLoading || !user) return <main className="auth-loading">Checking your secure workspace…</main>;
+  if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Checking your secure workspace…</main>;
 
   return (
     <div className="app-shell">
@@ -62,9 +63,9 @@ export default function Home() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Portfolio overview</p>
-            <h1>Good morning, Ejike.</h1>
+            <h1>Good morning, {profile.name.split(" ")[0]}.</h1>
           </div>
-        <div className="profile"><span className="avatar">{user.email?.slice(0, 2).toUpperCase() ?? "U"}</span><span>{user.email ?? "Signed in"}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
+          <div className="profile"><span className="avatar">{user.email?.slice(0, 2).toUpperCase() ?? "U"}</span><span>{profile.role.replace("_", " ")}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
         </header>
 
         <section className="summary-grid" aria-label="Portfolio summary">

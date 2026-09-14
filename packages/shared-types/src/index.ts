@@ -16,6 +16,7 @@ export interface Company {
   name: string;
   subscriptionTier: string;
   active: boolean;
+  ownerId: string;
   createdAt: string;
 }
 

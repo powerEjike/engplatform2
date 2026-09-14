@@ -27,6 +27,13 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .avatar { align-items: center; background: #d6eddf; border-radius: 50%; color: #145c3b; display: inline-flex; font-size: 0.72rem; height: 36px; justify-content: center; width: 36px; }
 .sign-out { background: transparent; border: 0; color: #477060; font-size: 0.78rem; padding: 4px; text-decoration: underline; }
 .auth-loading { align-items: center; color: #416453; display: flex; justify-content: center; min-height: 100vh; }
+.onboarding-page { align-items: center; background: #f3f6f3; display: flex; justify-content: center; min-height: 100vh; padding: 24px; }
+.onboarding-card { background: white; border: 1px solid #dfe8e1; border-radius: 16px; max-width: 500px; padding: 40px; width: 100%; }
+.onboarding-card h1 { font-size: 2rem; margin-bottom: 12px; }
+.onboarding-card > p:not(.eyebrow) { color: #658074; line-height: 1.55; }
+.onboarding-card form { display: grid; gap: 18px; margin-top: 30px; }
+.onboarding-card label { color: #315342; display: grid; font-size: 0.84rem; font-weight: 800; gap: 8px; }
+.onboarding-card input { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 12px; }
 
 .summary-grid { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); }
 .metric-card { background: white; border: 1px solid #dfe8e1; border-radius: 13px; min-height: 145px; padding: 21px; }

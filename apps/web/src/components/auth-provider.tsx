@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 
-type UserProfile = { companyId: string; name: string; role: string };
+type UserProfile = { companyId: string; companyName: string; name: string; role: string };
 type AuthContextValue = {
   user: User | null;
   isLoading: boolean;
@@ -41,7 +41,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
       if (!index.exists()) return setProfile(null);
       const companyId = String(index.data().companyId);
       const profileDocument = await getDoc(doc(db, "companies", companyId, "users", user.uid));
-      setProfile(profileDocument.exists() ? { companyId, name: String(profileDocument.data().name ?? user.email ?? "User"), role: String(profileDocument.data().role ?? "") } : null);
+      const companyDocument = await getDoc(doc(db, "companies", companyId));
+      setProfile(profileDocument.exists() ? { companyId, companyName: String(companyDocument.data()?.name ?? "Your company"), name: String(profileDocument.data().name ?? user.email ?? "User"), role: String(profileDocument.data().role ?? "") } : null);
     } catch {
       setProfile(null);
     } finally {

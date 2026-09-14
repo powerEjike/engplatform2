@@ -48,7 +48,7 @@ export default function Home() {
           <a className="nav-link" href="#team">Team</a>
         </nav>
         <div className="sidebar-footer">
-          <p className="firm-name">Power Engineering Ltd.</p>
+          <p className="firm-name">{profile.companyName}</p>
           <a className="settings-link" href="#settings">Company settings</a>
         </div>
       </aside>

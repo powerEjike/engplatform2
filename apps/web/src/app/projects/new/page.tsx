@@ -6,7 +6,7 @@ import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 
-const states = ["FCT Abuja", "Kaduna", "Kano", "Lagos", "Ogun", "Oyo", "Rivers", "Other"];
+const states = ["Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT Abuja", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"];
 
 export default function NewProjectPage() {
   const router = useRouter(); const { user, profile } = useAuth();

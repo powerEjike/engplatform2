@@ -4,33 +4,30 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function userDoc(companyId) { return /databases/$(database)/documents/companies/$(companyId)/users/$(request.auth.uid); }
     function isMember(companyId) { return signedIn() && exists(userDoc(companyId)); }
-    function isDirector(companyId) { return isMember(companyId) && get(userDoc(companyId)).data.role == "director"; }
+    function role(companyId) { return get(userDoc(companyId)).data.role; }
+    function isDirector(companyId) { return isMember(companyId) && role(companyId) == "director"; }
+    function isProjectManager(companyId) { return isMember(companyId) && role(companyId) == "project_manager"; }
+    function isQs(companyId) { return isMember(companyId) && role(companyId) == "quantity_surveyor"; }
+    function isSiteEngineer(companyId) { return isMember(companyId) && role(companyId) == "site_engineer"; }
+    function canReport(companyId) { return isSiteEngineer(companyId) || isProjectManager(companyId) || isDirector(companyId); }
 
-    match /userIndex/{userId} {
-      allow read: if signedIn() && request.auth.uid == userId;
-      allow create: if signedIn() && request.auth.uid == userId;
-    }
-
+    match /userIndex/{userId} { allow read, create: if signedIn() && request.auth.uid == userId; }
     match /companies/{companyId} {
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
       allow read: if isMember(companyId);
       allow update: if isDirector(companyId);
-
-      match /users/{userId} {
-        allow read: if isMember(companyId) || (signedIn() && request.auth.uid == userId);
-        allow create: if signedIn() && request.auth.uid == userId &&
-          request.resource.data.role == "director" &&
-          get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid;
-        allow update: if isDirector(companyId) || (signedIn() && request.auth.uid == userId);
-      }
-
+      match /users/{userId} { allow read: if isMember(companyId); allow update: if isDirector(companyId); }
       match /projects/{projectId} {
         allow read: if isMember(companyId);
-        allow create, update: if isDirector(companyId);
-        match /{subcollection}/{documentId} {
+        allow create, update: if isDirector(companyId) || isProjectManager(companyId);
+        match /boqItems/{itemId} {
           allow read: if isMember(companyId);
-          allow create, update: if isDirector(companyId);
+          allow create: if isDirector(companyId) || isQs(companyId);
+          allow update: if isDirector(companyId) || isQs(companyId) || (canReport(companyId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
         }
+        match /siteReports/{reportId} { allow read: if isMember(companyId); allow create: if canReport(companyId); }
+        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isSiteEngineer(companyId) || isProjectManager(companyId) || isDirector(companyId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
+        match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }
       }
     }
   }

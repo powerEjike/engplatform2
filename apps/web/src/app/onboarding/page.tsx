@@ -41,6 +41,7 @@ export default function OnboardingPage() {
         active: true,
         createdAt: serverTimestamp(),
       });
+      await setDoc(doc(db, "userIndex", user.uid), { companyId: company.id, createdAt: serverTimestamp() });
       await refreshProfile();
       router.replace("/");
     } catch {

@@ -1,7 +1,7 @@
 "use client";
 
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { collectionGroup, documentId, getDocs, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
@@ -37,14 +37,11 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
     }
     setIsProfileLoading(true);
     try {
-      const profileQuery = query(collectionGroup(db, "users"), where(documentId(), "==", user.uid));
-      const result = await getDocs(profileQuery);
-      const profileDocument = result.docs[0];
-      setProfile(profileDocument ? {
-        companyId: String(profileDocument.data().companyId ?? profileDocument.ref.parent.parent?.id),
-        name: String(profileDocument.data().name ?? user.email ?? "User"),
-        role: String(profileDocument.data().role ?? ""),
-      } : null);
+      const index = await getDoc(doc(db, "userIndex", user.uid));
+      if (!index.exists()) return setProfile(null);
+      const companyId = String(index.data().companyId);
+      const profileDocument = await getDoc(doc(db, "companies", companyId, "users", user.uid));
+      setProfile(profileDocument.exists() ? { companyId, name: String(profileDocument.data().name ?? user.email ?? "User"), role: String(profileDocument.data().role ?? "") } : null);
     } catch {
       setProfile(null);
     } finally {

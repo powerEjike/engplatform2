@@ -1,36 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { formatNaira, portfolioProjects, type ProjectHealth } from "@/lib/dashboard-data";
+import { formatNaira } from "@/lib/dashboard-data";
 import { useAuth } from "@/components/auth-provider";
-
-const scheduleLabel: Record<ProjectHealth, string> = {
-  on_track: "On track",
-  attention: "Needs attention",
-  behind: "Behind schedule",
-};
+import { useProjects } from "@/hooks/use-projects";
 
 export default function Home() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
-  const states = [...new Set(portfolioProjects.map((project) => project.state))];
+  const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
+  const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
   const visibleProjects = useMemo(
     () => selectedState === "All states"
-      ? portfolioProjects
-      : portfolioProjects.filter((project) => project.state === selectedState),
-    [selectedState],
+      ? projects
+      : projects.filter((project) => project.state === selectedState),
+    [projects, selectedState],
   );
   const totalExposure = visibleProjects.reduce(
-    (total, project) => total + project.variationExposure, 0);
-  const averageProgress = Math.round(
-    visibleProjects.reduce((total, project) => total + project.progress, 0) / visibleProjects.length,
-  );
-  const reportsNeedingAttention = visibleProjects.filter(
-    (project) => project.lastReport.includes("days"),
-  ).length;
-  const attentionProject = visibleProjects.find((project) => project.lastReport.includes("days"));
+    (total) => total, 0);
+  const averageProgress = 0;
+  const reportsNeedingAttention = visibleProjects.length;
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -73,13 +65,13 @@ export default function Home() {
             <p>Active projects</p><strong>{visibleProjects.length}</strong><span>{selectedState === "All states" ? "Across all states" : `In ${selectedState}`}</span>
           </article>
           <article className="metric-card">
-            <p>Portfolio progress</p><strong>{averageProgress}%</strong><span>Value-weighted target: coming soon</span>
+            <p>Portfolio progress</p><strong>{averageProgress}%</strong><span>Available after BOQ setup</span>
           </article>
           <article className="metric-card highlight">
-            <p>Variation exposure</p><strong>{formatNaira(totalExposure)}</strong><span>3 pending decisions</span>
+            <p>Variation exposure</p><strong>{formatNaira(totalExposure)}</strong><span>Available after variations are raised</span>
           </article>
           <article className="metric-card warning">
-            <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Not submitted in 3+ days</span>
+            <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Projects with no site report yet</span>
           </article>
         </section>
 
@@ -93,19 +85,21 @@ export default function Home() {
                 {states.map((state) => <option key={state}>{state}</option>)}
               </select>
             </label>
-            <button type="button">+ Add project</button>
+            <Link className="primary-action" href="/projects/new">+ Add project</Link>
           </div>
         </section>
 
         <section className="project-table" id="projects" aria-label="Active projects">
           <div className="project-table-head"><span>Project</span><span>Progress</span><span>Schedule</span><span>Variation exposure</span><span>Latest report</span></div>
+          {areProjectsLoading && <p className="empty-state">Loading your projects…</p>}
+          {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
           {visibleProjects.map((project) => (
-            <article className="project-row" key={project.name}>
-              <div><h3>{project.name}</h3><p>{project.client} · {project.state}</p></div>
-              <div className="progress-cell"><div className="progress-label"><span>{project.progress}%</span></div><div className="progress-track"><span style={{ width: `${project.progress}%` }} /></div></div>
-              <span className={`status ${project.schedule}`}>{scheduleLabel[project.schedule]}</span>
-              <strong className="exposure">{formatNaira(project.variationExposure)}</strong>
-              <span className="report-date">{project.lastReport}</span>
+            <article className="project-row" key={project.id}>
+              <div><h3>{project.name}</h3><p>{project.clientName} · {project.state}</p></div>
+              <div className="progress-cell"><div className="progress-label"><span>0%</span></div><div className="progress-track"><span style={{ width: "0%" }} /></div></div>
+              <span className="status on_track">Setup</span>
+              <strong className="exposure">{formatNaira(0)}</strong>
+              <span className="report-date">No reports yet</span>
             </article>
           ))}
         </section>
@@ -113,10 +107,10 @@ export default function Home() {
         <section className="attention-card" id="variations">
           <div>
             <p className="eyebrow">Your attention</p>
-            <h2>{attentionProject ? `${attentionProject.name} needs a report follow-up` : "All selected projects have recent reports"}</h2>
-            <p>{attentionProject ? `The last site report was submitted ${attentionProject.lastReport.toLowerCase()}. Review the project timeline or contact the Site Engineer.` : "There are no missing daily reports in this selection."}</p>
+            <h2>{projects.length === 0 ? "Create your first project" : "Set up your project BOQ next"}</h2>
+            <p>{projects.length === 0 ? "Add a project to begin tracking work, reports, variations, and valuations." : "Import BOQ items so the platform can calculate real progress."}</p>
           </div>
-          <button type="button" className="secondary">{attentionProject ? "View project" : "View reports"}</button>
+          <Link className="secondary" href={projects.length === 0 ? "/projects/new" : "#projects"}>{projects.length === 0 ? "Add project" : "View projects"}</Link>
         </section>
       </main>
     </div>

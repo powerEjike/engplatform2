@@ -40,3 +40,8 @@ Install Node.js, then initialise the Next.js web dashboard and Expo mobile app.
 
 - Added a first-time Director workflow that creates a company and its initial user profile.
 - Added initial Firestore security rules, including safe Director-company bootstrap.
+
+## 2026-09-14 — Real project setup
+
+- Replaced sample portfolio projects with a real-time Firestore project list.
+- Added a Director-only project-creation screen with state selection.

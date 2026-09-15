@@ -50,7 +50,7 @@ export default function Home() {
           <a className="nav-link" href="#projects">Projects</a>
           <a className="nav-link" href="#variations">Variations <span className="count">3</span></a>
           <a className="nav-link" href="#valuations">Valuations</a>
-          <a className="nav-link" href="#team">Team</a>
+          <Link className="nav-link" href="/team">Team</Link>
         </nav>
         <div className="sidebar-footer">
           <p className="firm-name">{profile.companyName}</p>
@@ -123,7 +123,7 @@ export default function Home() {
         </section>
 
         <section className="team-section" id="team">
-          <div className="section-heading"><div><p className="eyebrow">Workspace team</p><h2>Roles and project allocations</h2></div><span className="team-total">{companyUsers.length} member{companyUsers.length === 1 ? "" : "s"}</span></div>
+          <div className="section-heading"><div><p className="eyebrow">Workspace team</p><h2>Roles and project allocations</h2></div><div className="team-heading-actions"><span className="team-total">{companyUsers.length} member{companyUsers.length === 1 ? "" : "s"}</span>{profile.role === "director" && <Link className="text-action" href="/team">Manage team</Link>}</div></div>
           <div className="team-list">
             {areUsersLoading && <p className="empty-state">Loading workspace team…</p>}
             {!areUsersLoading && companyUsers.length === 0 && <p className="empty-state">No team members have been added yet.</p>}

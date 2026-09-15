@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setMessage("");
     setIsSubmitting(true);
 
     try {
@@ -42,6 +44,13 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetPassword = async () => {
+    setError(""); setMessage("");
+    if (!email.trim()) { setError("Enter your work email address first, then select Forgot password."); return; }
+    try { await sendPasswordResetEmail(auth, email.trim()); setMessage("Password-reset instructions have been sent. Check your inbox and spam folder."); }
+    catch { setError("We could not send a reset email. Check the email address and try again."); }
   };
 
   return (
@@ -69,9 +78,10 @@ export default function LoginPage() {
             <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </label>
           {error && <p className="form-error" role="alert">{error}</p>}
+          {message && <p className="form-success" role="status">{message}</p>}
           <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Sign in"}</button>
         </form>
-        <p className="login-help">Need access? Ask your company administrator to invite you.</p>
+        <div className="login-support"><button className="text-button" type="button" onClick={() => void resetPassword()}>Forgot password?</button><p className="login-help">Need access? Ask your company administrator to invite you.</p></div>
       </section>
     </main>
   );

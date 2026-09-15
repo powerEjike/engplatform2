@@ -21,9 +21,10 @@ export default function Home() {
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
   const [selectedStatus, setSelectedStatus] = useState("All statuses");
+  const [projectSearch, setProjectSearch] = useState("");
   const visibleProjects = useMemo(
-    () => projects.filter((project) => (selectedState === "All states" || project.state === selectedState) && (selectedStatus === "All statuses" || project.status === selectedStatus)),
-    [projects, selectedState, selectedStatus],
+    () => projects.filter((project) => (selectedState === "All states" || project.state === selectedState) && (selectedStatus === "All statuses" || project.status === selectedStatus) && `${project.name} ${project.clientName} ${project.location} ${project.state}`.toLowerCase().includes(projectSearch.trim().toLowerCase())),
+    [projectSearch, projects, selectedState, selectedStatus],
   );
   const totalExposure = visibleProjects.reduce((total, project) => total + (activityByProject[project.id]?.variationExposure ?? 0), 0);
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
@@ -100,6 +101,7 @@ export default function Home() {
         <section className="section-heading" id="portfolio">
           <div><p className="eyebrow">Live portfolio</p><h2>Projects at a glance</h2></div>
           <div className="portfolio-actions">
+            <label className="state-filter project-search"><span>Find project</span><input value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Name, client, state…" /></label>
             <label className="state-filter">
               <span>Project state</span>
               <select value={selectedState} onChange={(event) => setSelectedState(event.target.value)}>

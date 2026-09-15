@@ -85,6 +85,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 
 .section-heading { align-items: end; display: flex; justify-content: space-between; margin: 56px 0 18px; }
 .portfolio-actions { align-items: end; display: flex; gap: 10px; }
+.project-search { min-width: 190px; }
+.state-filter input { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 10px 11px; width: 100%; }
 .state-filter { color: #567064; display: grid; font-size: 0.7rem; font-weight: 800; gap: 5px; letter-spacing: 0.04em; text-transform: uppercase; }
 .state-filter select { appearance: none; background: white; border: 1px solid #cddbd1; border-radius: 9px; color: #1e4934; font: inherit; font-size: 0.84rem; font-weight: 700; letter-spacing: 0; min-width: 156px; padding: 11px 34px 11px 12px; text-transform: none; }
 .project-table { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
@@ -219,6 +221,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .login-panel { align-self: center; background: white; border: 1px solid #dfe8e1; border-radius: 16px; justify-self: center; max-width: 460px; padding: 38px; width: calc(100% - 48px); }
 .login-panel h2 { font-size: 1.75rem; margin-bottom: 10px; }
 .login-help { color: #70847a; font-size: 0.88rem; line-height: 1.55; }
+.login-support { margin-top: 21px; }
+.text-button { background: transparent; color: #3d7357; font-size: 0.84rem; padding: 0; text-decoration: underline; }
 .login-panel form { display: grid; gap: 19px; margin: 30px 0 22px; }
 .login-panel label { color: #315342; display: grid; font-size: 0.84rem; font-weight: 800; gap: 8px; }
 .login-panel input { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 12px; }
@@ -317,6 +321,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .variation-row { align-items: flex-start; border: 1px solid #e2ebe5; border-radius: 10px; display: flex; gap: 20px; justify-content: space-between; padding: 16px; }
 .variation-row h3 { color: #1d4833; font-size: 0.95rem; margin: 8px 0 6px; }
 .variation-row p { color: #6a8276; font-size: 0.84rem; line-height: 1.45; margin: 0; }
+.approval-history { display: grid; gap: 4px; margin-top: 11px; }
+.approval-history span { color: #71857a; font-size: 0.72rem; }
 .variation-status { border-radius: 99px; display: inline-block; font-size: 0.7rem; font-weight: 800; padding: 5px 8px; text-transform: capitalize; }
 .variation-status.pending_director_approval { background: #fff2d5; color: #906310; }
 .variation-status.pending_qs_review { background: #e3eff8; color: #326580; }

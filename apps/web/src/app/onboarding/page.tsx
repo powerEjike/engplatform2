@@ -45,7 +45,7 @@ export default function OnboardingPage() {
       await refreshProfile();
       router.replace("/");
     } catch {
-      setError("We could not create your company yet. Confirm that the Firestore rules have been published, then try again.");
+      setError("We could not create the workspace. If you are joining an existing company, ask its Director to add your account instead. If you are creating the first company, publish the latest Firestore rules and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -56,7 +56,7 @@ export default function OnboardingPage() {
   return <main className="onboarding-page"><section className="onboarding-card">
     <p className="eyebrow">First-time setup</p>
     <h1>Create your company workspace</h1>
-    <p>Your workspace keeps company data private and gives you Director access.</p>
+    <p>Your workspace keeps company data private and gives you Director access. Only use this page to create your first company; team members should be added by their Director.</p>
     <form onSubmit={handleSubmit}>
       <label>Company name<input value={companyName} onChange={(event) => setCompanyName(event.target.value)} required /></label>
       <label>Your name<input value={directorName} onChange={(event) => setDirectorName(event.target.value)} required /></label>

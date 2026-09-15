@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from "firebase/firestore";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { BoqItem, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
@@ -15,6 +15,28 @@ import { canWorkOnProject } from "@/lib/project-access";
 
 type BoqForm = { itemNumber: string; description: string; section: string; unit: string; plannedQuantity: string; rate: string };
 const initialForm: BoqForm = { itemNumber: "", description: "", section: "", unit: "", plannedQuantity: "", rate: "" };
+type ImportedBoqRow = { itemNumber: string; description: string; unit: string; plannedQuantity: number; rate: number; section: string };
+
+const csvLine = (line: string) => {
+  const cells: string[] = []; let current = ""; let quoted = false;
+  for (let index = 0; index < line.length; index += 1) { const character = line[index]; if (character === '"') { if (quoted && line[index + 1] === '"') { current += '"'; index += 1; } else quoted = !quoted; } else if (character === "," && !quoted) { cells.push(current.trim()); current = ""; } else current += character; }
+  cells.push(current.trim()); return cells;
+};
+
+const parseBoqCsv = (text: string): ImportedBoqRow[] => {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length < 2) throw new Error("The CSV needs a header row and at least one BOQ item.");
+  const headers = csvLine(lines[0]!).map((header) => header.toLowerCase().replace(/[ _-]/g, ""));
+  const column = (name: string) => headers.indexOf(name);
+  const itemNumber = column("itemnumber"); const description = column("description"); const unit = column("unit"); const plannedQuantity = column("plannedquantity"); const rate = column("rate"); const section = column("section");
+  if ([itemNumber, description, unit, plannedQuantity, rate].some((index) => index < 0)) throw new Error("Use these CSV headings: itemNumber, description, unit, plannedQuantity, rate, section.");
+  return lines.slice(1).map((line, index) => {
+    const cells = csvLine(line); const quantity = Number((cells[plannedQuantity] ?? "").replace(/,/g, "")); const amount = Number((cells[rate] ?? "").replace(/[₦,]/g, ""));
+    const row = { itemNumber: cells[itemNumber] ?? "", description: cells[description] ?? "", unit: cells[unit] ?? "", plannedQuantity: quantity, rate: amount, section: section >= 0 ? cells[section] ?? "" : "" };
+    if (!row.itemNumber || !row.description || !row.unit || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(amount) || amount < 0) throw new Error(`Check row ${index + 2}: item number, description, unit, quantity above zero, and rate are required.`);
+    return row;
+  });
+};
 
 export default function ProjectWorkspacePage() {
   const params = useParams<{ projectId: string }>();
@@ -31,6 +53,10 @@ export default function ProjectWorkspacePage() {
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [importRows, setImportRows] = useState<ImportedBoqRow[]>([]);
+  const [importMessage, setImportMessage] = useState("");
+  const [importError, setImportError] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -73,6 +99,21 @@ export default function ProjectWorkspacePage() {
   const teamMemberName = (id: string | undefined) => companyUsers.find((member) => member.id === id)?.name ?? "A team member";
   const approvalDate = (value: unknown) => value && typeof value === "object" && "toDate" in value ? (value as { toDate: () => Date }).toDate().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : value ? new Date(String(value)).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : "";
   const printProjectSummary = () => window.print();
+
+  const readBoqCsv = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; if (!file) return;
+    setImportError(""); setImportMessage("");
+    try { const rows = parseBoqCsv(await file.text()); if (rows.length > 200) throw new Error("Import up to 200 BOQ items at a time."); const existing = new Set(items.map((item) => item.itemNumber)); const seen = new Set<string>(); if (rows.some((row) => existing.has(row.itemNumber) || seen.has(row.itemNumber) || !seen.add(row.itemNumber))) throw new Error("Each item number must be unique and must not already exist in this project."); setImportRows(rows); setImportMessage(`${rows.length} BOQ item${rows.length === 1 ? "" : "s"} ready to import.`); }
+    catch (caughtError) { setImportRows([]); setImportError(caughtError instanceof Error ? caughtError.message : "We could not read that CSV file."); }
+  };
+
+  const importBoq = async () => {
+    if (!profile || importRows.length === 0) return;
+    setIsImporting(true); setImportError("");
+    try { const batch = writeBatch(db); const itemsPath = collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"); importRows.forEach((row) => batch.set(doc(itemsPath), { ...row, projectId, cumulativeQuantityCompleted: 0, createdAt: serverTimestamp() })); await batch.commit(); setImportMessage(`${importRows.length} BOQ item${importRows.length === 1 ? "" : "s"} imported successfully.`); setImportRows([]); }
+    catch { setImportError("We could not import the BOQ. Please try again."); }
+    finally { setIsImporting(false); }
+  };
 
   const update = (key: keyof BoqForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -117,7 +158,7 @@ export default function ProjectWorkspacePage() {
     <section className={`site-assignment ${project.siteEngineerName ? "assigned" : "unassigned"}`}><div><p className="eyebrow">Site responsibility</p><h2>{project.siteEngineerName ? project.siteEngineerName : "Site Engineer not assigned"}</h2><p>{project.siteEngineerName ? "Responsible for daily reports and site-level variations on this project." : "Assign a Site Engineer before site reporting begins."}</p></div>{canManageProject(profile.role) ? <Link className="secondary compact-action" href={`/projects/${projectId}/settings`}>{project.siteEngineerName ? "Change assignment" : "Assign Site Engineer"}</Link> : <span className="assignment-status">{project.siteEngineerName ? "Assigned" : "Awaiting assignment"}</span>}</section>
     <section className="budget-summary"><article><span>Contract sum</span><strong>{formatNaira(project.contractSum)}</strong></article><article><span>Planned BOQ value</span><strong>{formatNaira(plannedValue)}</strong></article><article><span>Completed BOQ value</span><strong>{formatNaira(completedValue)}</strong></article><article className={budgetBalance < 0 ? "budget-overrun" : ""}><span>{budgetBalance < 0 ? "BOQ overrun" : "Project progress"}</span><strong>{budgetBalance < 0 ? formatNaira(Math.abs(budgetBalance)) : `${projectProgress}%`}</strong></article></section>
     <div className="boq-layout">{canManageBoq(profile.role) && <section className="boq-card"><p className="eyebrow">Add cost item</p><h2>Build your BOQ</h2><p>Add the contract quantities and agreed rates. The platform will use these items for site progress and valuations.</p>
-      <form className="boq-form" onSubmit={submit}><label>Item number<input value={form.itemNumber} onChange={(event) => update("itemNumber", event.target.value)} placeholder="e.g. 1.01" required /></label><label>Description<input value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="e.g. Excavation for foundation" required /></label><label>Section (optional)<input value={form.section} onChange={(event) => update("section", event.target.value)} placeholder="e.g. Substructure" /></label><div className="boq-number-fields"><label>Unit<input value={form.unit} onChange={(event) => update("unit", event.target.value)} placeholder="m³, m², No." required /></label><label>Planned quantity<input inputMode="decimal" value={form.plannedQuantity} onChange={(event) => update("plannedQuantity", event.target.value)} placeholder="0" required /></label></div><label>Rate per unit (₦)<input inputMode="decimal" value={form.rate} onChange={(event) => update("rate", event.target.value)} placeholder="0" required /></label>{error && <p className="form-error">{error}</p>}<button disabled={saving}>{saving ? "Saving item…" : "Add BOQ item"}</button></form>
+      <form className="boq-form" onSubmit={submit}><label>Item number<input value={form.itemNumber} onChange={(event) => update("itemNumber", event.target.value)} placeholder="e.g. 1.01" required /></label><label>Description<input value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="e.g. Excavation for foundation" required /></label><label>Section (optional)<input value={form.section} onChange={(event) => update("section", event.target.value)} placeholder="e.g. Substructure" /></label><div className="boq-number-fields"><label>Unit<input value={form.unit} onChange={(event) => update("unit", event.target.value)} placeholder="m³, m², No." required /></label><label>Planned quantity<input inputMode="decimal" value={form.plannedQuantity} onChange={(event) => update("plannedQuantity", event.target.value)} placeholder="0" required /></label></div><label>Rate per unit (₦)<input inputMode="decimal" value={form.rate} onChange={(event) => update("rate", event.target.value)} placeholder="0" required /></label>{error && <p className="form-error">{error}</p>}<button disabled={saving}>{saving ? "Saving item…" : "Add BOQ item"}</button></form><div className="boq-import"><h3>Import BOQ from CSV</h3><p>In Excel, save your BOQ as a CSV file with these headings: <b>itemNumber, description, unit, plannedQuantity, rate, section</b>.</p><input type="file" accept=".csv,text/csv" onChange={(event) => void readBoqCsv(event)} /><p className="field-hint">Rates may include commas or the ₦ symbol. Import up to 200 items at a time.</p>{importMessage && <p className="form-success">{importMessage}</p>}{importError && <p className="form-error">{importError}</p>}{importRows.length > 0 && <button type="button" onClick={() => void importBoq()} disabled={isImporting}>{isImporting ? "Importing BOQ…" : `Import ${importRows.length} BOQ items`}</button>}</div>
     </section>}
     <section className="boq-card"><div className="boq-header"><div><p className="eyebrow">Cost plan</p><h2>BOQ items</h2></div><p className="boq-total">Planned BOQ value<strong>{formatNaira(plannedValue)}</strong></p></div>{items.length === 0 ? <p className="boq-empty">No BOQ items yet. Start with the major contract work items, such as preliminaries, foundation, structure, finishes, or services.</p> : <div className="boq-list">{items.map((item) => { const progress = item.plannedQuantity > 0 ? Math.min(100, Math.round(item.cumulativeQuantityCompleted / item.plannedQuantity * 100)) : 0; return <article className="boq-item" key={item.id}><div className="boq-item-top"><div><span className="boq-item-number">{item.section} · {item.itemNumber}</span><h3>{item.description}</h3></div><strong>{formatNaira(item.plannedQuantity * item.rate)}</strong></div><p className="boq-item-meta">{item.plannedQuantity.toLocaleString()} {item.unit} × {formatNaira(item.rate)} per {item.unit}</p><div className="boq-item-progress"><div><span>{item.cumulativeQuantityCompleted.toLocaleString()} of {item.plannedQuantity.toLocaleString()} {item.unit} complete</span><strong>{progress}%</strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div></article>; })}</div>}</section>
     </div>

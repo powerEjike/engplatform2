@@ -267,6 +267,11 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .boq-form label { color: #315342; display: grid; font-size: 0.8rem; font-weight: 800; gap: 7px; }
 .boq-form input, .boq-form select { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
 .boq-form button { margin-top: 4px; }
+.boq-import { border-top: 1px solid #e2ebe5; margin-top: 24px; padding-top: 22px; }
+.boq-import h3 { color: #214d37; font-size: 1rem; margin-bottom: 7px; }
+.boq-import > p { color: #678075; font-size: 0.78rem; line-height: 1.45; }
+.boq-import input[type="file"] { color: #426052; font: inherit; font-size: 0.78rem; max-width: 100%; }
+.boq-import .form-success, .boq-import .form-error { margin-top: 12px; }
 .boq-number-fields { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 .boq-header { align-items: flex-start; display: flex; gap: 16px; justify-content: space-between; }
 .boq-total { color: #477160; font-size: 0.82rem; font-weight: 800; text-align: right; }

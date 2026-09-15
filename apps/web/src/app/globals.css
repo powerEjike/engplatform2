@@ -243,6 +243,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .variation-row p { color: #6a8276; font-size: 0.84rem; line-height: 1.45; margin: 0; }
 .variation-status { border-radius: 99px; display: inline-block; font-size: 0.7rem; font-weight: 800; padding: 5px 8px; text-transform: capitalize; }
 .variation-status.pending_director_approval { background: #fff2d5; color: #906310; }
+.variation-status.pending_qs_review { background: #e3eff8; color: #326580; }
 .variation-status.approved { background: #e2f5e9; color: #247345; }
 .variation-status.rejected { background: #fde5e2; color: #9b4035; }
 .variation-actions { align-items: flex-end; display: flex; flex-direction: column; gap: 10px; }

@@ -219,7 +219,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .site-assignment h2 { font-size: 1.05rem; margin: 0 0 5px; }
 .site-assignment p:last-child { color: #678075; font-size: 0.82rem; margin: 0; }
 .assignment-status { border-radius: 99px; color: #936516; font-size: 0.74rem; font-weight: 800; padding: 7px 10px; white-space: nowrap; }
-.budget-summary { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); margin: 0 0 22px; }
+.budget-summary { display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); margin: 0 0 22px; }
 .budget-summary article { background: white; border: 1px solid #dfe8e1; border-radius: 11px; padding: 15px; }
 .budget-summary span { color: #668074; display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 6px; text-transform: uppercase; }
 .budget-summary strong { color: #224c37; font-size: 1.05rem; }

@@ -50,6 +50,7 @@ export default function Home() {
           <a className="nav-link active" href="#portfolio">Portfolio</a>
           <a className="nav-link" href="#projects">Projects</a>
           <a className="nav-link" href="#variations">Variations {variationQueue.length > 0 && <span className="count">{variationQueue.length}</span>}</a>
+          <Link className="nav-link" href="/valuations">Valuations</Link>
           <Link className="nav-link" href="/schedule">Schedule health</Link>
           <Link className="nav-link" href="/team">Team</Link>
         </nav>

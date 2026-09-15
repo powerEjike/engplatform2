@@ -2,7 +2,7 @@
 
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import type { BoqItem, Project, SiteReport, Variation } from "@engplatform2/shared-types";
+import type { BoqItem, Project, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
 import { db } from "@/lib/firebase";
 
 export type ProjectProgress = { percentage: number; plannedValue: number; completedValue: number; scheduleHealth: "on_track" | "attention" | "behind" };
@@ -22,6 +22,7 @@ export function useProjectProgress(companyId: string | undefined, projects: Proj
   const [progressByProject, setProgressByProject] = useState<Record<string, ProjectProgress>>({});
   const [activityByProject, setActivityByProject] = useState<Record<string, ProjectActivity>>({});
   const [variationsByProject, setVariationsByProject] = useState<Record<string, Variation[]>>({});
+  const [valuationsByProject, setValuationsByProject] = useState<Record<string, Valuation[]>>({});
 
   useEffect(() => {
     if (!companyId) return;
@@ -36,9 +37,11 @@ export function useProjectProgress(companyId: string | undefined, projects: Proj
     }), onSnapshot(collection(db, "companies", companyId, "projects", project.id, "siteReports"), (snapshot) => {
       const reports = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as SiteReport).sort((left, right) => right.reportDate.localeCompare(left.reportDate));
       setActivityByProject((current) => ({ ...current, [project.id]: { variationExposure: current[project.id]?.variationExposure ?? 0, latestReportDate: reports[0]?.reportDate ?? null } }));
+    }), onSnapshot(collection(db, "companies", companyId, "projects", project.id, "valuations"), (snapshot) => {
+      setValuationsByProject((current) => ({ ...current, [project.id]: snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Valuation) }));
     })]);
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, [companyId, projects]);
 
-  return { progressByProject, activityByProject, variationsByProject };
+  return { progressByProject, activityByProject, variationsByProject, valuationsByProject };
 }

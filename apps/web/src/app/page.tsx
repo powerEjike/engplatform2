@@ -137,15 +137,17 @@ export default function Home() {
         </section>
 
         <section className="project-table" id="projects" aria-label="Active projects">
-          <div className="project-table-head"><span>Project</span><span>Progress</span><span>Schedule</span><span>Variation exposure</span><span>Latest report</span></div>
+          <div className="project-table-head"><span>Project</span><span>BOQ</span><span>Progress</span><span>Schedule</span><span>Variation exposure</span><span>Latest report</span></div>
           {areProjectsLoading && <p className="empty-state">Loading your projects…</p>}
           {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
           {visibleProjects.map((project) => {
             const progress = Math.round(progressByProject[project.id]?.percentage ?? 0);
             const scheduleHealth = progressByProject[project.id]?.scheduleHealth ?? "on_track";
             const activity = activityByProject[project.id];
+            const isBoqReady = Boolean(progressByProject[project.id]?.plannedValue);
             return <article className="project-row" key={project.id}>
               <div><Link className="project-name-link" href={`/projects/${project.id}`}><h3>{project.name}</h3></Link><p>{project.clientName} · {project.state}</p></div>
+              <span className={`boq-readiness ${isBoqReady ? "ready" : "setup"}`}>{isBoqReady ? "BOQ ready" : "Setup needed"}</span>
               <div className="progress-cell"><div className="progress-label"><span>{progress}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
               <span className={`status ${scheduleHealth}`}>{progressByProject[project.id]?.plannedValue ? scheduleHealth.replace("_", " ") : "Setup"}</span>
               <strong className="exposure">{formatNaira(activity?.variationExposure ?? 0)}</strong>

@@ -245,6 +245,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }
 .contract-summary span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
 .contract-summary strong { font-size: 1.1rem; }
+.print-summary-button { background: white; border: 1px solid #9dceb0; color: #216741; font-size: 0.8rem; padding: 9px 12px; }
 .site-assignment { align-items: center; background: white; border: 1px solid #dfe8e1; border-radius: 12px; display: flex; gap: 20px; justify-content: space-between; margin: 0 0 22px; padding: 18px; }
 .site-assignment.assigned { border-color: #c4e4cf; }
 .site-assignment.unassigned { background: #fffdf7; border-color: #eadbb2; }
@@ -352,3 +353,4 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 @media (max-width: 650px) { .valuation-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 650px) { .report-history-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 800px) { .login-page { display: block; } .login-introduction { min-height: 285px; padding: 34px 24px; } .login-brand { margin-bottom: 48px; } .login-introduction h1 { font-size: 2.5rem; } .login-introduction > p:last-child { display: none; } .login-panel { margin: -26px auto 36px; position: relative; width: calc(100% - 32px); } }
+@media print { body { background: white; } .no-print, .back-link, .mobile-dashboard-menu { display: none !important; } .project-workspace { background: white; padding: 0; } .workspace-content { max-width: none; } .project-title-row { break-inside: avoid; } .boq-layout, .variation-register, .report-register, .valuation-register { break-inside: avoid; } }

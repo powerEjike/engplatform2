@@ -11,11 +11,8 @@ export function useCompanyUsers(companyId: string | undefined) {
 
   useEffect(() => {
     if (!companyId) {
-      setUsers([]);
-      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
     return onSnapshot(query(collection(db, "companies", companyId, "users")), (snapshot) => {
       setUsers(snapshot.docs.map((item) => ({ id: item.id, companyId, ...item.data() }) as AppUser));
       setIsLoading(false);

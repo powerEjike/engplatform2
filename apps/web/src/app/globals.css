@@ -85,8 +85,22 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .attention-card h2 { font-size: 1.12rem; margin-bottom: 9px; }
 .attention-card > div > p:last-child { color: #507160; font-size: 0.87rem; line-height: 1.5; margin-bottom: 0; }
 .secondary { background: white; border: 1px solid #9dceb0; color: #216741; white-space: nowrap; }
+.team-section { margin-top: 56px; }
+.team-section .section-heading { margin-top: 0; }
+.team-total { color: #557064; font-size: 0.82rem; font-weight: 800; }
+.team-list { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
+.team-member { align-items: center; border-top: 1px solid #edf1ee; display: grid; gap: 14px; grid-template-columns: 42px minmax(180px, 1.3fr) minmax(130px, 0.8fr) minmax(150px, 0.8fr); padding: 16px 22px; }
+.team-member:first-child { border-top: 0; }
+.team-member-avatar { align-items: center; background: #e0f1e6; border-radius: 50%; color: #1a633e; display: inline-flex; font-size: 0.74rem; font-weight: 800; height: 38px; justify-content: center; width: 38px; }
+.team-member-details h3 { color: #1d4833; font-size: 0.92rem; margin: 0 0 4px; }
+.team-member-details p { color: #70847a; font-size: 0.78rem; margin: 0; }
+.team-role { color: #3b7555; font-size: 0.76rem; font-weight: 800; text-transform: capitalize; }
+.team-allocation { color: #648074; font-size: 0.76rem; text-align: right; }
+.team-allocation strong { color: #234e38; display: block; font-size: 1.05rem; }
+.team-allocation span { display: block; }
 
 @media (max-width: 1050px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .project-table { overflow-x: auto; } .project-table-head, .project-row { min-width: 850px; } }
+@media (max-width: 720px) { .team-member { grid-template-columns: 42px 1fr; } .team-role, .team-allocation { grid-column: 2; text-align: left; } }
 @media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } .portfolio-actions { align-items: stretch; flex-direction: column; width: 100%; } .state-filter select { width: 100%; } }
 
 .login-page { background: #f3f6f3; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr); min-height: 100vh; padding: 0; }

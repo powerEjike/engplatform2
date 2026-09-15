@@ -164,9 +164,10 @@ export default function Home() {
             {areUsersLoading && <p className="empty-state">Loading workspace team…</p>}
             {!areUsersLoading && companyUsers.length === 0 && <p className="empty-state">No team members have been added yet.</p>}
             {companyUsers.map((member) => {
-              const allocationCount = projects.filter((project) => project.siteEngineerId === member.id).length;
+              const allocationCount = projects.filter((project) => project.siteEngineerId === member.id || project.projectManagerId === member.id).length;
               const isEngineer = member.role === "site_engineer";
-              return <article className="team-member" key={member.id}><div className="team-member-avatar">{member.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div><div className="team-member-details"><h3>{member.name}</h3><p>{member.email}</p></div><span className="team-role">{member.role.replaceAll("_", " ")}</span><div className="team-allocation">{isEngineer ? <><strong>{allocationCount}</strong><span>assigned project{allocationCount === 1 ? "" : "s"}</span></> : <span>{member.role === "project_manager" ? "Manages project delivery" : member.role === "quantity_surveyor" ? "Controls BOQ and valuations" : "Portfolio oversight"}</span>}</div></article>;
+              const isManager = member.role === "project_manager";
+              return <article className="team-member" key={member.id}><div className="team-member-avatar">{member.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div><div className="team-member-details"><h3>{member.name}</h3><p>{member.email}</p></div><span className="team-role">{member.role.replaceAll("_", " ")}</span><div className="team-allocation">{isEngineer || isManager ? <><strong>{allocationCount}</strong><span>{isManager ? "managed project" : "assigned project"}{allocationCount === 1 ? "" : "s"}</span></> : <span>{member.role === "quantity_surveyor" ? "Controls BOQ and valuations" : "Portfolio oversight"}</span>}</div></article>;
             })}
           </div>
         </section>

@@ -43,6 +43,8 @@ export interface Project {
   startDate: string;
   endDate: string;
   status: ProjectStatus;
+  projectManagerId?: string;
+  projectManagerName?: string;
   siteEngineerId?: string;
   siteEngineerName?: string;
   createdBy: string;

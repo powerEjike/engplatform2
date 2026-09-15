@@ -56,7 +56,7 @@ export default function Home() {
         </nav>
         <div className="sidebar-footer">
           <p className="firm-name">{profile.companyName}</p>
-          <a className="settings-link" href="#settings">Company settings</a>
+          {profile.role === "director" ? <Link className="settings-link" href="/settings">Company settings</Link> : <span className="settings-link">{profile.role.replaceAll("_", " ")} workspace</span>}
         </div>
       </aside>
 

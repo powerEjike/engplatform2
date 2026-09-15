@@ -9,6 +9,7 @@ import { useProjects } from "@/hooks/use-projects";
 import { useProjectProgress } from "@/hooks/use-project-progress";
 import { useCompanyUsers } from "@/hooks/use-company-users";
 import { canManageProject } from "@/lib/permissions";
+import { MobileDashboardMenu, type DashboardMenuItem } from "@/components/mobile-dashboard-menu";
 
 export default function Home() {
   const router = useRouter();
@@ -42,7 +43,15 @@ export default function Home() {
 
   if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Checking your secure workspace…</main>;
 
-  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><section className="engineer-projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
+  const dashboardMenuItems: DashboardMenuItem[] = profile.role === "director" ? [
+    { href: "#portfolio", label: "Portfolio" }, { href: "#projects", label: "Projects" }, { href: "/reports", label: "Daily reports" }, { href: "/issues", label: "Issues" }, { href: "#variations", label: "Variations", count: variationQueue.length }, { href: "/valuations", label: "Valuations" }, { href: "/schedule", label: "Schedule health" }, { href: "/team", label: "Team" }, { href: "/settings", label: "Company settings" },
+  ] : profile.role === "project_manager" ? [
+    { href: "#portfolio", label: "Portfolio" }, { href: "#projects", label: "Projects" }, { href: "/reports", label: "Daily reports" }, { href: "/issues", label: "Issues" }, { href: "#variations", label: "Variations", count: variationQueue.length }, { href: "/schedule", label: "Schedule health" },
+  ] : profile.role === "quantity_surveyor" ? [
+    { href: "#projects", label: "Projects" }, { href: "#variations", label: "Variations", count: variationQueue.length }, { href: "/valuations", label: "Valuations" },
+  ] : [{ href: "#projects", label: "My assigned projects" }];
+
+  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} /><button className="sign-out engineer-sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><section className="engineer-projects" id="projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
 
   return (
     <div className="app-shell">
@@ -52,14 +61,7 @@ export default function Home() {
           <span>engplatform<span>2</span></span>
         </a>
         <nav aria-label="Main navigation">
-          <a className="nav-link active" href="#portfolio">Portfolio</a>
-          <a className="nav-link" href="#projects">Projects</a>
-          <Link className="nav-link" href="/reports">Daily reports</Link>
-          <Link className="nav-link" href="/issues">Issues</Link>
-          <a className="nav-link" href="#variations">Variations {variationQueue.length > 0 && <span className="count">{variationQueue.length}</span>}</a>
-          <Link className="nav-link" href="/valuations">Valuations</Link>
-          <Link className="nav-link" href="/schedule">Schedule health</Link>
-          <Link className="nav-link" href="/team">Team</Link>
+          {dashboardMenuItems.map((item, index) => item.href.startsWith("#") ? <a className={`nav-link ${index === 0 ? "active" : ""}`} href={item.href} key={item.href}>{item.label} {item.count ? <span className="count">{item.count}</span> : null}</a> : <Link className="nav-link" href={item.href} key={item.href}>{item.label} {item.count ? <span className="count">{item.count}</span> : null}</Link>)}
         </nav>
         <div className="sidebar-footer">
           <p className="firm-name">{profile.companyName}</p>
@@ -73,7 +75,7 @@ export default function Home() {
             <p className="eyebrow">Portfolio overview</p>
             <h1>Good morning, {profile.name.split(" ")[0]}.</h1>
           </div>
-          <div className="profile"><span className="avatar">{profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span><span className="role-label">Role: {profile.role.replace("_", " ")}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div>
+          <div className="profile"><span className="avatar">{profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</span><span className="role-label">Role: {profile.role.replace("_", " ")}</span><button className="sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} />
         </header>
 
         <section className="role-banner"><div><p className="eyebrow">Signed-in workspace</p><h2>{profile.role.replaceAll("_", " ")}</h2><p>{profile.role === "director" ? "Portfolio oversight, team governance, final approvals, and company control." : profile.role === "project_manager" ? "Project delivery, issues, project updates, and variation decisions." : "Your access is tailored to your assigned project responsibilities."}</p></div><span>{profile.companyName}</span></section>

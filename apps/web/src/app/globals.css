@@ -149,6 +149,13 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .contract-summary { background: #e4f2e9; border: 1px solid #c3e2ce; border-radius: 12px; color: #24553c; min-width: 200px; padding: 15px; }
 .contract-summary span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
 .contract-summary strong { font-size: 1.1rem; }
+.site-assignment { align-items: center; background: white; border: 1px solid #dfe8e1; border-radius: 12px; display: flex; gap: 20px; justify-content: space-between; margin: 0 0 22px; padding: 18px; }
+.site-assignment.assigned { border-color: #c4e4cf; }
+.site-assignment.unassigned { background: #fffdf7; border-color: #eadbb2; }
+.site-assignment .eyebrow { margin-bottom: 5px; }
+.site-assignment h2 { font-size: 1.05rem; margin: 0 0 5px; }
+.site-assignment p:last-child { color: #678075; font-size: 0.82rem; margin: 0; }
+.assignment-status { border-radius: 99px; color: #936516; font-size: 0.74rem; font-weight: 800; padding: 7px 10px; white-space: nowrap; }
 .budget-summary { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); margin: 0 0 22px; }
 .budget-summary article { background: white; border: 1px solid #dfe8e1; border-radius: 11px; padding: 15px; }
 .budget-summary span { color: #668074; display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 6px; text-transform: uppercase; }
@@ -239,7 +246,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .valuation-row p { color: #668074; display: grid; font-size: 0.75rem; gap: 4px; margin: 0; }
 .valuation-row strong { color: #294f3c; font-size: 0.9rem; }
 .valuation-row .valuation-due strong { color: #177044; font-size: 1rem; }
-@media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
+@media (max-width: 760px) { .project-workspace, .report-page { padding: 24px 16px 50px; } .project-title-row, .boq-layout { display: block; } .project-title-actions { align-items: stretch; margin-top: 18px; } .contract-summary { margin-top: 0; } .site-assignment { align-items: flex-start; flex-direction: column; } .boq-card + .boq-card { margin-top: 18px; } .report-line { grid-template-columns: 1fr; } .report-submit-row { align-items: stretch; flex-direction: column; } }
 @media (max-width: 650px) { .budget-summary { grid-template-columns: 1fr; } }
 @media (max-width: 650px) { .valuation-row { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 650px) { .report-history-row { grid-template-columns: 1fr 1fr; } }

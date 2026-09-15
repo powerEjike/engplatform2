@@ -22,9 +22,15 @@ export default function Home() {
   const [selectedState, setSelectedState] = useState("All states");
   const [selectedStatus, setSelectedStatus] = useState("All statuses");
   const [projectSearch, setProjectSearch] = useState("");
+  const [projectSort, setProjectSort] = useState("latest_activity");
   const visibleProjects = useMemo(
-    () => projects.filter((project) => (selectedState === "All states" || project.state === selectedState) && (selectedStatus === "All statuses" || project.status === selectedStatus) && `${project.name} ${project.clientName} ${project.location} ${project.state}`.toLowerCase().includes(projectSearch.trim().toLowerCase())),
-    [projectSearch, projects, selectedState, selectedStatus],
+    () => projects.filter((project) => (selectedState === "All states" || project.state === selectedState) && (selectedStatus === "All statuses" || project.status === selectedStatus) && `${project.name} ${project.clientName} ${project.location} ${project.state}`.toLowerCase().includes(projectSearch.trim().toLowerCase())).sort((left, right) => {
+      if (projectSort === "project_name") return left.name.localeCompare(right.name);
+      if (projectSort === "progress_high") return (progressByProject[right.id]?.percentage ?? 0) - (progressByProject[left.id]?.percentage ?? 0);
+      if (projectSort === "contract_value") return right.contractSum - left.contractSum;
+      return String(activityByProject[right.id]?.latestReportDate ?? "").localeCompare(String(activityByProject[left.id]?.latestReportDate ?? ""));
+    }),
+    [activityByProject, progressByProject, projectSearch, projectSort, projects, selectedState, selectedStatus],
   );
   const totalExposure = visibleProjects.reduce((total, project) => total + (activityByProject[project.id]?.variationExposure ?? 0), 0);
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
@@ -113,6 +119,12 @@ export default function Home() {
               <span>Project status</span>
               <select value={selectedStatus} onChange={(event) => setSelectedStatus(event.target.value)}>
                 <option>All statuses</option><option value="active">Active</option><option value="on_hold">On hold</option><option value="completed">Completed</option>
+              </select>
+            </label>
+            <label className="state-filter">
+              <span>Sort projects</span>
+              <select value={projectSort} onChange={(event) => setProjectSort(event.target.value)}>
+                <option value="latest_activity">Latest site activity</option><option value="progress_high">Highest progress</option><option value="contract_value">Highest contract value</option><option value="project_name">Project name</option>
               </select>
             </label>
             {canManageProject(profile.role) && <Link className="primary-action" href="/projects/new">+ Add project</Link>}

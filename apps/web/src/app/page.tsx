@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth-provider";
 import { useProjects } from "@/hooks/use-projects";
 import { useProjectProgress } from "@/hooks/use-project-progress";
 import { useCompanyUsers } from "@/hooks/use-company-users";
+import { canManageProject } from "@/lib/permissions";
 
 export default function Home() {
   const router = useRouter();
@@ -110,7 +111,7 @@ export default function Home() {
                 <option>All statuses</option><option value="active">Active</option><option value="on_hold">On hold</option><option value="completed">Completed</option>
               </select>
             </label>
-            <Link className="primary-action" href="/projects/new">+ Add project</Link>
+            {canManageProject(profile.role) && <Link className="primary-action" href="/projects/new">+ Add project</Link>}
           </div>
         </section>
 

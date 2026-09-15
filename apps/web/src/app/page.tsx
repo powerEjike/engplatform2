@@ -27,6 +27,10 @@ export default function Home() {
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
   const averageProgress = progressProjects.length === 0 ? 0 : Math.round(progressProjects.reduce((total, project) => total + (progressByProject[project.id]?.percentage ?? 0), 0) / progressProjects.length);
   const reportsNeedingAttention = visibleProjects.filter((project) => !activityByProject[project.id]?.latestReportDate).length;
+  const scheduleAlerts = visibleProjects.filter((project) => {
+    const progress = progressByProject[project.id];
+    return progress?.plannedValue && progress.scheduleHealth !== "on_track";
+  });
   const assignedProjects = profile?.role === "site_engineer" ? projects.filter((project) => project.siteEngineerId === user?.uid) : projects;
   const variationQueue = projects.flatMap((project) => (variationsByProject[project.id] ?? []).filter((variation) => variation.status === "pending_qs_review" || variation.status === "pending_director_approval").map((variation) => ({ ...variation, projectName: project.name }))).filter((variation) => profile?.role !== "quantity_surveyor" || variation.status === "pending_qs_review");
 
@@ -86,6 +90,8 @@ export default function Home() {
             <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Projects with no site report yet</span>
           </article>
         </section>
+
+        {scheduleAlerts.length > 0 && <section className="schedule-alert-card"><div><p className="eyebrow">Programme attention</p><h2>{scheduleAlerts.length} project{scheduleAlerts.length === 1 ? "" : "s"} need schedule attention</h2><p>Actual BOQ progress is behind the expected programme position.</p></div><div className="schedule-alert-links">{scheduleAlerts.slice(0, 3).map((project) => <Link key={project.id} className="text-action" href={`/projects/${project.id}`}>{project.name} · {progressByProject[project.id]?.scheduleHealth.replace("_", " ")}</Link>)}<Link className="secondary compact-action" href="/schedule">View schedule health</Link></div></section>}
 
         <section className="section-heading" id="portfolio">
           <div><p className="eyebrow">Live portfolio</p><h2>Projects at a glance</h2></div>

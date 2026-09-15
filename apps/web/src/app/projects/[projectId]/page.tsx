@@ -10,6 +10,7 @@ import { db } from "@/lib/firebase";
 import { formatNaira } from "@/lib/dashboard-data";
 import { useProjects } from "@/hooks/use-projects";
 import { canDecideVariation, canGenerateValuation, canManageBoq, canManageProject, canRaiseVariation, canSubmitReport } from "@/lib/permissions";
+import { canWorkOnProject } from "@/lib/project-access";
 
 type BoqForm = { itemNumber: string; description: string; section: string; unit: string; plannedQuantity: string; rate: string };
 const initialForm: BoqForm = { itemNumber: "", description: "", section: "", unit: "", plannedQuantity: "", rate: "" };
@@ -96,6 +97,7 @@ export default function ProjectWorkspacePage() {
 
   if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening project workspace…</main>;
   if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;
+  if (!canWorkOnProject(profile.role, user.uid, project)) return <main className="auth-loading">This project is not assigned to you. <Link href="/">Return to your assigned projects</Link></main>;
 
   return <main className="project-workspace"><div className="workspace-content">
     <Link className="back-link" href="/">← Back to portfolio</Link>

@@ -9,7 +9,12 @@ service cloud.firestore {
     function isProjectManager(companyId) { return isMember(companyId) && role(companyId) == "project_manager"; }
     function isQs(companyId) { return isMember(companyId) && role(companyId) == "quantity_surveyor"; }
     function isSiteEngineer(companyId) { return isMember(companyId) && role(companyId) == "site_engineer"; }
-    function canReport(companyId) { return isSiteEngineer(companyId) || isProjectManager(companyId) || isDirector(companyId); }
+    function isAssignedEngineer(companyId, projectId) {
+      return isSiteEngineer(companyId) && get(/databases/$(database)/documents/companies/$(companyId)/projects/$(projectId)).data.siteEngineerId == request.auth.uid;
+    }
+    function canSubmitSiteUpdate(companyId, projectId) {
+      return isDirector(companyId) || isProjectManager(companyId) || isAssignedEngineer(companyId, projectId);
+    }
 
     match /userIndex/{userId} { allow read, create: if signedIn() && request.auth.uid == userId; }
     match /companies/{companyId} {
@@ -23,10 +28,10 @@ service cloud.firestore {
         match /boqItems/{itemId} {
           allow read: if isMember(companyId);
           allow create: if isDirector(companyId) || isQs(companyId);
-          allow update: if isDirector(companyId) || isQs(companyId) || (canReport(companyId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
+          allow update: if isDirector(companyId) || isQs(companyId) || (canSubmitSiteUpdate(companyId, projectId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
         }
-        match /siteReports/{reportId} { allow read: if isMember(companyId); allow create: if canReport(companyId); }
-        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isSiteEngineer(companyId) || isProjectManager(companyId) || isDirector(companyId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
+        match /siteReports/{reportId} { allow read: if isMember(companyId); allow create: if canSubmitSiteUpdate(companyId, projectId); }
+        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
         match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }
       }
     }

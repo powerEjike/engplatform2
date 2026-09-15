@@ -62,6 +62,14 @@ export interface BoqItem {
   createdAt: string;
 }
 
+export interface BoqUploadEvent {
+  id: string;
+  projectId: string;
+  itemCount: number;
+  uploadedBy: string;
+  createdAt: string;
+}
+
 export interface ReportLineItem {
   boqItemId: string;
   quantityCompleted: number;

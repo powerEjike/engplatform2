@@ -190,6 +190,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .update-row time { color: #6f8479; font-size: 0.74rem; text-align: right; }
 .update-icon { border-radius: 99px; font-size: 0.68rem; font-weight: 800; padding: 7px 8px; text-align: center; }
 .update-icon.report { background: #e3eff8; color: #326580; }.update-icon.variation { background: #fff2d5; color: #906310; }.update-icon.valuation { background: #e2f5e9; color: #247345; }
+.update-icon.boq { background: #e8f2eb; color: #287147; }
 .issues-list { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
 .issue-row { align-items: center; border-top: 1px solid #edf1ee; display: grid; gap: 16px; grid-template-columns: 120px minmax(0, 1fr) 135px; padding: 17px 21px; }
 .issue-row:first-child { border-top: 0; }

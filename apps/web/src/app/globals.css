@@ -256,6 +256,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-issue-field textarea { min-height: 92px; resize: vertical; }
 .report-submit-row { align-items: center; display: flex; gap: 16px; justify-content: space-between; }
 .report-submit-row p { margin: 0; }
+.draft-actions { display: flex; flex-wrap: wrap; gap: 9px; justify-content: flex-end; }
+.outline-button { background: white; border: 1px solid #9dceb0; color: #216741; }
 .variation-value { background: #edf7f0; border: 1px solid #c4e4cf; border-radius: 10px; color: #28573f; padding: 14px; }
 .variation-value span { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 5px; text-transform: uppercase; }
 .variation-value strong { font-size: 1.3rem; }

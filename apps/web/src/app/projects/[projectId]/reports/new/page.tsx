@@ -12,6 +12,7 @@ import { canWorkOnProject } from "@/lib/project-access";
 import { canSubmitReport } from "@/lib/permissions";
 
 const today = () => new Date().toISOString().slice(0, 10);
+const draftKey = (projectId: string) => `engplatform2:report-draft:${projectId}`;
 
 export default function NewSiteReportPage() {
   const params = useParams<{ projectId: string }>();
@@ -28,6 +29,7 @@ export default function NewSiteReportPage() {
   const [issue, setIssue] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [draftMessage, setDraftMessage] = useState("");
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -69,10 +71,26 @@ export default function NewSiteReportPage() {
         if (item) batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { cumulativeQuantityCompleted: item.cumulativeQuantityCompleted + lineItem.quantityCompleted });
       });
       await batch.commit();
+      window.localStorage.removeItem(draftKey(projectId));
       router.replace(`/projects/${projectId}`);
     } catch {
       setError("We could not submit this report. Check that the latest Firestore rules have been published, then try again.");
       setSaving(false);
+    }
+  };
+  const saveDraft = () => {
+    window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, issueCategory, issue }));
+    setDraftMessage("Draft saved on this device. You can load it when you return to this report.");
+  };
+  const loadDraft = () => {
+    const saved = window.localStorage.getItem(draftKey(projectId));
+    if (!saved) return setDraftMessage("No saved draft was found for this project on this device.");
+    try {
+      const draft = JSON.parse(saved) as { quantities?: Record<string, string>; reportDate?: string; labourCount?: string; issueCategory?: string; issue?: string };
+      setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? "");
+      setDraftMessage("Saved draft loaded. Review the details, then submit when ready.");
+    } catch {
+      setDraftMessage("This saved draft could not be read. Start a new report and save it again if needed.");
     }
   };
 
@@ -82,6 +100,6 @@ export default function NewSiteReportPage() {
   if (!canSubmitReport(profile.role)) return <main className="auth-loading">Your role cannot submit daily site reports. <Link href={`/projects/${projectId}`}>Return to project</Link></main>;
 
   return <main className="report-page"><div className="report-content"><Link className="back-link" href={`/projects/${projectId}`}>← Back to {project.name}</Link><section className="report-card"><p className="eyebrow">Daily site report</p><h1>Record today&apos;s work</h1><p className="report-intro">Add only the quantities completed today. The platform adds them to the BOQ totals when you submit.</p>
-    <form className="report-form" onSubmit={saveReport}><section className="report-section"><label className="report-date-field">Report date<input type="date" value={reportDate} onChange={(event) => setReportDate(event.target.value)} required /></label></section><section className="report-section"><h2>Completed work</h2><p>Leave an item blank if no work was completed on it today.</p>{items.length === 0 ? <p className="boq-empty">This project has no BOQ items yet. Return to the project and add BOQ items first.</p> : <div className="report-lines">{items.map((item) => <div className="report-line" key={item.id}><div><span>{item.itemNumber} · Remaining: {(item.plannedQuantity - item.cumulativeQuantityCompleted).toLocaleString()} {item.unit}</span><h3>{item.description}</h3></div><label>Completed today ({item.unit})<input inputMode="decimal" value={quantities[item.id] ?? ""} onChange={(event) => setQuantities((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="0" /></label></div>)}</div>}</section><section className="report-section"><h2>Site notes</h2><p>These details help the project team understand today&apos;s activity.</p><label className="report-labour-field">Labour on site<input inputMode="numeric" value={labourCount} onChange={(event) => setLabourCount(event.target.value)} placeholder="0" /></label><div className="boq-number-fields"><label className="report-labour-field">Issue category<select value={issueCategory} onChange={(event) => setIssueCategory(event.target.value)}><option value="weather">Weather</option><option value="material_shortage">Material shortage</option><option value="access">Access</option><option value="other">Other</option></select></label></div><label className="report-issue-field">Issue or observation (optional)<textarea value={issue} onChange={(event) => setIssue(event.target.value)} placeholder="e.g. Rain delayed concrete works for two hours." /></label></section>{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">You can review the updated BOQ immediately after submitting.</p><button disabled={saving || items.length === 0}>{saving ? "Submitting report…" : "Submit daily report"}</button></div></form>
+    <form className="report-form" onSubmit={saveReport}><section className="report-section"><label className="report-date-field">Report date<input type="date" value={reportDate} onChange={(event) => setReportDate(event.target.value)} required /></label></section><section className="report-section"><h2>Completed work</h2><p>Leave an item blank if no work was completed on it today.</p>{items.length === 0 ? <p className="boq-empty">This project has no BOQ items yet. Return to the project and add BOQ items first.</p> : <div className="report-lines">{items.map((item) => <div className="report-line" key={item.id}><div><span>{item.itemNumber} · Remaining: {(item.plannedQuantity - item.cumulativeQuantityCompleted).toLocaleString()} {item.unit}</span><h3>{item.description}</h3></div><label>Completed today ({item.unit})<input inputMode="decimal" value={quantities[item.id] ?? ""} onChange={(event) => setQuantities((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="0" /></label></div>)}</div>}</section><section className="report-section"><h2>Site notes</h2><p>These details help the project team understand today&apos;s activity.</p><label className="report-labour-field">Labour on site<input inputMode="numeric" value={labourCount} onChange={(event) => setLabourCount(event.target.value)} placeholder="0" /></label><div className="boq-number-fields"><label className="report-labour-field">Issue category<select value={issueCategory} onChange={(event) => setIssueCategory(event.target.value)}><option value="weather">Weather</option><option value="material_shortage">Material shortage</option><option value="access">Access</option><option value="other">Other</option></select></label></div><label className="report-issue-field">Issue or observation (optional)<textarea value={issue} onChange={(event) => setIssue(event.target.value)} placeholder="e.g. Rain delayed concrete works for two hours." /></label></section>{draftMessage && <p className="form-success">{draftMessage}</p>}{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">Save a local draft if your internet connection is unstable. It stays only on this device until you submit.</p><div className="draft-actions"><button className="outline-button" type="button" onClick={loadDraft}>Load saved draft</button><button className="outline-button" type="button" onClick={saveDraft}>Save draft</button><button disabled={saving || items.length === 0}>{saving ? "Submitting report…" : "Submit daily report"}</button></div></div></form>
   </section></div></main>;
 }

@@ -149,12 +149,20 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .valuation-portfolio-row p { color: #71857a; font-size: 0.73rem; margin: 4px 0 0; text-transform: capitalize; }
 .valuation-portfolio-row > strong { color: #315a43; font-size: 0.86rem; }
 .valuation-portfolio-row .valuation-net-value { color: #177044; font-size: 0.92rem; }
+.reports-portfolio-list { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
+.reports-portfolio-row { align-items: center; border-top: 1px solid #edf1ee; display: grid; gap: 16px; grid-template-columns: 1.2fr 0.75fr 0.75fr 1.5fr; padding: 17px 21px; }
+.reports-portfolio-row:first-child { border-top: 0; }
+.reports-portfolio-row h2 { font-size: 0.94rem; margin: 6px 0 0; }
+.reports-portfolio-row p { color: #668074; display: grid; font-size: 0.75rem; gap: 4px; margin: 0; }
+.reports-portfolio-row p strong { color: #294f3c; font-size: 0.9rem; }
+.reports-portfolio-issue { font-size: 0.8rem !important; line-height: 1.4; }
 
 @media (max-width: 1050px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .project-table { overflow-x: auto; } .project-table-head, .project-row { min-width: 850px; } }
 @media (max-width: 720px) { .team-member { grid-template-columns: 42px 1fr; } .team-role, .team-allocation { grid-column: 2; text-align: left; } }
 @media (max-width: 560px) { .variation-queue-row { grid-template-columns: 1fr; } }
 @media (max-width: 820px) { .schedule-hero { align-items: flex-start; flex-direction: column; gap: 16px; } .schedule-table { overflow-x: auto; } .schedule-table-head, .schedule-row { min-width: 770px; } }
 @media (max-width: 820px) { .valuation-portfolio-table { overflow-x: auto; } .valuation-portfolio-head, .valuation-portfolio-row { min-width: 760px; } }
+@media (max-width: 820px) { .reports-portfolio-list { overflow-x: auto; } .reports-portfolio-row { min-width: 760px; } }
 @media (max-width: 600px) { .team-management-row { grid-template-columns: 1fr; } .team-heading-actions { align-items: flex-end; flex-direction: column; } }
 @media (max-width: 560px) { .settings-summary p { align-items: flex-start; flex-direction: column; gap: 6px; } .settings-summary strong { text-align: left; } }
 @media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } .portfolio-actions { align-items: stretch; flex-direction: column; width: 100%; } .state-filter select { width: 100%; } }

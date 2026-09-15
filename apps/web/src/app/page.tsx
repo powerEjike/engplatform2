@@ -49,7 +49,7 @@ export default function Home() {
           <a className="nav-link active" href="#portfolio">Portfolio</a>
           <a className="nav-link" href="#projects">Projects</a>
           <a className="nav-link" href="#variations">Variations <span className="count">3</span></a>
-          <a className="nav-link" href="#valuations">Valuations</a>
+          <Link className="nav-link" href="/schedule">Schedule health</Link>
           <Link className="nav-link" href="/team">Team</Link>
         </nav>
         <div className="sidebar-footer">

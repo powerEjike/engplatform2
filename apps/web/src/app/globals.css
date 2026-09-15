@@ -292,6 +292,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .boq-item-progress > div:first-child { color: #638075; display: flex; font-size: 0.76rem; justify-content: space-between; margin-bottom: 7px; }
 .boq-item-progress strong { color: #2b6947; font-size: 0.78rem; }
 .clear-boq-button, .remove-boq-button { background: white; border: 1px solid #d4978d; color: #994235; font-size: 0.76rem; margin-top: 14px; padding: 8px 10px; }
+.boq-item-actions { display: flex; gap: 8px; }.edit-boq-button { background: white; border: 1px solid #9dceb0; color: #216741; font-size: 0.76rem; margin-top: 14px; padding: 8px 10px; }
 .download-boq-button { background: white; border: 1px solid #9dceb0; color: #216741; font-size: 0.76rem; margin: 12px 8px 0 0; padding: 8px 10px; }
 .clear-boq-button { margin: 12px 0 0; }
 .boq-empty { background: #f7faf8; border: 1px dashed #c9d9cf; border-radius: 10px; color: #648074; font-size: 0.9rem; line-height: 1.5; margin: 20px 0 0; padding: 22px; }

@@ -21,6 +21,7 @@ const calculateProgress = (items: BoqItem[], project: Project): ProjectProgress 
 export function useProjectProgress(companyId: string | undefined, projects: Project[]) {
   const [progressByProject, setProgressByProject] = useState<Record<string, ProjectProgress>>({});
   const [activityByProject, setActivityByProject] = useState<Record<string, ProjectActivity>>({});
+  const [variationsByProject, setVariationsByProject] = useState<Record<string, Variation[]>>({});
 
   useEffect(() => {
     if (!companyId) return;
@@ -29,6 +30,7 @@ export function useProjectProgress(companyId: string | undefined, projects: Proj
       setProgressByProject((current) => ({ ...current, [project.id]: calculateProgress(items, project) }));
     }), onSnapshot(collection(db, "companies", companyId, "projects", project.id, "variations"), (snapshot) => {
       const variations = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Variation);
+      setVariationsByProject((current) => ({ ...current, [project.id]: variations }));
       const variationExposure = variations.filter((item) => item.status !== "rejected").reduce((total, item) => total + item.estimatedValue, 0);
       setActivityByProject((current) => ({ ...current, [project.id]: { variationExposure, latestReportDate: current[project.id]?.latestReportDate ?? null } }));
     }), onSnapshot(collection(db, "companies", companyId, "projects", project.id, "siteReports"), (snapshot) => {
@@ -38,5 +40,5 @@ export function useProjectProgress(companyId: string | undefined, projects: Proj
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, [companyId, projects]);
 
-  return { progressByProject, activityByProject };
+  return { progressByProject, activityByProject, variationsByProject };
 }

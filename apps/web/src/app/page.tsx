@@ -14,7 +14,7 @@ export default function Home() {
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
   const { users: companyUsers, isLoading: areUsersLoading } = useCompanyUsers(profile?.companyId);
-  const { progressByProject, activityByProject } = useProjectProgress(profile?.companyId, projects);
+  const { progressByProject, activityByProject, variationsByProject } = useProjectProgress(profile?.companyId, projects);
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
@@ -28,6 +28,7 @@ export default function Home() {
   const averageProgress = progressProjects.length === 0 ? 0 : Math.round(progressProjects.reduce((total, project) => total + (progressByProject[project.id]?.percentage ?? 0), 0) / progressProjects.length);
   const reportsNeedingAttention = visibleProjects.filter((project) => !activityByProject[project.id]?.latestReportDate).length;
   const assignedProjects = profile?.role === "site_engineer" ? projects.filter((project) => project.siteEngineerId === user?.uid) : projects;
+  const variationQueue = projects.flatMap((project) => (variationsByProject[project.id] ?? []).filter((variation) => variation.status === "pending_qs_review" || variation.status === "pending_director_approval").map((variation) => ({ ...variation, projectName: project.name }))).filter((variation) => profile?.role !== "quantity_surveyor" || variation.status === "pending_qs_review");
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -48,7 +49,7 @@ export default function Home() {
         <nav aria-label="Main navigation">
           <a className="nav-link active" href="#portfolio">Portfolio</a>
           <a className="nav-link" href="#projects">Projects</a>
-          <a className="nav-link" href="#variations">Variations <span className="count">3</span></a>
+          <a className="nav-link" href="#variations">Variations {variationQueue.length > 0 && <span className="count">{variationQueue.length}</span>}</a>
           <Link className="nav-link" href="/schedule">Schedule health</Link>
           <Link className="nav-link" href="/team">Team</Link>
         </nav>
@@ -121,6 +122,8 @@ export default function Home() {
             </article>;
           })}
         </section>
+
+        <section className="variation-queue" id="variations"><div className="section-heading"><div><p className="eyebrow">Decision queue</p><h2>Variations awaiting action</h2></div><span className="team-total">{variationQueue.length} open item{variationQueue.length === 1 ? "" : "s"}</span></div><div className="variation-queue-list">{variationQueue.length === 0 ? <p className="empty-state">No variations are waiting for your role right now.</p> : variationQueue.map((variation) => <article className="variation-queue-row" key={`${variation.projectId}-${variation.id}`}><div><span className={`variation-status ${variation.status}`}>{variation.status.replaceAll("_", " ")}</span><h3>{variation.description}</h3><p>{variation.projectName}</p></div><strong>{formatNaira(variation.estimatedValue)}</strong><Link className="text-action" href={`/projects/${variation.projectId}`}>Review</Link></article>)}</div></section>
 
         <section className="team-section" id="team">
           <div className="section-heading"><div><p className="eyebrow">Workspace team</p><h2>Roles and project allocations</h2></div><div className="team-heading-actions"><span className="team-total">{companyUsers.length} member{companyUsers.length === 1 ? "" : "s"}</span>{profile.role === "director" && <Link className="text-action" href="/team">Manage team</Link>}</div></div>

@@ -10,6 +10,9 @@ import { useProjectProgress } from "@/hooks/use-project-progress";
 import { useCompanyUsers } from "@/hooks/use-company-users";
 import { canManageProject } from "@/lib/permissions";
 import { MobileDashboardMenu, type DashboardMenuItem } from "@/components/mobile-dashboard-menu";
+import { BoqUploadNotice } from "@/components/boq-upload-notice";
+import { useBoqUploadEvents } from "@/hooks/use-boq-upload-events";
+import { canWorkOnProject } from "@/lib/project-access";
 
 export default function Home() {
   const router = useRouter();
@@ -17,6 +20,7 @@ export default function Home() {
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
   const { users: companyUsers, isLoading: areUsersLoading } = useCompanyUsers(profile?.companyId);
   const { progressByProject, activityByProject, variationsByProject } = useProjectProgress(profile?.companyId, projects);
+  const { eventsByProject } = useBoqUploadEvents(profile?.companyId, projects);
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
@@ -58,7 +62,7 @@ export default function Home() {
     { href: "#projects", label: "Projects" }, { href: "/updates", label: "Updates" }, { href: "#variations", label: "Variations", count: variationQueue.length }, { href: "/valuations", label: "Valuations" },
   ] : [{ href: "#projects", label: "My assigned projects" }, { href: "/updates", label: "Updates" }];
 
-  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} /><button className="sign-out engineer-sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><section className="engineer-projects" id="projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
+  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} /><button className="sign-out engineer-sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><BoqUploadNotice eventsByProject={eventsByProject} projects={projects} canAccessProject={(project) => canWorkOnProject(profile.role, user.uid, project)} /><section className="engineer-projects" id="projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
 
   return (
     <div className="app-shell">
@@ -86,6 +90,7 @@ export default function Home() {
         </header>
 
         <section className="role-banner"><div><p className="eyebrow">Signed-in workspace</p><h2>{profile.role.replaceAll("_", " ")}</h2><p>{profile.role === "director" ? "Portfolio oversight, team governance, final approvals, and company control." : profile.role === "project_manager" ? "Project delivery, issues, project updates, and variation decisions." : "Your access is tailored to your assigned project responsibilities."}</p></div><span>{profile.companyName}</span></section>
+        <BoqUploadNotice eventsByProject={eventsByProject} projects={projects} canAccessProject={(project) => canWorkOnProject(profile.role, user.uid, project)} />
 
         <section className="summary-grid" aria-label="Portfolio summary">
           <article className="metric-card">

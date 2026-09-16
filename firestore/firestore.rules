@@ -15,6 +15,16 @@ service cloud.firestore {
     function canSubmitSiteUpdate(companyId, projectId) {
       return isDirector(companyId) || isProjectManager(companyId) || isAssignedEngineer(companyId, projectId);
     }
+    function canAcceptInvite(companyId, inviteId) {
+      return signedIn()
+        && resource.data.active == true
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.active == false
+        && request.resource.data.acceptedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["active", "acceptedAt", "acceptedBy"])
+        && getAfter(/databases/$(database)/documents/companies/$(companyId)/users/$(request.auth.uid)).data.inviteId == inviteId
+        && getAfter(/databases/$(database)/documents/companies/$(companyId)/users/$(request.auth.uid)).data.role == resource.data.role;
+    }
 
     match /userIndex/{userId} { allow read, create: if signedIn() && request.auth.uid == userId; }
     match /companies/{companyId} {
@@ -31,6 +41,7 @@ service cloud.firestore {
       match /invites/{inviteId} {
         allow create, list: if isDirector(companyId);
         allow get: if signedIn();
+        allow update: if isDirector(companyId) || canAcceptInvite(companyId, inviteId);
       }
       match /projects/{projectId} {
         allow read: if isMember(companyId);

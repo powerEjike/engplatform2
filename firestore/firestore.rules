@@ -25,8 +25,12 @@ service cloud.firestore {
         allow read: if isMember(companyId);
         // A newly created company must be able to create its first Director profile.
         // Afterwards, only the Director can add or change team profiles.
-        allow create: if signedIn() && request.auth.uid == userId && get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid;
+        allow create: if signedIn() && request.auth.uid == userId && (get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid || (request.resource.data.inviteId is string && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.active == true && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.email == request.auth.token.email && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.role == request.resource.data.role));
         allow update: if isDirector(companyId);
+      }
+      match /invites/{inviteId} {
+        allow create, list: if isDirector(companyId);
+        allow get: if signedIn();
       }
       match /projects/{projectId} {
         allow read: if isMember(companyId);

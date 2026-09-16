@@ -179,12 +179,12 @@ export default function ProjectWorkspacePage() {
     if (!profile || !user) return;
     const rejectionReason = approved ? "" : window.prompt("Why is this variation being rejected?")?.trim();
     if (!approved && !rejectionReason) return;
-    try { await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "variations", variation.id), approved ? { status: "approved", approvedBy: user.uid, approvedAt: serverTimestamp() } : { status: "rejected", rejectionReason, approvedBy: user.uid, approvedAt: serverTimestamp() }); }
+    try { const batch = writeBatch(db); batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "variations", variation.id), approved ? { status: "approved", approvedBy: user.uid, approvedAt: serverTimestamp() } : { status: "rejected", rejectionReason, approvedBy: user.uid, approvedAt: serverTimestamp() }); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData(approved ? "variation_approved" : "variation_rejected", `Variation ${approved ? "approved" : "rejected"}: ${variation.description}.`)); await batch.commit(); }
     catch { setError("We could not update this variation. Please try again."); }
   };
   const forwardVariation = async (variation: Variation) => {
     if (!profile || !user) return;
-    try { await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "variations", variation.id), { status: "pending_director_approval", reviewedBy: user.uid, reviewedAt: serverTimestamp() }); }
+    try { const batch = writeBatch(db); batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "variations", variation.id), { status: "pending_director_approval", reviewedBy: user.uid, reviewedAt: serverTimestamp() }); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("variation_reviewed", `Variation reviewed and sent to the Director: ${variation.description}.`)); await batch.commit(); }
     catch { setError("We could not send this variation to the Director. Please try again."); }
   };
 

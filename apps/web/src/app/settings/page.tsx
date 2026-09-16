@@ -6,10 +6,14 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
+import { useCompanyUsers } from "@/hooks/use-company-users";
+import { useProjects } from "@/hooks/use-projects";
 
 export default function CompanySettingsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading, refreshProfile } = useAuth();
+  const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
   const [companyName, setCompanyName] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,7 +40,7 @@ export default function CompanySettingsPage() {
     }
   };
 
-  if (isLoading || isProfileLoading || !user || !profile || profile.role !== "director") return <main className="auth-loading">Opening company settings…</main>;
+  if (isLoading || isProfileLoading || usersLoading || projectsLoading || !user || !profile || profile.role !== "director") return <main className="auth-loading">Opening company settings…</main>;
 
-  return <main className="report-page"><div className="report-content"><Link className="back-link" href="/">← Back to workspace</Link><section className="report-card"><p className="eyebrow">Company administration</p><h1>Company settings</h1><p className="report-intro">Keep the workspace identity and team access under Director control.</p><form className="report-form" onSubmit={save}><section className="report-section"><h2>Workspace details</h2><label className="report-labour-field">Company / workspace name<input value={companyName || profile.companyName} onChange={(event) => setCompanyName(event.target.value)} required /></label></section><section className="report-section"><h2>Plan and security</h2><div className="settings-summary"><p><span>Current plan</span><strong>Firebase Spark — free plan</strong></p><p><span>Role control</span><Link className="text-action" href="/team">Manage team roles</Link></p><p><span>Project assignment</span><strong>Project Managers and Directors assign Site Engineers</strong></p></div></section>{message && <p className="form-success">{message}</p>}{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">Only Directors can update company settings.</p><button disabled={saving}>{saving ? "Saving changes…" : "Save changes"}</button></div></form></section></div></main>;
+  return <main className="report-page"><div className="report-content"><Link className="back-link" href="/">← Back to workspace</Link><section className="report-card"><p className="eyebrow">Company administration</p><h1>Company settings</h1><p className="report-intro">Keep the workspace identity and team access under Director control.</p><form className="report-form" onSubmit={save}><section className="report-section"><h2>Workspace details</h2><label className="report-labour-field">Company / workspace name<input value={companyName || profile.companyName} onChange={(event) => setCompanyName(event.target.value)} required /></label></section><section className="report-section"><h2>Workspace overview</h2><div className="settings-summary"><p><span>Team members</span><strong>{users.length}</strong></p><p><span>Active projects</span><strong>{projects.filter((project) => project.status === "active").length}</strong></p><p><span>Projects on hold</span><strong>{projects.filter((project) => project.status === "on_hold").length}</strong></p><p><span>Projects completed</span><strong>{projects.filter((project) => project.status === "completed").length}</strong></p></div></section><section className="report-section"><h2>Plan and security</h2><div className="settings-summary"><p><span>Current plan</span><strong>Firebase Spark — free plan</strong></p><p><span>Role control</span><Link className="text-action" href="/team">Manage team roles</Link></p><p><span>Project assignment</span><strong>Project Managers and Directors assign Site Engineers</strong></p></div></section>{message && <p className="form-success">{message}</p>}{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">Only Directors can update company settings.</p><button disabled={saving}>{saving ? "Saving changes…" : "Save changes"}</button></div></form></section></div></main>;
 }

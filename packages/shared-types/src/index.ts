@@ -10,6 +10,7 @@ export type VariationStatus = "pending_qs_review" | "pending_director_approval" 
 export type ReportSyncStatus = "draft" | "pending_sync" | "synced" | "failed";
 export type IssueCategory = "weather" | "material_shortage" | "access" | "other";
 export type ScheduleHealth = "on_track" | "attention" | "behind";
+export type MilestoneStatus = "not_started" | "in_progress" | "complete";
 
 export interface Company {
   id: string;
@@ -47,6 +48,18 @@ export interface Project {
   projectManagerName?: string;
   siteEngineerId?: string;
   siteEngineerName?: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface ProjectMilestone {
+  id: string;
+  projectId: string;
+  title: string;
+  plannedDate: string;
+  actualDate?: string | null;
+  status: MilestoneStatus;
+  progress: number;
   createdBy: string;
   createdAt: string;
 }

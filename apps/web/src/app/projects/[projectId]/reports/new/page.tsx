@@ -68,6 +68,7 @@ export default function NewSiteReportPage() {
       const reports = collection(db, "companies", profile.companyId, "projects", projectId, "siteReports");
       const report = doc(reports);
       batch.set(report, { projectId, submittedBy: user.uid, reportDate, status: "synced", lineItems, labourCount: labour, equipmentOnSite, issues: issue.trim() ? [{ category: issueCategory, note: issue.trim() }] : [], photoIds: [], clientGeneratedId: report.id, createdAt: serverTimestamp(), syncedAt: serverTimestamp() });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), { action: "report_submitted", summary: `Daily report submitted for ${reportDate}.`, actorName: profile.name, createdAt: serverTimestamp() });
       lineItems.forEach((lineItem) => {
         const item = items.find((current) => current.id === lineItem.boqItemId);
         if (item) batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { cumulativeQuantityCompleted: item.cumulativeQuantityCompleted + lineItem.quantityCompleted });

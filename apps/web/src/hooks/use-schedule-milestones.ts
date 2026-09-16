@@ -12,7 +12,6 @@ export function useScheduleMilestones(companyId: string | undefined, projects: P
 
   useEffect(() => {
     if (!companyId || projects.length === 0) {
-      setMilestones([]);
       return;
     }
     const byProject = new Map<string, ScheduleMilestone[]>();

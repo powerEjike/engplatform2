@@ -38,6 +38,7 @@ service cloud.firestore {
           allow delete: if isDirector(companyId) || isQs(companyId);
         }
         match /boqUploads/{uploadId} { allow read: if isMember(companyId); allow create: if isDirector(companyId) || isQs(companyId); }
+        match /activityLog/{eventId} { allow read: if isMember(companyId); allow create: if isDirector(companyId) || isQs(companyId); }
         match /siteReports/{reportId} { allow read: if isMember(companyId); allow create: if canSubmitSiteUpdate(companyId, projectId); }
         match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
         match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }

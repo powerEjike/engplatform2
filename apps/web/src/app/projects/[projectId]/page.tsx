@@ -4,7 +4,7 @@ import Link from "next/link";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { BoqItem, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
+import type { BoqItem, ProjectActivityEvent, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { formatNaira } from "@/lib/dashboard-data";
@@ -50,6 +50,7 @@ export default function ProjectWorkspacePage() {
   const [variations, setVariations] = useState<Variation[]>([]);
   const [valuations, setValuations] = useState<Valuation[]>([]);
   const [reports, setReports] = useState<SiteReport[]>([]);
+  const [activity, setActivity] = useState<ProjectActivityEvent[]>([]);
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -69,6 +70,10 @@ export default function ProjectWorkspacePage() {
     return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => {
       setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem));
     });
+  }, [profile, projectId]);
+  useEffect(() => {
+    if (!profile || !projectId) return;
+    return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog"), orderBy("createdAt", "desc")), (snapshot) => setActivity(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as ProjectActivityEvent)));
   }, [profile, projectId]);
 
   useEffect(() => {
@@ -100,6 +105,7 @@ export default function ProjectWorkspacePage() {
   const teamMemberName = (id: string | undefined) => companyUsers.find((member) => member.id === id)?.name ?? "A team member";
   const approvalDate = (value: unknown) => value && typeof value === "object" && "toDate" in value ? (value as { toDate: () => Date }).toDate().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : value ? new Date(String(value)).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : "";
   const printProjectSummary = () => window.print();
+  const activityData = (action: ProjectActivityEvent["action"], summary: string) => ({ action, summary, actorName: profile?.name ?? "Team member", createdAt: serverTimestamp() });
   const downloadBoq = () => {
     const quote = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
     const rows = ["itemNumber,description,unit,plannedQuantity,rate,section,cumulativeQuantityCompleted", ...items.map((item) => [item.itemNumber, item.description, item.unit, item.plannedQuantity, item.rate, item.section, item.cumulativeQuantityCompleted].map(quote).join(","))];
@@ -116,7 +122,7 @@ export default function ProjectWorkspacePage() {
   const importBoq = async () => {
     if (!profile || importRows.length === 0) return;
     setIsImporting(true); setImportError("");
-    try { const batch = writeBatch(db); const itemsPath = collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"); importRows.forEach((row) => batch.set(doc(itemsPath), { ...row, projectId, cumulativeQuantityCompleted: 0, createdAt: serverTimestamp() })); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "boqUploads")), { projectId, itemCount: importRows.length, uploadedBy: user?.uid ?? "", createdAt: serverTimestamp() }); await batch.commit(); setImportMessage(`${importRows.length} BOQ item${importRows.length === 1 ? "" : "s"} imported successfully. The Project Manager and assigned Site Engineer can now view them, and the workspace update has been sent.`); setImportRows([]); }
+    try { const batch = writeBatch(db); const itemsPath = collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"); importRows.forEach((row) => batch.set(doc(itemsPath), { ...row, projectId, cumulativeQuantityCompleted: 0, createdAt: serverTimestamp() })); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "boqUploads")), { projectId, itemCount: importRows.length, uploadedBy: user?.uid ?? "", createdAt: serverTimestamp() }); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("boq_uploaded", `${importRows.length} BOQ item${importRows.length === 1 ? " was" : "s were"} uploaded.`)); await batch.commit(); setImportMessage(`${importRows.length} BOQ item${importRows.length === 1 ? "" : "s"} imported successfully. The Project Manager and assigned Site Engineer can now view them, and the workspace update has been sent.`); setImportRows([]); }
     catch { setImportError("We could not import the BOQ. Please try again."); }
     finally { setIsImporting(false); }
   };
@@ -126,7 +132,7 @@ export default function ProjectWorkspacePage() {
     if (!profile) return;
     if (item.cumulativeQuantityCompleted > 0) return setError("This BOQ item has reported progress and cannot be removed. Create a variation instead so the audit trail remains accurate.");
     if (!window.confirm(`Remove ${item.itemNumber} — ${item.description}? This cannot be undone.`)) return;
-    try { await deleteDoc(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id)); }
+    try { const batch = writeBatch(db); batch.delete(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id)); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("boq_removed", `${item.itemNumber} · ${item.description} was removed.`)); await batch.commit(); }
     catch { setError("We could not remove this BOQ item. Please try again."); }
   };
   const editBoqItem = async (item: BoqItem) => {
@@ -137,7 +143,7 @@ export default function ProjectWorkspacePage() {
     const plannedQuantity = Number(quantityText.replace(/,/g, "")); const rate = Number(rateText.replace(/[₦,]/g, ""));
     if (!description.trim() || !Number.isFinite(plannedQuantity) || plannedQuantity <= 0 || !Number.isFinite(rate) || rate < 0) return setError("Use a description, a quantity above zero, and a valid rate.");
     if (plannedQuantity < item.cumulativeQuantityCompleted) return setError("The planned quantity cannot be below the quantity already reported as complete.");
-    try { await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { description: description.trim(), plannedQuantity, rate }); }
+    try { const batch = writeBatch(db); batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { description: description.trim(), plannedQuantity, rate }); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("boq_edited", `${item.itemNumber} · ${description.trim()} was updated.`)); await batch.commit(); }
     catch { setError("We could not update this BOQ item. Please try again."); }
   };
   const clearBoq = async () => {
@@ -145,7 +151,7 @@ export default function ProjectWorkspacePage() {
     if (reports.length || valuations.length || items.some((item) => item.cumulativeQuantityCompleted > 0)) return setError("The BOQ cannot be cleared after reports, valuations, or completed quantities exist. Remove only unused items, or use a variation to preserve the project history.");
     if (!window.confirm(`Remove all ${items.length} BOQ items from this project? This cannot be undone.`)) return;
     setIsClearingBoq(true); setError("");
-    try { const batch = writeBatch(db); items.forEach((item) => batch.delete(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id))); await batch.commit(); }
+    try { const batch = writeBatch(db); items.forEach((item) => batch.delete(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id))); batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("boq_cleared", `${items.length} unused BOQ items were removed.`)); await batch.commit(); }
     catch { setError("We could not clear the BOQ. Please try again."); }
     finally { setIsClearingBoq(false); }
   };
@@ -163,6 +169,7 @@ export default function ProjectWorkspacePage() {
       await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), {
         itemNumber: form.itemNumber.trim(), description: form.description.trim(), section: form.section.trim() || "General", unit: form.unit.trim(), plannedQuantity, rate, cumulativeQuantityCompleted: 0, createdAt: serverTimestamp(), createdBy: user.uid,
       });
+      await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog"), activityData("boq_created", `${form.itemNumber.trim()} · ${form.description.trim()} was added.`));
       setForm(initialForm);
     } catch {
       setError("We could not save this BOQ item. Check that the latest Firestore rules have been published, then try again.");
@@ -198,5 +205,7 @@ export default function ProjectWorkspacePage() {
     <section className="report-register"><div className="boq-header"><div><p className="eyebrow">Site activity</p><h2>Daily reports</h2></div>{canSubmitReport(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/reports/new`}>Add report</Link>}</div>{reports.length === 0 ? <p className="boq-empty">No daily reports have been submitted for this project.</p> : <div className="report-history">{reports.map((report) => <article className="report-history-row" key={report.id}><div><span className="report-history-date">{new Date(`${report.reportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span><h3>{report.lineItems.length} BOQ item{report.lineItems.length === 1 ? "" : "s"} updated</h3></div><p><span>Labour</span><strong>{report.labourCount}</strong></p><p><span>Issues</span><strong>{report.issues.length}</strong></p><p className="report-history-note">{report.equipmentOnSite.length > 0 && <><b>Equipment</b> · {report.equipmentOnSite.join(", ")}<br /></>}{report.issues[0] ? <><b>{report.issues[0].category.replaceAll("_", " ")}</b> · {report.issues[0].note}</> : report.equipmentOnSite.length === 0 ? "No issues or equipment recorded" : "No issues recorded"}</p></article>)}</div>}</section>
     <section className="variation-register"><div className="boq-header"><div><p className="eyebrow">Change control</p><h2>Variation register</h2></div><p className="boq-total">Open exposure<strong>{formatNaira(variationExposure)}</strong></p></div>{variations.length === 0 ? <p className="boq-empty">No variations have been raised for this project.</p> : <div className="variation-list">{variations.map((variation) => <article className="variation-row" key={variation.id}><div><span className={`variation-status ${variation.status}`}>{variation.status.replaceAll("_", " ")}</span><h3>{variation.description}</h3><p>{variation.reason}</p><div className="approval-history"><span>Raised {approvalDate(variation.raisedAt)}</span>{variation.reviewedAt && <span>Reviewed by {teamMemberName(variation.reviewedBy)} · {approvalDate(variation.reviewedAt)}</span>}{variation.approvedAt && <span>{variation.status === "approved" ? "Approved" : "Rejected"} by {teamMemberName(variation.approvedBy)} · {approvalDate(variation.approvedAt)}</span>}</div></div><div className="variation-actions"><strong>{formatNaira(variation.estimatedValue)}</strong>{variation.status === "pending_qs_review" && canReviewVariation(profile.role) && <div><button type="button" onClick={() => void forwardVariation(variation)}>{profile.role === "quantity_surveyor" ? "Complete QS review" : "Recommend to Director"}</button></div>}{variation.status === "pending_director_approval" && canFinalApproveVariation(profile.role) && <div><button type="button" onClick={() => void updateVariation(variation, true)}>Approve</button><button className="reject-button" type="button" onClick={() => void updateVariation(variation, false)}>Reject</button></div>}</div></article>)}</div>}</section>
     <section className="valuation-register"><div className="boq-header"><div><p className="eyebrow">Payment certificates</p><h2>Valuation register</h2></div>{canGenerateValuation(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/valuations/new`}>Create valuation</Link>}</div>{valuations.length === 0 ? <p className="boq-empty">No payment certificates have been issued for this project.</p> : <div className="valuation-list">{valuations.map((valuation) => <article className="valuation-row" key={valuation.id}><div><span className="valuation-certificate">{valuation.certificateNumber}</span><h3>{new Date(`${valuation.valuationDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</h3></div><p><span>Gross value</span><strong>{formatNaira(valuation.grossValue)}</strong></p><p><span>Retention</span><strong>{formatNaira(valuation.retentionAmount)}</strong></p><p className="valuation-due"><span>Net due</span><strong>{formatNaira(valuation.netAmountDue)}</strong></p></article>)}</div>}</section>
+    <section className="valuation-register"><div className="boq-header"><div><p className="eyebrow">Payment certificates</p><h2>Valuation register</h2></div>{canGenerateValuation(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/valuations/new`}>Create valuation</Link>}</div>{valuations.length === 0 ? <p className="boq-empty">No payment certificates have been issued for this project.</p> : <div className="valuation-list">{valuations.map((valuation) => <article className="valuation-row" key={valuation.id}><div><span className="valuation-certificate">{valuation.certificateNumber}</span><h3>{new Date(`${valuation.valuationDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</h3></div><p><span>Gross value</span><strong>{formatNaira(valuation.grossValue)}</strong></p><p><span>Retention</span><strong>{formatNaira(valuation.retentionAmount)}</strong></p><p className="valuation-due"><span>Net due</span><strong>{formatNaira(valuation.netAmountDue)}</strong></p></article>)}</div>}</section>
+    <section className="audit-register"><div className="boq-header"><div><p className="eyebrow">Audit history</p><h2>BOQ activity</h2></div></div>{activity.length === 0 ? <p className="boq-empty">BOQ uploads, additions, edits, and removals will be recorded here.</p> : <div className="audit-list">{activity.slice(0, 12).map((event) => <article className="audit-row" key={event.id}><div><strong>{event.summary}</strong><p>{event.actorName}</p></div><time>{approvalDate(event.createdAt)}</time></article>)}</div>}</section>
   </div></main>;
 }

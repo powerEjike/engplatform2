@@ -72,6 +72,14 @@ export interface BoqUploadEvent {
   createdAt: string;
 }
 
+export interface ProjectActivityEvent {
+  id: string;
+  action: "boq_uploaded" | "boq_created" | "boq_edited" | "boq_removed" | "boq_cleared";
+  summary: string;
+  actorName: string;
+  createdAt: string;
+}
+
 export interface ReportLineItem {
   boqItemId: string;
   quantityCompleted: number;

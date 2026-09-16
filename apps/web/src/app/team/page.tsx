@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { UserRole } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
 import { useCompanyUsers } from "@/hooks/use-company-users";
+import { useProjects } from "@/hooks/use-projects";
 import { db } from "@/lib/firebase";
 
 const roles: Array<{ value: Exclude<UserRole, "client">; label: string; description: string }> = [
@@ -20,6 +21,7 @@ export default function TeamPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
   const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
   const [savingId, setSavingId] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -43,7 +45,7 @@ export default function TeamPage() {
     }
   };
 
-  if (isLoading || isProfileLoading || usersLoading || !user || !profile || profile.role !== "director") return <main className="auth-loading">Opening team management…</main>;
+  if (isLoading || isProfileLoading || usersLoading || projectsLoading || !user || !profile || profile.role !== "director") return <main className="auth-loading">Opening team management…</main>;
 
-  return <main className="report-page"><div className="report-content"><Link className="back-link" href="/">← Back to workspace</Link><section className="report-card"><p className="eyebrow">Company administration</p><h1>Team management</h1><p className="report-intro">Set each team member&apos;s working role. Client accounts are not available in this workspace.</p><div className="role-guide">{roles.map((role) => <p key={role.value}><strong>{role.label}</strong><span>{role.description}</span></p>)}</div><section className="team-management-list">{users.map((member) => { const isCurrentUser = member.id === user.uid; return <article className="team-management-row" key={member.id}><div><h2>{member.name}</h2><p>{member.email}</p></div><label>Role<select value={member.role} disabled={isCurrentUser || savingId === member.id} onChange={(event) => void updateRole(member.id, event.target.value)}>{roles.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</select></label><span className="role-change-note">{isCurrentUser ? "Your own Director role is protected" : savingId === member.id ? "Saving…" : ""}</span></article>; })}</section>{message && <p className="form-success">{message}</p>}{error && <p className="form-error">{error}</p>}</section></div></main>;
+  return <main className="report-page"><div className="report-content"><Link className="back-link" href="/">← Back to workspace</Link><section className="report-card"><p className="eyebrow">Company administration</p><h1>Team management</h1><p className="report-intro">Set each team member&apos;s working role. Client accounts are not available in this workspace.</p><div className="role-guide">{roles.map((role) => <p key={role.value}><strong>{role.label}</strong><span>{role.description}</span></p>)}</div><section className="team-management-list">{users.map((member) => { const isCurrentUser = member.id === user.uid; const managedProjects = projects.filter((project) => project.projectManagerId === member.id); const assignedProjects = projects.filter((project) => project.siteEngineerId === member.id); const allocationText = member.role === "project_manager" ? `${managedProjects.length} managed project${managedProjects.length === 1 ? "" : "s"}${managedProjects.length ? ` · ${managedProjects.map((project) => project.name).join(", ")}` : ""}` : member.role === "site_engineer" ? `${assignedProjects.length} site assignment${assignedProjects.length === 1 ? "" : "s"}${assignedProjects.length ? ` · ${assignedProjects.map((project) => project.name).join(", ")}` : ""}` : member.role === "quantity_surveyor" ? "Controls BOQ, variations, and valuations across the workspace" : "Portfolio oversight and final approvals"; return <article className="team-management-row" key={member.id}><div><h2>{member.name}</h2><p>{member.email}</p></div><label>Role<select value={member.role} disabled={isCurrentUser || savingId === member.id} onChange={(event) => void updateRole(member.id, event.target.value)}>{roles.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</select></label><span className="role-change-note">{isCurrentUser ? "Your own Director role is protected" : savingId === member.id ? "Saving…" : allocationText}</span></article>; })}</section>{message && <p className="form-success">{message}</p>}{error && <p className="form-error">{error}</p>}</section></div></main>;
 }

@@ -11,6 +11,7 @@ import { formatNaira } from "@/lib/dashboard-data";
 import { useProjects } from "@/hooks/use-projects";
 import { canWorkOnProject } from "@/lib/project-access";
 import { canRaiseVariation } from "@/lib/permissions";
+import { beginSyncOperation, completeSyncOperation, failSyncOperation } from "@/lib/offline-sync";
 
 export default function NewVariationPage() {
   const params = useParams<{ projectId: string }>();
@@ -38,7 +39,9 @@ export default function NewVariationPage() {
     if (!description.trim() || !reason.trim() || !Number.isFinite(estimate) || estimate < 0) return setError("Add a description, reason, and valid estimated value.");
     if (selectedItem && (!Number.isFinite(Number(quantityDelta)) || Number(quantityDelta) === 0)) return setError("Enter the quantity increase or decrease for the selected BOQ item.");
     setSaving(true); setError("");
+    let syncOperationId = "";
     try {
+      syncOperationId = beginSyncOperation("variation");
       const batch = writeBatch(db);
       batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "variations")), {
         projectId, relatedBoqItemId: boqItemId || null, description: description.trim(), reason: reason.trim(), raisedBy: user.uid,
@@ -52,15 +55,16 @@ export default function NewVariationPage() {
       const raiseVariation = batch.commit();
 
       if (!navigator.onLine) {
-        void raiseVariation.catch(() => undefined);
+        void raiseVariation.then(() => completeSyncOperation(syncOperationId)).catch(() => failSyncOperation(syncOperationId));
         router.replace(`/projects/${projectId}?variationSavedOffline=1`);
         return;
       }
 
       await raiseVariation;
+      completeSyncOperation(syncOperationId);
       router.replace(`/projects/${projectId}`);
     }
-    catch { setError("We could not raise this variation. Check the Firestore rules and try again."); setSaving(false); }
+    catch { if (syncOperationId) failSyncOperation(syncOperationId); setError("We could not raise this variation. Check the Firestore rules and try again."); setSaving(false); }
   };
   if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening variation form…</main>;
   if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;

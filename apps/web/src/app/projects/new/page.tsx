@@ -7,6 +7,7 @@ import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { canManageProject } from "@/lib/permissions";
 import { useCompanyUsers } from "@/hooks/use-company-users";
+import { beginSyncOperation, completeSyncOperation, failSyncOperation } from "@/lib/offline-sync";
 import Link from "next/link";
 
 const states = ["Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT Abuja", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"];
@@ -27,7 +28,9 @@ export default function NewProjectPage() {
     const assignedManagerId = profile.role === "director" ? projectManagerId : profile.role === "project_manager" ? user.uid : ""; const assignedEngineerId = profile.role === "director" ? siteEngineerId : "";
     const assignedManager = projectManagers.find((member) => member.id === assignedManagerId); const assignedEngineer = siteEngineers.find((member) => member.id === assignedEngineerId);
     setSaving(true); setError("");
+    let syncOperationId = "";
     try {
+      syncOperationId = beginSyncOperation("project");
       const createProject = addDoc(collection(db, "companies", profile.companyId, "projects"), {
         name: name.trim(), clientName: clientName.trim(), contractSum: value, location: location.trim(), state, startDate, endDate,
         status: "active", projectManagerId: assignedManagerId || null,
@@ -39,15 +42,16 @@ export default function NewProjectPage() {
       // Firestore queues this write in the device cache. Its promise waits for an
       // internet acknowledgement, so do not keep a field user on this form offline.
       if (!navigator.onLine) {
-        void createProject.catch(() => undefined);
+        void createProject.then(() => completeSyncOperation(syncOperationId)).catch(() => failSyncOperation(syncOperationId));
         router.replace("/?projectSavedOffline=1");
         return;
       }
 
       await createProject;
+      completeSyncOperation(syncOperationId);
       router.replace("/");
     }
-    catch { setError("We could not create this project. Please try again."); setSaving(false); }
+    catch { if (syncOperationId) failSyncOperation(syncOperationId); setError("We could not create this project. Please try again."); setSaving(false); }
   };
   if (profile && !canManageProject(profile.role)) return <main className="auth-loading">Your role cannot create projects. <Link href="/">Return to workspace</Link></main>;
   return <main className="onboarding-page"><section className="onboarding-card project-form-card"><p className="eyebrow">Project setup</p><h1>Add a project</h1><p>Start with the contract details. BOQ items come next. Projects created by a Project Manager are automatically assigned to them.</p><form onSubmit={submit}>

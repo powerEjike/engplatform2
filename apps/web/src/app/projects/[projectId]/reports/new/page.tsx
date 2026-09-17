@@ -10,9 +10,11 @@ import { db } from "@/lib/firebase";
 import { useProjects } from "@/hooks/use-projects";
 import { canWorkOnProject } from "@/lib/project-access";
 import { canSubmitReport } from "@/lib/permissions";
+import { beginSyncOperation, completeSyncOperation, failSyncOperation } from "@/lib/offline-sync";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const draftKey = (projectId: string) => `engplatform2:report-draft:${projectId}`;
+const newClientGeneratedId = () => typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 const namedValues = (value: string) => {
   if (!value.trim()) return {};
   const entries = value.split(",").map((entry) => entry.trim()).filter(Boolean).map((entry) => entry.split(":").map((part) => part.trim()));
@@ -39,6 +41,7 @@ export default function NewSiteReportPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [draftMessage, setDraftMessage] = useState("");
+  const [clientGeneratedId] = useState(newClientGeneratedId);
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -72,9 +75,11 @@ export default function NewSiteReportPage() {
     if (hasInvalidQuantity) return setError("Each completed quantity must be zero or more and cannot exceed the remaining planned quantity.");
     if (lineItems.length === 0 && labour === 0 && equipmentOnSite.length === 0 && !issue.trim()) return setError("Record completed work, labour, equipment, or a site issue before submitting.");
     setSaving(true); setError("");
+    let syncOperationId = "";
     try {
-      const batch = writeBatch(db); const reports = collection(db, "companies", profile.companyId, "projects", projectId, "siteReports"); const report = doc(reports);
-      batch.set(report, { projectId, submittedBy: user.uid, reportDate, status: "synced", lineItems, labourCount: labour, labourByTrade: labourBreakdown, equipmentOnSite, equipmentHours: equipmentBreakdown, issues: issue.trim() ? [{ category: issueCategory, note: issue.trim() }] : [], photoIds: [], clientGeneratedId: report.id, createdAt: serverTimestamp(), syncedAt: serverTimestamp() });
+      syncOperationId = beginSyncOperation("daily report");
+      const batch = writeBatch(db); const reports = collection(db, "companies", profile.companyId, "projects", projectId, "siteReports"); const report = doc(reports, clientGeneratedId);
+      batch.set(report, { projectId, submittedBy: user.uid, reportDate, status: "synced", lineItems, labourCount: labour, labourByTrade: labourBreakdown, equipmentOnSite, equipmentHours: equipmentBreakdown, issues: issue.trim() ? [{ category: issueCategory, note: issue.trim() }] : [], photoIds: [], clientGeneratedId, createdAt: serverTimestamp(), syncedAt: serverTimestamp() });
       batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), { action: "report_submitted", summary: `Daily report submitted for ${reportDate}.`, actorName: profile.name, createdAt: serverTimestamp() });
       lineItems.forEach((lineItem) => { const item = items.find((current) => current.id === lineItem.boqItemId); if (item) batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { cumulativeQuantityCompleted: item.cumulativeQuantityCompleted + lineItem.quantityCompleted }); });
       const submitReport = batch.commit();
@@ -83,14 +88,15 @@ export default function NewSiteReportPage() {
       // A batch is stored in Firestore's local cache first, but its promise waits
       // for a network acknowledgement. Field teams should be able to carry on.
       if (!navigator.onLine) {
-        void submitReport.catch(() => undefined);
+        void submitReport.then(() => completeSyncOperation(syncOperationId)).catch(() => failSyncOperation(syncOperationId));
         router.replace(`/projects/${projectId}?reportSavedOffline=1`);
         return;
       }
 
       await submitReport;
+      completeSyncOperation(syncOperationId);
       router.replace(`/projects/${projectId}`);
-    } catch { setError("We could not submit this report. Check that the latest Firestore rules have been published, then try again."); setSaving(false); }
+    } catch { if (syncOperationId) failSyncOperation(syncOperationId); setError("We could not submit this report. Check that the latest Firestore rules have been published, then try again."); setSaving(false); }
   };
   const saveDraft = () => { try { window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, labourByTrade, equipment, equipmentHours, issueCategory, issue })); setDraftMessage("Draft saved safely on this device. It will restore automatically when you return to this report."); } catch { setDraftMessage("We could not save the draft on this device. Check that browser storage is available, then try again."); } };
   const loadDraft = () => { const saved = window.localStorage.getItem(draftKey(projectId)); if (!saved) return setDraftMessage("No saved draft was found for this project on this device."); try { const draft = JSON.parse(saved) as { quantities?: Record<string, string>; reportDate?: string; labourCount?: string; labourByTrade?: string; equipment?: string; equipmentHours?: string; issueCategory?: string; issue?: string }; setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setLabourByTrade(draft.labourByTrade ?? ""); setEquipment(draft.equipment ?? ""); setEquipmentHours(draft.equipmentHours ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? ""); setDraftMessage("Saved draft loaded. Review the details, then submit when ready."); } catch { setDraftMessage("This saved draft could not be read. Start a new report and save it again if needed."); } };

@@ -74,6 +74,7 @@ export default function ProjectMilestonesPage() {
         note: note.trim(),
         createdBy: user.uid,
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
       setTitle(""); setPlannedDate(""); setActualDate(""); setStatus("not_started"); setProgress("0"); setNote("");
       setMessage("Milestone added to the project schedule.");
@@ -86,7 +87,7 @@ export default function ProjectMilestonesPage() {
     if (!profile) return;
     setMessage("");
     try {
-      await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "milestones", milestone.id), { status: "complete", progress: 100, actualDate: new Date().toISOString().slice(0, 10) });
+      await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "milestones", milestone.id), { status: "complete", progress: 100, actualDate: new Date().toISOString().slice(0, 10), updatedAt: serverTimestamp() });
       setMessage(`Marked “${milestone.title}” complete.`);
     } catch { setMessage("We could not update this milestone. Confirm the updated Firestore rules have been published."); }
   }
@@ -111,6 +112,7 @@ export default function ProjectMilestonesPage() {
         progress: nextStatus === "complete" ? 100 : numericProgress,
         actualDate: editActualDate || (nextStatus === "complete" ? new Date().toISOString().slice(0, 10) : null),
         note: editNote.trim(),
+        updatedAt: serverTimestamp(),
       });
       setEditingId(null);
       setMessage(`Updated progress for “${milestone.title}”.`);

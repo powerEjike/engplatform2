@@ -50,6 +50,7 @@ export interface Project {
   siteEngineerName?: string;
   createdBy: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ProjectMilestone {

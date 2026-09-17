@@ -12,6 +12,9 @@ service cloud.firestore {
     function isAssignedEngineer(companyId, projectId) {
       return isSiteEngineer(companyId) && get(/databases/$(database)/documents/companies/$(companyId)/projects/$(projectId)).data.siteEngineerId == request.auth.uid;
     }
+    function isAssignedProjectManager(companyId, projectId) {
+      return isProjectManager(companyId) && get(/databases/$(database)/documents/companies/$(companyId)/projects/$(projectId)).data.projectManagerId == request.auth.uid;
+    }
     function canSubmitSiteUpdate(companyId, projectId) {
       return isDirector(companyId) || isProjectManager(companyId) || isAssignedEngineer(companyId, projectId);
     }
@@ -59,7 +62,7 @@ service cloud.firestore {
           allow create: if canSubmitSiteUpdate(companyId, projectId);
           match /comments/{commentId} {
             allow read: if isMember(companyId);
-            allow create: if isDirector(companyId) || isQs(companyId) || isProjectManager(companyId);
+            allow create: if isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId);
           }
         }
         match /milestones/{milestoneId} { allow read: if isMember(companyId); allow create, update, delete: if isDirector(companyId) || isProjectManager(companyId); }

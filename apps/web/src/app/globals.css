@@ -423,6 +423,12 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-history-row p { color: #688176; display: grid; font-size: 0.74rem; gap: 4px; margin: 0; }
 .report-history-row strong { color: #294f3c; font-size: 0.9rem; }
 .report-history-note { font-size: 0.82rem !important; line-height: 1.4; }
+.report-comments { border-top: 1px solid #e2ebe5; display: grid; gap: 8px; grid-column: 1 / -1; margin-top: 2px; padding-top: 14px; }
+.report-comments > p { display: block; margin: 0; }
+.report-comments select, .report-comments textarea { box-sizing: border-box; margin-top: 6px; width: 100%; }
+.report-comments select { min-height: 72px; }
+.report-comments textarea { min-height: 76px; resize: vertical; }
+.report-comments button { margin-top: 8px; }
 .variation-list { display: grid; gap: 10px; margin-top: 20px; }
 .variation-row { align-items: flex-start; border: 1px solid #e2ebe5; border-radius: 10px; display: flex; gap: 20px; justify-content: space-between; padding: 16px; }
 .variation-row h3 { color: #1d4833; font-size: 0.95rem; margin: 8px 0 6px; }

@@ -59,6 +59,7 @@ export default function ProjectWorkspacePage() {
   const [importError, setImportError] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [isClearingBoq, setIsClearingBoq] = useState(false);
+  const [todayTime] = useState(() => Date.now());
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -103,7 +104,7 @@ export default function ProjectWorkspacePage() {
   const projectProgress = plannedValue > 0 ? Math.min(100, Math.round(completedValue / plannedValue * 100)) : 0;
   const startTime = new Date(`${project?.startDate ?? ""}T00:00:00`).getTime();
   const endTime = new Date(`${project?.endDate ?? ""}T00:00:00`).getTime();
-  const expectedProgress = Number.isFinite(startTime) && Number.isFinite(endTime) && endTime > startTime ? Math.round(Math.min(100, Math.max(0, (Date.now() - startTime) / (endTime - startTime) * 100))) : 0;
+  const expectedProgress = Number.isFinite(startTime) && Number.isFinite(endTime) && endTime > startTime ? Math.round(Math.min(100, Math.max(0, (todayTime - startTime) / (endTime - startTime) * 100))) : 0;
   const progressGap = projectProgress - expectedProgress;
   const variationExposure = useMemo(() => variations.filter((item) => item.status !== "rejected").reduce((total, item) => total + item.estimatedValue, 0), [variations]);
   const teamMemberName = (id: string | undefined) => companyUsers.find((member) => member.id === id)?.name ?? "A team member";

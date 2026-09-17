@@ -69,6 +69,9 @@ service cloud.firestore {
         match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
         match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }
       }
+      match /messages/{messageId} {
+        allow read, create: if isMember(companyId);
+      }
     }
   }
 }

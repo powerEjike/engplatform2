@@ -154,7 +154,7 @@ export default function Home() {
         <section className="project-table" id="projects" aria-label="Active projects">
           <div className="project-table-head"><span>Project</span><span>Status</span><span>BOQ</span><span>Progress</span><span>Schedule</span><span>Variation exposure</span><span>Latest report</span></div>
           {areProjectsLoading && <p className="empty-state">Loading your projects…</p>}
-          {!areProjectsLoading && visibleProjects.length === 0 && <p className="empty-state">No projects yet. Add your first project to begin.</p>}
+          {!areProjectsLoading && visibleProjects.length === 0 && <div className="guided-empty-state"><span>01</span><div><p className="eyebrow">Set up your workspace</p><h3>{projects.length === 0 ? "Create your first project" : "No projects match these filters"}</h3><p>{projects.length === 0 ? "Add a project, import its BOQ, then invite your team to start reporting progress." : "Clear a filter or search term to view more projects."}</p>{projects.length === 0 && canManageProject(profile.role) && <Link className="primary-action" href="/projects/new">Add first project</Link>}</div></div>}
           {visibleProjects.map((project) => {
             const progress = Math.round(progressByProject[project.id]?.percentage ?? 0);
             const scheduleHealth = progressByProject[project.id]?.scheduleHealth ?? "on_track";

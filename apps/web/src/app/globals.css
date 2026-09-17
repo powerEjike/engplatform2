@@ -39,6 +39,7 @@ h1, h2, h3, p { margin-top: 0; }
 h1 { color: #123d29; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.055em; margin-bottom: 0; }
 h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom: 0; }
 .profile { align-items: center; color: #426052; display: flex; font-size: 0.9rem; font-weight: 700; gap: 9px; }
+.dashboard-notifications { align-items: center; background: white; border: 1px solid #d9e7de; border-radius: 999px; color: #315b46; display: inline-flex; font-size: .75rem; font-weight: 800; gap: 6px; padding: 8px 10px; position: relative; }.dashboard-notifications > span { font-size: .92rem; line-height: 1; }.dashboard-notifications em { align-items: center; background: #f06f2b; border: 2px solid white; border-radius: 99px; color: white; display: inline-flex; font-size: .62rem; font-style: normal; height: 17px; justify-content: center; min-width: 17px; padding: 0 4px; position: absolute; right: -5px; top: -6px; }.dashboard-notifications:hover { background: #f4f9f6; transform: translateY(-1px); }
 .avatar { align-items: center; background: #d6eddf; border-radius: 50%; color: #145c3b; display: inline-flex; font-size: 0.72rem; height: 36px; justify-content: center; width: 36px; }
 .sign-out { background: transparent; border: 0; color: #477060; font-size: 0.78rem; padding: 4px; text-decoration: underline; }
 .mobile-dashboard-menu { display: none; }
@@ -63,7 +64,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .auth-loading { align-items: center; color: #416453; display: flex; justify-content: center; min-height: 100vh; }
 .engineer-home { background: #f3f6f3; min-height: 100vh; padding: 36px 24px 70px; }
 .engineer-content { margin: 0 auto; max-width: 820px; }
-.engineer-top { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: 30px; }
+.engineer-top { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: 30px; }.engineer-top-actions { align-items: center; display: flex; gap: 10px; }
 .engineer-top > div > p:last-child { color: #668074; line-height: 1.5; margin: 10px 0 0; }
 .engineer-projects { display: grid; gap: 14px; }
 .engineer-milestones { background: #fff; border: 1px solid #dfe8e1; border-radius: 13px; display: grid; gap: 10px; margin: 22px 0; padding: 19px; }
@@ -78,7 +79,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .engineer-project-card p { color: #6a8276; font-size: 0.86rem; margin: 0; }
 .engineer-project-card > div:last-child { align-items: flex-end; display: flex; flex-direction: column; gap: 10px; }
 .engineer-project-progress { background: #f7faf8; border: 1px solid #e0ebe4; border-radius: 11px; padding: 12px; }.engineer-project-progress > div:first-child { align-items: baseline; display: flex; gap: 7px; }.engineer-project-progress strong { color: #173d2b; font-size: 1.1rem; }.engineer-project-progress > div:first-child span, .engineer-project-progress small { color: #648073; font-size: .72rem; font-weight: 700; }.engineer-project-progress .progress-track { margin: 9px 0 7px; }
-@media (max-width: 650px) { .engineer-home { padding: 24px 16px 50px; } .engineer-project-card { align-items: flex-start; flex-direction: column; } .engineer-project-card-main { grid-template-columns: 1fr; width: 100%; }.engineer-project-card > div:last-child { align-items: stretch; width: 100%; } }
+@media (max-width: 650px) { .engineer-home { padding: 24px 16px 50px; } .engineer-top { gap: 14px; }.engineer-top-actions { gap: 7px; }.engineer-top-actions .dashboard-notifications b, .engineer-top-actions .engineer-sign-out { display: none; }.engineer-project-card { align-items: flex-start; flex-direction: column; } .engineer-project-card-main { grid-template-columns: 1fr; width: 100%; }.engineer-project-card > div:last-child { align-items: stretch; width: 100%; } }
 .onboarding-page { align-items: center; background: #f3f6f3; display: flex; justify-content: center; min-height: 100vh; padding: 24px; }
 .onboarding-card { background: white; border: 1px solid #dfe8e1; border-radius: 16px; max-width: 500px; padding: 40px; width: 100%; }
 .onboarding-card h1 { font-size: 2rem; margin-bottom: 12px; }

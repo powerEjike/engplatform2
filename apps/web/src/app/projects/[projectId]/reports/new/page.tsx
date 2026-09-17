@@ -77,7 +77,19 @@ export default function NewSiteReportPage() {
       batch.set(report, { projectId, submittedBy: user.uid, reportDate, status: "synced", lineItems, labourCount: labour, labourByTrade: labourBreakdown, equipmentOnSite, equipmentHours: equipmentBreakdown, issues: issue.trim() ? [{ category: issueCategory, note: issue.trim() }] : [], photoIds: [], clientGeneratedId: report.id, createdAt: serverTimestamp(), syncedAt: serverTimestamp() });
       batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), { action: "report_submitted", summary: `Daily report submitted for ${reportDate}.`, actorName: profile.name, createdAt: serverTimestamp() });
       lineItems.forEach((lineItem) => { const item = items.find((current) => current.id === lineItem.boqItemId); if (item) batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { cumulativeQuantityCompleted: item.cumulativeQuantityCompleted + lineItem.quantityCompleted }); });
-      await batch.commit(); window.localStorage.removeItem(draftKey(projectId)); router.replace(`/projects/${projectId}`);
+      const submitReport = batch.commit();
+      window.localStorage.removeItem(draftKey(projectId));
+
+      // A batch is stored in Firestore's local cache first, but its promise waits
+      // for a network acknowledgement. Field teams should be able to carry on.
+      if (!navigator.onLine) {
+        void submitReport.catch(() => undefined);
+        router.replace(`/projects/${projectId}?reportSavedOffline=1`);
+        return;
+      }
+
+      await submitReport;
+      router.replace(`/projects/${projectId}`);
     } catch { setError("We could not submit this report. Check that the latest Firestore rules have been published, then try again."); setSaving(false); }
   };
   const saveDraft = () => { try { window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, labourByTrade, equipment, equipmentHours, issueCategory, issue })); setDraftMessage("Draft saved safely on this device. It will restore automatically when you return to this report."); } catch { setDraftMessage("We could not save the draft on this device. Check that browser storage is available, then try again."); } };

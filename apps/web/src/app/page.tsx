@@ -65,7 +65,10 @@ export default function Home() {
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   useEffect(() => {
-    setProjectSavedOffline(new URLSearchParams(window.location.search).get("projectSavedOffline") === "1");
+    const noticeTimer = window.setTimeout(() => {
+      setProjectSavedOffline(new URLSearchParams(window.location.search).get("projectSavedOffline") === "1");
+    }, 0);
+    return () => window.clearTimeout(noticeTimer);
   }, []);
 
   if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Checking your secure workspace…</main>;

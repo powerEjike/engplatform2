@@ -317,6 +317,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .date-fields { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
 .form-error { background: #fde9e6; border-radius: 7px; color: #9b3f33; font-size: 0.86rem; line-height: 1.4; margin: -5px 0 0; padding: 10px; }
 .project-workspace { background: #f3f6f3; min-height: 100vh; padding: 38px 24px 70px; }
+.project-tabs { background: rgba(243,246,243,.94); border-bottom: 1px solid #d8e5dc; display: flex; gap: 4px; margin: 0 0 26px; overflow-x: auto; padding: 10px 0; position: sticky; top: 0; z-index: 5; }.project-tabs button { background: transparent; border-radius: 999px; color: #476457; font-size: .84rem; font-weight: 800; padding: 9px 13px; white-space: nowrap; }.project-tabs button:hover, .project-tabs button:focus-visible { background: #dcefe2; color: #17663b; outline: none; }
 .workspace-content { margin: 0 auto; max-width: 1040px; }
 .back-link { color: #3f7257; display: inline-block; font-size: 0.88rem; font-weight: 800; margin-bottom: 26px; }
 .project-title-row { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; margin-bottom: 26px; }

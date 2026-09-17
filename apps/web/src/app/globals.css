@@ -72,11 +72,13 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .engineer-milestones a strong { font-size: 0.88rem; }
 .engineer-milestones a span { color: #678075; font-size: 0.76rem; }
 .engineer-project-card { align-items: center; background: white; border: 1px solid #dfe8e1; border-radius: 14px; display: flex; gap: 22px; justify-content: space-between; padding: 22px; }
+.engineer-project-card-main { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) minmax(180px, 230px); width: min(100%, 560px); }
 .engineer-project-card span { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
 .engineer-project-card h2 { font-size: 1.2rem; margin: 7px 0; }
 .engineer-project-card p { color: #6a8276; font-size: 0.86rem; margin: 0; }
 .engineer-project-card > div:last-child { align-items: flex-end; display: flex; flex-direction: column; gap: 10px; }
-@media (max-width: 650px) { .engineer-home { padding: 24px 16px 50px; } .engineer-project-card { align-items: flex-start; flex-direction: column; } .engineer-project-card > div:last-child { align-items: stretch; width: 100%; } }
+.engineer-project-progress { background: #f7faf8; border: 1px solid #e0ebe4; border-radius: 11px; padding: 12px; }.engineer-project-progress > div:first-child { align-items: baseline; display: flex; gap: 7px; }.engineer-project-progress strong { color: #173d2b; font-size: 1.1rem; }.engineer-project-progress > div:first-child span, .engineer-project-progress small { color: #648073; font-size: .72rem; font-weight: 700; }.engineer-project-progress .progress-track { margin: 9px 0 7px; }
+@media (max-width: 650px) { .engineer-home { padding: 24px 16px 50px; } .engineer-project-card { align-items: flex-start; flex-direction: column; } .engineer-project-card-main { grid-template-columns: 1fr; width: 100%; }.engineer-project-card > div:last-child { align-items: stretch; width: 100%; } }
 .onboarding-page { align-items: center; background: #f3f6f3; display: flex; justify-content: center; min-height: 100vh; padding: 24px; }
 .onboarding-card { background: white; border: 1px solid #dfe8e1; border-radius: 16px; max-width: 500px; padding: 40px; width: 100%; }
 .onboarding-card h1 { font-size: 2rem; margin-bottom: 12px; }
@@ -108,13 +110,13 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .state-filter select { appearance: none; background: white; border: 1px solid #cddbd1; border-radius: 9px; color: #1e4934; font: inherit; font-size: 0.84rem; font-weight: 700; letter-spacing: 0; min-width: 156px; padding: 11px 34px 11px 12px; text-transform: none; }
 .project-table { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
 .empty-state { color: #638074; margin: 0; padding: 32px 22px; }
-.project-table-head, .project-row { align-items: center; display: grid; gap: 18px; grid-template-columns: 1.45fr 0.72fr 0.76fr 1.05fr 0.92fr 1.06fr 0.86fr; padding: 19px 22px; }
+.project-table-head, .project-row { align-items: center; display: grid; gap: 20px; grid-template-columns: 1.4fr 1.1fr .95fr 1.14fr 1fr; padding: 19px 22px; }
 .project-table-head { background: #f8faf8; color: #789084; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
 .project-row { border-top: 1px solid #edf1ee; }
-.project-row h3 { color: #1b4030; font-size: 0.94rem; margin-bottom: 5px; }
+.project-row { transition: background .18s ease; }.project-row:hover { background: #fbfdfc; }.project-row h3 { color: #1b4030; font-size: 0.98rem; margin-bottom: 5px; }
 .project-name-link h3 { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 160ms ease; }
 .project-name-link:hover h3 { text-decoration-color: currentColor; }
-.project-row p, .report-date { color: #71857a; font-size: 0.79rem; margin: 0; }
+.project-row p, .report-date { color: #71857a; font-size: 0.79rem; margin: 0; }.project-identity > span { color: #597469; display: block; font-size: .72rem; margin-top: 6px; }.project-delivery > div:first-child { align-items: center; display: flex; justify-content: space-between; margin-bottom: 9px; }.project-delivery > div:first-child strong { color: #1c5036; font-size: .95rem; }.project-delivery small { color: #71857a; display: block; font-size: .7rem; margin-top: 7px; }.project-controls { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }.project-commercial { display: grid; gap: 4px; }.project-commercial > span, .project-activity > span { color: #799084; font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }.project-commercial strong { color: #294b3a; font-size: .92rem; }.project-commercial small { color: #8a6540; font-size: .7rem; }.project-activity { display: grid; gap: 5px; }.project-activity strong { color: #436455; font-size: .79rem; }.project-activity a { color: #17663b; font-size: .74rem; font-weight: 800; margin-top: 2px; }
 .progress-label { color: #386150; font-size: 0.8rem; font-weight: 800; margin-bottom: 7px; }
 .progress-track { background: #e5eee8; border-radius: 99px; height: 7px; overflow: hidden; }
 .progress-track span { background: #3ea36a; border-radius: inherit; display: block; height: 100%; }
@@ -271,7 +273,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .issue-category { border-radius: 99px; font-size: 0.7rem; font-weight: 800; padding: 6px 8px; text-align: center; text-transform: capitalize; }
 .issue-category.weather { background: #e5eff8; color: #356782; }.issue-category.material_shortage { background: #fff1d6; color: #936516; }.issue-category.access { background: #f6e6f5; color: #81517b; }.issue-category.other { background: #e8f2eb; color: #387054; }
 
-@media (max-width: 1050px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .project-table { overflow-x: auto; } .project-table-head, .project-row { min-width: 1100px; } }
+@media (max-width: 1050px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .project-table { overflow-x: auto; } .project-table-head, .project-row { min-width: 980px; } }
 @media (max-width: 720px) { .team-member { grid-template-columns: 42px 1fr; } .team-role, .team-allocation { grid-column: 2; text-align: left; } }
 @media (max-width: 560px) { .variation-queue-row { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .variation-filter { justify-content: stretch; } .variation-filter .state-filter, .variation-filter select { width: 100%; } .variation-portfolio-row { align-items: flex-start; grid-template-columns: 1fr; } }

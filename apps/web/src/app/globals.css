@@ -425,8 +425,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-history-note { font-size: 0.82rem !important; line-height: 1.4; }
 .report-comments { border-top: 1px solid #e2ebe5; display: grid; gap: 8px; grid-column: 1 / -1; margin-top: 2px; padding-top: 14px; }
 .report-comments > p { display: block; margin: 0; }
-.report-comments select, .report-comments textarea { box-sizing: border-box; margin-top: 6px; width: 100%; }
-.report-comments select { min-height: 72px; }
+.report-comments textarea { box-sizing: border-box; margin-top: 6px; width: 100%; }
 .report-comments textarea { min-height: 76px; resize: vertical; }
 .report-comments button { margin-top: 8px; }
 .variation-list { display: grid; gap: 10px; margin-top: 20px; }

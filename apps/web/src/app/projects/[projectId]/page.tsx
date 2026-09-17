@@ -54,7 +54,6 @@ export default function ProjectWorkspacePage() {
   const [reports, setReports] = useState<SiteReport[]>([]);
   const [reportComments, setReportComments] = useState<Record<string, ReportComment[]>>({});
   const [commentText, setCommentText] = useState<Record<string, string>>({});
-  const [commentRecipients, setCommentRecipients] = useState<Record<string, string[]>>({});
   const [activity, setActivity] = useState<ProjectActivityEvent[]>([]);
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
@@ -126,7 +125,7 @@ export default function ProjectWorkspacePage() {
   const printProjectSummary = () => window.print();
   const activityData = (action: ProjectActivityEvent["action"], summary: string) => ({ action, summary, actorName: profile?.name ?? "Team member", createdAt: serverTimestamp() });
   const canCommentOnReport = Boolean(user && profile && (profile.role === "director" || profile.role === "quantity_surveyor" || (profile.role === "project_manager" && project?.projectManagerId === user.uid)));
-  const addReportComment = async (report: SiteReport) => { const message = commentText[report.id]?.trim(); if (!profile || !user || !message) return; const recipientIds = [...new Set([report.submittedBy, ...(commentRecipients[report.id] ?? [])].filter(Boolean))]; try { await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments"), { message, authorId: user.uid, authorName: profile.name, recipientIds, createdAt: serverTimestamp() }); setCommentText((current) => ({ ...current, [report.id]: "" })); setCommentRecipients((current) => ({ ...current, [report.id]: [] })); } catch { setError("We could not save this report comment. Publish the latest Firestore rules, then try again."); } };
+  const addReportComment = async (report: SiteReport) => { const message = commentText[report.id]?.trim(); if (!profile || !user || !message) return; try { await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments"), { message, authorId: user.uid, authorName: profile.name, recipientIds: [report.submittedBy].filter(Boolean), createdAt: serverTimestamp() }); setCommentText((current) => ({ ...current, [report.id]: "" })); } catch { setError("We could not save this report comment. Publish the latest Firestore rules, then try again."); } };
   const downloadBoq = () => {
     const quote = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
     const rows = ["itemNumber,description,unit,plannedQuantity,rate,section,cumulativeQuantityCompleted", ...items.map((item) => [item.itemNumber, item.description, item.unit, item.plannedQuantity, item.rate, item.section, item.cumulativeQuantityCompleted].map(quote).join(","))];
@@ -234,7 +233,7 @@ export default function ProjectWorkspacePage() {
         <p className="report-history-note">{report.equipmentOnSite.length > 0 && <><b>Equipment</b> · {report.equipmentOnSite.join(", ")}<br /></>}{report.issues[0] ? <><b>{report.issues[0].category.replaceAll("_", " ")}</b> · {report.issues[0].note}</> : report.equipmentOnSite.length === 0 ? "No issues or equipment recorded" : "No issues recorded"}</p>
         <div className="report-comments">
           {(reportComments[report.id] ?? []).filter((comment) => comment.authorId === user?.uid || comment.recipientIds?.includes(user?.uid ?? "")).map((comment) => <p key={comment.id}><strong>{comment.authorName}:</strong> {comment.message}</p>)}
-          {canCommentOnReport && <div><p className="field-hint">The report sender is included automatically. Choose one additional team member if they should act on this comment.</p><select aria-label="Additional comment recipient" value={commentRecipients[report.id]?.[0] ?? ""} onChange={(event) => setCommentRecipients((current) => ({ ...current, [report.id]: event.currentTarget.value ? [event.currentTarget.value] : [] }))}><option value="">No additional recipient</option>{companyUsers.filter((member) => member.id !== user?.uid && member.id !== report.submittedBy).map((member) => <option key={member.id} value={member.id}>{member.name} — {member.role.replaceAll("_", " ")}</option>)}</select><textarea value={commentText[report.id] ?? ""} onChange={(event) => setCommentText((current) => ({ ...current, [report.id]: event.target.value }))} placeholder="Write a comment for the report sender…" /><button type="button" onClick={() => void addReportComment(report)} disabled={!commentText[report.id]?.trim()}>Send comment</button></div>}
+          {canCommentOnReport && <div><p className="field-hint">Your comment will be sent directly to the person who submitted this report.</p><textarea value={commentText[report.id] ?? ""} onChange={(event) => setCommentText((current) => ({ ...current, [report.id]: event.target.value }))} placeholder="Write a comment for the report sender…" /><button type="button" onClick={() => void addReportComment(report)} disabled={!commentText[report.id]?.trim()}>Send comment</button></div>}
         </div>
       </article>)}</div>}
     </section>

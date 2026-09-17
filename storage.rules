@@ -1,0 +1,27 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function member(companyId) {
+      return signedIn() && firestore.exists(/databases/(default)/documents/companies/$(companyId)/users/$(request.auth.uid));
+    }
+    function role(companyId) {
+      return firestore.get(/databases/(default)/documents/companies/$(companyId)/users/$(request.auth.uid)).data.role;
+    }
+    function canUpload(companyId, projectId) {
+      return member(companyId) && (
+        role(companyId) == "director" ||
+        role(companyId) == "project_manager" ||
+        (role(companyId) == "site_engineer" && firestore.get(/databases/(default)/documents/companies/$(companyId)/projects/$(projectId)).data.siteEngineerId == request.auth.uid)
+      );
+    }
+
+    match /companies/{companyId}/projects/{projectId}/reports/{reportId}/{fileName} {
+      allow read: if member(companyId);
+      allow create: if canUpload(companyId, projectId)
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if canUpload(companyId, projectId);
+    }
+  }
+}

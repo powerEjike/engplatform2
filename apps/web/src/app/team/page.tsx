@@ -30,7 +30,7 @@ export default function TeamPage() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+    if (!isProfileLoading && user && !profile) router.replace("/access");
     if (!isProfileLoading && profile && profile.role !== "director") router.replace("/");
   }, [isLoading, isProfileLoading, profile, router, user]);
 

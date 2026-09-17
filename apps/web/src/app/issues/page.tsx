@@ -15,7 +15,7 @@ export default function IssuesPage() {
   const { reportsByProject } = useProjectProgress(profile?.companyId, projects);
   const [selectedProject, setSelectedProject] = useState("All projects");
   const [selectedCategory, setSelectedCategory] = useState("All issue types");
-  useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/onboarding"); }, [isLoading, isProfileLoading, profile, router, user]);
+  useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/access"); }, [isLoading, isProfileLoading, profile, router, user]);
   const issues = useMemo(() => {
     if (!profile || !user) return [];
     return projects.filter((project) => canWorkOnProject(profile.role, user.uid, project)).flatMap((project) => (reportsByProject[project.id] ?? []).flatMap((report) => report.issues.map((issue) => ({ ...issue, projectId: project.id, projectName: project.name, reportDate: report.reportDate })))).sort((left, right) => right.reportDate.localeCompare(left.reportDate));

@@ -60,7 +60,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+    if (!isProfileLoading && user && !profile) router.replace("/access");
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Checking your secure workspace…</main>;

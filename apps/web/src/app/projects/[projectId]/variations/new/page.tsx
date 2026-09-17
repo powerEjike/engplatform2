@@ -31,7 +31,7 @@ export default function NewVariationPage() {
     const value = Number(manualValue); return Number.isFinite(value) ? value : 0;
   }, [manualValue, quantityDelta, rateOverride, selectedItem]);
 
-  useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/onboarding"); }, [isLoading, isProfileLoading, profile, router, user]);
+  useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/access"); }, [isLoading, isProfileLoading, profile, router, user]);
   useEffect(() => { if (!profile) return; return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem))); }, [profile, projectId]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); if (!profile || !user) return;

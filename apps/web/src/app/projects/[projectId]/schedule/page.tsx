@@ -53,7 +53,7 @@ export default function ProjectMilestonesPage() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+    if (!isProfileLoading && user && !profile) router.replace("/access");
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   useEffect(() => {

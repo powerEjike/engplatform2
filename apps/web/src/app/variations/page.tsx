@@ -19,7 +19,7 @@ export default function VariationsPage() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && user && !profile) router.replace("/onboarding");
+    if (!isProfileLoading && user && !profile) router.replace("/access");
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   const variations = useMemo(() => {

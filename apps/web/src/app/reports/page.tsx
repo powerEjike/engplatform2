@@ -14,6 +14,8 @@ const daysSince = (date: string) => {
   return Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(reportDay.getFullYear(), reportDay.getMonth(), reportDay.getDate())) / 86_400_000);
 };
 
+const namedValuesLabel = (values?: Record<string, number>, unit = "") => Object.entries(values ?? {}).map(([name, value]) => `${name}: ${value}${unit}`).join(", ");
+
 export default function ReportsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
@@ -43,7 +45,7 @@ export default function ReportsPage() {
   const reportedIssues = visibleReports.reduce((total, report) => total + report.issues.length, 0);
   const downloadReports = () => {
     const quote = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
-    const rows = ["Report date,Project,Completed BOQ items,Labour on site,Equipment,Issues", ...visibleReports.map((report) => [report.reportDate, report.projectName, report.lineItems.length, report.labourCount, report.equipmentOnSite.join("; "), report.issues.map((issue) => `${issue.category.replaceAll("_", " ")}: ${issue.note}`).join("; ")].map(quote).join(","))];
+    const rows = ["Report date,Project,Completed BOQ items,Labour on site,Labour by trade,Equipment,Equipment hours,Issues", ...visibleReports.map((report) => [report.reportDate, report.projectName, report.lineItems.length, report.labourCount, namedValuesLabel(report.labourByTrade), report.equipmentOnSite.join("; "), namedValuesLabel(report.equipmentHours, "h"), report.issues.map((issue) => `${issue.category.replaceAll("_", " ")}: ${issue.note}`).join("; ")].map(quote).join(","))];
     const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "engplatform2-daily-reports.csv"; link.click(); URL.revokeObjectURL(url);
   };

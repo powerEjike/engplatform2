@@ -194,13 +194,15 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .milestone-card > p { color: #678075; font-size: 0.86rem; line-height: 1.5; }
 .milestone-form { display: grid; gap: 14px; margin-top: 20px; }
 .milestone-form label { color: #315342; display: grid; font-size: 0.8rem; font-weight: 800; gap: 7px; }
-.milestone-form input, .milestone-form select { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
+.milestone-form input, .milestone-form select, .milestone-form textarea { border: 1px solid #c9d8ce; border-radius: 8px; font: inherit; padding: 11px; }
+.milestone-form textarea, .milestone-note-field textarea { min-height: 75px; resize: vertical; }
 .milestone-fields { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 .milestone-list { display: grid; gap: 11px; margin-top: 20px; }
 .milestone-item { border: 1px solid #e2ebe5; border-radius: 10px; padding: 16px; }
 .milestone-item-top { align-items: flex-start; display: flex; gap: 12px; justify-content: space-between; }
 .milestone-item h3 { color: #1d4833; font-size: 0.98rem; margin: 0; }
 .milestone-item p { color: #688176; font-size: 0.8rem; line-height: 1.5; margin: 8px 0 0; }
+.milestone-item .milestone-note { background: #f7faf8; border-left: 3px solid #9dceb0; color: #4e6f5d; padding: 9px 11px; }
 .milestone-progress { margin-top: 13px; }
 .milestone-progress > div:first-child { color: #638075; display: flex; font-size: 0.76rem; justify-content: space-between; margin-bottom: 7px; }
 .milestone-complete { font-size: 0.76rem; margin-top: 14px; padding: 8px 10px; }
@@ -210,6 +212,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .milestone-update label { color: #476958; display: grid; font-size: 0.7rem; font-weight: 800; gap: 6px; text-transform: uppercase; }
 .milestone-update input, .milestone-update select { border: 1px solid #c9d8ce; border-radius: 7px; font: inherit; padding: 9px; }
 .milestone-update > div { align-items: center; display: flex; gap: 12px; }
+.milestone-update .milestone-note-field { grid-column: 1 / -1; }
 .milestone-update .text-button { margin-top: 14px; }
 .milestone-status { background: #edf1ee; color: #4b6959; }
 .milestone-status.in_progress { background: #fff3d6; color: #936516; }

@@ -60,6 +60,7 @@ export interface ProjectMilestone {
   actualDate?: string | null;
   status: MilestoneStatus;
   progress: number;
+  note?: string;
   createdBy: string;
   createdAt: string;
 }

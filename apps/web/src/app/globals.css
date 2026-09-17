@@ -56,6 +56,11 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .engineer-top { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: 30px; }
 .engineer-top > div > p:last-child { color: #668074; line-height: 1.5; margin: 10px 0 0; }
 .engineer-projects { display: grid; gap: 14px; }
+.engineer-milestones { background: #fff; border: 1px solid #dfe8e1; border-radius: 13px; display: grid; gap: 10px; margin: 22px 0; padding: 19px; }
+.engineer-milestones h2 { font-size: 1.1rem; margin: 0; }
+.engineer-milestones a { border-top: 1px solid #e6eee9; color: #265a40; display: grid; gap: 4px; padding-top: 11px; }
+.engineer-milestones a strong { font-size: 0.88rem; }
+.engineer-milestones a span { color: #678075; font-size: 0.76rem; }
 .engineer-project-card { align-items: center; background: white; border: 1px solid #dfe8e1; border-radius: 14px; display: flex; gap: 22px; justify-content: space-between; padding: 22px; }
 .engineer-project-card span { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
 .engineer-project-card h2 { font-size: 1.2rem; margin: 7px 0; }

@@ -13,6 +13,7 @@ import { MobileDashboardMenu, type DashboardMenuItem } from "@/components/mobile
 import { BoqUploadNotice } from "@/components/boq-upload-notice";
 import { useBoqUploadEvents } from "@/hooks/use-boq-upload-events";
 import { canWorkOnProject } from "@/lib/project-access";
+import { useScheduleMilestones } from "@/hooks/use-schedule-milestones";
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Home() {
   const { users: companyUsers, isLoading: areUsersLoading } = useCompanyUsers(profile?.companyId);
   const { progressByProject, activityByProject, variationsByProject } = useProjectProgress(profile?.companyId, projects);
   const { eventsByProject } = useBoqUploadEvents(profile?.companyId, projects);
+  const { milestones } = useScheduleMilestones(profile?.companyId, projects);
   const firstProjectId = projects[0]?.id;
   const states = [...new Set(projects.map((project) => project.state))];
   const [selectedState, setSelectedState] = useState("All states");
@@ -45,6 +47,7 @@ export default function Home() {
     return progress?.plannedValue && progress.scheduleHealth !== "on_track";
   });
   const assignedProjects = profile?.role === "site_engineer" ? projects.filter((project) => project.siteEngineerId === user?.uid) : projects;
+  const engineerMilestones = milestones.filter((milestone) => assignedProjects.some((project) => project.id === milestone.projectId) && milestone.status !== "complete").slice(0, 4);
   const variationQueue = projects.flatMap((project) => (variationsByProject[project.id] ?? []).filter((variation) => variation.status === "pending_qs_review" || variation.status === "pending_director_approval").map((variation) => ({ ...variation, projectName: project.name }))).filter((variation) => profile?.role !== "quantity_surveyor" || variation.status === "pending_qs_review");
 
   useEffect(() => {
@@ -60,9 +63,9 @@ export default function Home() {
     { href: "#portfolio", label: "Portfolio" }, { href: "#projects", label: "Projects" }, { href: "/updates", label: "Updates" }, { href: "/reports", label: "Daily reports" }, { href: "/issues", label: "Issues" }, { href: "/variations", label: "Variations", count: variationQueue.length }, { href: "/schedule", label: "Schedule health" },
   ] : profile.role === "quantity_surveyor" ? [
     { href: "#projects", label: "Projects" }, { href: "/updates", label: "Updates" }, { href: "/variations", label: "Variations", count: variationQueue.length }, { href: "/valuations", label: "Valuations" },
-  ] : [{ href: "#projects", label: "My assigned projects" }, { href: "/updates", label: "Updates" }];
+  ] : [{ href: "#projects", label: "My assigned projects" }, { href: "/schedule", label: "Schedule" }, { href: "/updates", label: "Updates" }];
 
-  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} /><button className="sign-out engineer-sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><BoqUploadNotice eventsByProject={eventsByProject} projects={projects} canAccessProject={(project) => canWorkOnProject(profile.role, user.uid, project)} /><section className="engineer-projects" id="projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
+  if (profile.role === "site_engineer") return <main className="engineer-home"><div className="engineer-content"><div className="engineer-top"><div><p className="eyebrow">Site engineer workspace</p><h1>Today&apos;s site work</h1><p>Submit completed quantities and raise changes while the work is fresh.</p></div><MobileDashboardMenu items={dashboardMenuItems} name={profile.name} role={profile.role} companyName={profile.companyName} onSignOut={() => void signOutUser()} /><button className="sign-out engineer-sign-out" type="button" onClick={() => void signOutUser()}>Sign out</button></div><BoqUploadNotice eventsByProject={eventsByProject} projects={projects} canAccessProject={(project) => canWorkOnProject(profile.role, user.uid, project)} />{engineerMilestones.length > 0 && <section className="engineer-milestones"><div><p className="eyebrow">Programme ahead</p><h2>Next milestones due</h2></div>{engineerMilestones.map((milestone) => <Link href={`/projects/${milestone.projectId}/schedule`} key={milestone.id}><strong>{milestone.title}</strong><span>{milestone.projectName} · Due {new Date(`${milestone.plannedDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short" })} · {milestone.progress}% complete</span></Link>)}</section>}<section className="engineer-projects" id="projects">{areProjectsLoading && <p className="boq-empty">Loading your assigned projects…</p>}{!areProjectsLoading && assignedProjects.length === 0 && <p className="boq-empty">No projects have been assigned to you yet. Your Project Manager will allocate your site here.</p>}{assignedProjects.map((project) => <article className="engineer-project-card" key={project.id}><div><span>{project.status.replace("_", " ")}</span><h2>{project.name}</h2><p>{project.location}, {project.state}</p></div><div><Link className="primary-action" href={`/projects/${project.id}/reports/new`}>Submit today&apos;s report</Link><Link className="secondary compact-action" href={`/projects/${project.id}/variations/new`}>Raise variation</Link><Link className="text-action" href={`/projects/${project.id}`}>View BOQ reference</Link></div></article>)}</section></div></main>;
 
   return (
     <div className="app-shell">

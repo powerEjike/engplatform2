@@ -41,7 +41,15 @@ export default function Home() {
   const totalExposure = visibleProjects.reduce((total, project) => total + (activityByProject[project.id]?.variationExposure ?? 0), 0);
   const progressProjects = visibleProjects.filter((project) => progressByProject[project.id]?.plannedValue);
   const averageProgress = progressProjects.length === 0 ? 0 : Math.round(progressProjects.reduce((total, project) => total + (progressByProject[project.id]?.percentage ?? 0), 0) / progressProjects.length);
-  const reportsNeedingAttention = visibleProjects.filter((project) => !activityByProject[project.id]?.latestReportDate).length;
+  const reportsNeedingAttention = visibleProjects.filter((project) => {
+    if (project.status !== "active") return false;
+    const latestReportDate = activityByProject[project.id]?.latestReportDate;
+    if (!latestReportDate) return true;
+    const today = new Date();
+    const reportDay = new Date(`${latestReportDate}T00:00:00`);
+    const daysSinceReport = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(reportDay.getFullYear(), reportDay.getMonth(), reportDay.getDate())) / 86_400_000);
+    return daysSinceReport >= 3;
+  }).length;
   const scheduleAlerts = visibleProjects.filter((project) => {
     const progress = progressByProject[project.id];
     return progress?.plannedValue && progress.scheduleHealth !== "on_track";
@@ -106,7 +114,7 @@ export default function Home() {
             <p>Variation exposure</p><strong>{formatNaira(totalExposure)}</strong><span>Available after variations are raised</span>
           </article>
           <article className="metric-card warning">
-            <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Projects with no site report yet</span>
+            <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Active projects with no report in 3+ days</span>
           </article>
         </section>
 

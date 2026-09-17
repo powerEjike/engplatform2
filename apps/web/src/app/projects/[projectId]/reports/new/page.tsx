@@ -42,6 +42,7 @@ export default function NewSiteReportPage() {
   const [error, setError] = useState("");
   const [draftMessage, setDraftMessage] = useState("");
   const [clientGeneratedId] = useState(newClientGeneratedId);
+  const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -53,13 +54,31 @@ export default function NewSiteReportPage() {
   }, [profile, projectId]);
   useEffect(() => {
     const saved = window.localStorage.getItem(draftKey(projectId));
-    if (!saved) return;
+    if (!saved) {
+      const readyTimer = window.setTimeout(() => setDraftReady(true), 0);
+      return () => window.clearTimeout(readyTimer);
+    }
     try {
       const draft = JSON.parse(saved) as { quantities?: Record<string, string>; reportDate?: string; labourCount?: string; labourByTrade?: string; equipment?: string; equipmentHours?: string; issueCategory?: string; issue?: string };
-      const restoreTimer = window.setTimeout(() => { setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setLabourByTrade(draft.labourByTrade ?? ""); setEquipment(draft.equipment ?? ""); setEquipmentHours(draft.equipmentHours ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? ""); setDraftMessage("Your saved draft has been restored on this device."); }, 0);
+      const restoreTimer = window.setTimeout(() => { setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setLabourByTrade(draft.labourByTrade ?? ""); setEquipment(draft.equipment ?? ""); setEquipmentHours(draft.equipmentHours ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? ""); setDraftMessage("Your saved draft has been restored on this device."); setDraftReady(true); }, 0);
       return () => window.clearTimeout(restoreTimer);
-    } catch { window.localStorage.removeItem(draftKey(projectId)); }
+    } catch {
+      window.localStorage.removeItem(draftKey(projectId));
+      const readyTimer = window.setTimeout(() => setDraftReady(true), 0);
+      return () => window.clearTimeout(readyTimer);
+    }
   }, [projectId]);
+  useEffect(() => {
+    if (!draftReady) return;
+    const autosaveTimer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, labourByTrade, equipment, equipmentHours, issueCategory, issue }));
+      } catch {
+        // The manual Save draft button provides a clear message if device storage is unavailable.
+      }
+    }, 500);
+    return () => window.clearTimeout(autosaveTimer);
+  }, [draftReady, equipment, equipmentHours, issue, issueCategory, labourByTrade, labourCount, projectId, quantities, reportDate]);
 
   const saveReport = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

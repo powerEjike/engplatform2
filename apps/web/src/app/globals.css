@@ -208,6 +208,8 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .milestone-item h3 { color: #1d4833; font-size: 0.98rem; margin: 0; }
 .milestone-item p { color: #688176; font-size: 0.8rem; line-height: 1.5; margin: 8px 0 0; }
 .milestone-item .milestone-note { background: #f7faf8; border-left: 3px solid #9dceb0; color: #4e6f5d; padding: 9px 11px; }
+.milestone-timing { border-radius: 99px; display: inline-block; font-size: 0.7rem; font-weight: 800; margin-top: 10px; padding: 5px 8px; }
+.milestone-timing.upcoming { background: #e5edf8; color: #3d6284; }.milestone-timing.due { background: #fff3d6; color: #936516; }.milestone-timing.late { background: #fae3df; color: #a24a3d; }.milestone-timing.early { background: #e2f5e9; color: #247345; }
 .milestone-progress { margin-top: 13px; }
 .milestone-progress > div:first-child { color: #638075; display: flex; font-size: 0.76rem; justify-content: space-between; margin-bottom: 7px; }
 .milestone-complete { font-size: 0.76rem; margin-top: 14px; padding: 8px 10px; }

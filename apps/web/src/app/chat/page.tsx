@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
+import { markChatRead } from "@/lib/chat-notifications";
 
 type ChatMessage = { id: string; authorId: string; authorName: string; authorRole: string; message: string; createdAt?: unknown };
 const chatDate = (value: unknown) => value && typeof value === "object" && "toDate" in value
@@ -33,6 +34,9 @@ export default function ChatPage() {
       () => { setMessages([]); setError("Chat is not available yet. Publish the latest Firestore rules, then try again."); }
     );
   }, [profile]);
+  useEffect(() => {
+    if (profile && user) markChatRead(profile.companyId, user.uid);
+  }, [profile, user]);
 
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

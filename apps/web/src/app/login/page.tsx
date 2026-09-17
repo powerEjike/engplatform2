@@ -58,10 +58,7 @@ export default function LoginPage() {
     <main className="login-page">
       <section className="login-introduction">
         <Link className="brand login-brand" href="/"><span className="brand-mark">e</span><span>engplatform<span>2</span></span></Link>
-        <p className="eyebrow">Built for the field and the office</p>
-        <h1>Clear projects. Confident decisions.</h1>
-        <p>Bring daily site reporting, BOQ progress, variations, and valuations into one dependable workspace.</p>
-        <div className="login-brand-visual" aria-hidden="true"><Image src="/brand/buildcore-app-icon.png" alt="" fill sizes="(max-width: 800px) 0px, 280px" priority /></div>
+        <div className="login-intro-content"><p className="eyebrow">Built for the field and the office</p><h1>Clear projects. Confident decisions.</h1><p className="login-intro-copy">Bring daily site reporting, BOQ progress, variations, and valuations into one dependable workspace.</p><div className="login-benefits"><span>Live project visibility</span><span>BOQ-led progress</span><span>Controlled variations</span></div><div className="login-brand-visual" aria-hidden="true"><Image src="/brand/buildcore-app-icon.png" alt="" fill sizes="(max-width: 800px) 0px, 280px" priority /></div><p className="login-trust">One workspace for Directors, Project Managers, Quantity Surveyors, and Site Engineers.</p></div>
       </section>
 
       <section className="login-panel" aria-labelledby="login-heading">

@@ -6,17 +6,19 @@ button { background: #147247; border: 0; border-radius: 9px; color: white; curso
 .primary-action { background: #147247; border-radius: 9px; color: white; font-weight: 700; padding: 12px 17px; }
 
 .app-shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
-.sidebar { background: #123d29; color: #dfece4; display: flex; flex-direction: column; padding: 28px 18px; }
+.sidebar { background: #071f3d; color: #dfe8f1; display: flex; flex-direction: column; padding: 28px 18px; }
 .brand { align-items: center; color: white; display: flex; font-size: 1.2rem; font-weight: 800; gap: 10px; letter-spacing: -0.04em; margin: 0 8px 48px; }
-.brand span span { color: #76d8a2; }
-.brand-mark { align-items: center; background: #7be0a8; border-radius: 8px; color: #123d29; display: inline-flex; font-family: Georgia, serif; font-size: 1.35rem; height: 30px; justify-content: center; width: 30px; }
+.brand-word { display: grid; line-height: .92; }
+.brand-word > span { color: #ff6b21; }
+.brand-word small { color: #aebed0; font-size: .49rem; font-weight: 800; letter-spacing: .17em; margin-top: 5px; text-transform: uppercase; }
+.brand-mark { align-items: center; background: #fff url('/brand/buildcore-app-icon.png') center / cover no-repeat; border-radius: 9px; box-shadow: 0 5px 14px rgba(0,0,0,.2); color: transparent; display: inline-flex; font-size: 0; height: 34px; justify-content: center; overflow: hidden; width: 34px; }
 nav { display: grid; gap: 4px; }
 .nav-link { align-items: center; border-radius: 8px; display: flex; font-size: 0.94rem; font-weight: 700; justify-content: space-between; padding: 12px 14px; }
-.nav-link:hover, .nav-link.active { background: #215b40; color: white; }
+.nav-link:hover, .nav-link.active { background: #123a69; color: white; }
 .count { background: #e7b83f; border-radius: 99px; color: #4a3511; font-size: 0.75rem; padding: 2px 7px; }
-.sidebar-footer { border-top: 1px solid #397056; font-size: 0.83rem; margin: auto 8px 0; padding-top: 20px; }
+.sidebar-footer { border-top: 1px solid #284f7a; font-size: 0.83rem; margin: auto 8px 0; padding-top: 20px; }
 .firm-name { color: white; font-weight: 700; margin: 0 0 6px; }
-.settings-link { color: #a9cdb7; }
+.settings-link { color: #b7c9dd; }
 
 main { margin: 0 auto; max-width: 1400px; padding: 42px clamp(24px, 5vw, 76px) 70px; width: 100%; }
 .topbar { align-items: center; display: flex; justify-content: space-between; margin-bottom: 38px; }
@@ -40,24 +42,24 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .avatar { align-items: center; background: #d6eddf; border-radius: 50%; color: #145c3b; display: inline-flex; font-size: 0.72rem; height: 36px; justify-content: center; width: 36px; }
 .sign-out { background: transparent; border: 0; color: #477060; font-size: 0.78rem; padding: 4px; text-decoration: underline; }
 .mobile-dashboard-menu { display: none; }
-.mobile-menu-toggle { align-items: center; background: #123d29; border-radius: 10px; display: inline-flex; font-size: 1.35rem; height: 44px; justify-content: center; line-height: 1; padding: 0; width: 44px; }
-.mobile-menu-backdrop { background: rgba(9, 31, 20, 0.45); border-radius: 0; inset: 0; padding: 0; position: fixed; width: 100%; z-index: 20; }
-.mobile-menu-panel { background: #123d29; bottom: 0; box-shadow: -12px 0 35px rgba(9, 31, 20, 0.25); color: #e7f2eb; display: flex; flex-direction: column; max-width: 340px; padding: 20px 18px; position: fixed; right: 0; top: 0; width: min(88vw, 340px); z-index: 21; }
+.mobile-menu-toggle { align-items: center; background: #071f3d; border-radius: 10px; display: inline-flex; font-size: 1.35rem; height: 44px; justify-content: center; line-height: 1; padding: 0; width: 44px; }
+.mobile-menu-backdrop { background: rgba(4, 20, 40, 0.5); border-radius: 0; inset: 0; padding: 0; position: fixed; width: 100%; z-index: 20; }
+.mobile-menu-panel { background: #071f3d; bottom: 0; box-shadow: -12px 0 35px rgba(4, 20, 40, 0.3); color: #e7edf4; display: flex; flex-direction: column; max-width: 340px; padding: 20px 18px; position: fixed; right: 0; top: 0; width: min(88vw, 340px); z-index: 21; }
 .mobile-menu-header { align-items: center; display: flex; justify-content: space-between; padding: 2px 4px 23px; }
 .mobile-menu-header > div { align-items: center; color: white; display: flex; font-size: 1.13rem; font-weight: 800; gap: 9px; letter-spacing: -0.04em; }
-.mobile-menu-header strong span { color: #76d8a2; }
+.mobile-menu-header .brand-word > span { color: #ff6b21; }
 .mobile-menu-close { background: transparent; color: white; font-size: 2rem; font-weight: 400; line-height: 1; padding: 0; }
-.mobile-menu-user { align-items: center; background: #215b40; border-radius: 11px; display: flex; gap: 10px; margin-bottom: 20px; padding: 12px; }
+.mobile-menu-user { align-items: center; background: #123a69; border-radius: 11px; display: flex; gap: 10px; margin-bottom: 20px; padding: 12px; }
 .mobile-menu-user .avatar { background: #d6eddf; flex: 0 0 auto; }
 .mobile-menu-user strong, .mobile-menu-user span { display: block; }
 .mobile-menu-user strong { font-size: 0.87rem; }
-.mobile-menu-user div span { color: #b7d8c3; font-size: 0.74rem; margin-top: 3px; text-transform: capitalize; }
+.mobile-menu-user div span { color: #c1d2e6; font-size: 0.74rem; margin-top: 3px; text-transform: capitalize; }
 .mobile-menu-links { display: grid; gap: 4px; }
 .mobile-menu-links a { align-items: center; border-radius: 8px; display: flex; font-size: 0.92rem; font-weight: 800; justify-content: space-between; padding: 13px 12px; }
-.mobile-menu-links a:hover { background: #215b40; }
-.mobile-menu-footer { border-top: 1px solid #397056; font-size: 0.82rem; margin-top: auto; padding: 17px 4px 4px; }
+.mobile-menu-links a:hover { background: #123a69; }
+.mobile-menu-footer { border-top: 1px solid #284f7a; font-size: 0.82rem; margin-top: auto; padding: 17px 4px 4px; }
 .mobile-menu-footer p { color: white; font-weight: 700; margin-bottom: 8px; }
-.mobile-menu-footer .sign-out { color: #b7d8c3; font-size: 0.82rem; }
+.mobile-menu-footer .sign-out { color: #c1d2e6; font-size: 0.82rem; }
 .auth-loading { align-items: center; color: #416453; display: flex; justify-content: center; min-height: 100vh; }
 .engineer-home { background: #f3f6f3; min-height: 100vh; padding: 36px 24px 70px; }
 .engineer-content { margin: 0 auto; max-width: 820px; }

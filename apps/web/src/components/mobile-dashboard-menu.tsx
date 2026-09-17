@@ -24,7 +24,7 @@ export function MobileDashboardMenu({ items, name, role, companyName, onSignOut 
     {isOpen && <>
       <button className="mobile-menu-backdrop" type="button" aria-label="Close dashboard menu" onClick={() => setIsOpen(false)} />
       <aside className="mobile-menu-panel" id="mobile-dashboard-navigation" aria-label="Dashboard menu">
-        <div className="mobile-menu-header"><div><span className="brand-mark">e</span><strong>engplatform<span>2</span></strong></div><button className="mobile-menu-close" type="button" aria-label="Close dashboard menu" onClick={() => setIsOpen(false)}>×</button></div>
+        <div className="mobile-menu-header"><div><span className="brand-mark" aria-hidden="true">B</span><strong className="brand-word">Build<span>Core</span><small>Engineering</small></strong></div><button className="mobile-menu-close" type="button" aria-label="Close dashboard menu" onClick={() => setIsOpen(false)}>×</button></div>
         <div className="mobile-menu-user"><span className="avatar">{initials}</span><div><strong>{name}</strong><span>{role.replaceAll("_", " ")}</span></div></div>
         <nav className="mobile-menu-links" aria-label="Mobile dashboard navigation">{items.map((item) => <Link href={item.href} key={item.href} onClick={() => setIsOpen(false)}>{item.label}{item.count ? <span className="count">{item.count}</span> : null}</Link>)}</nav>
         <div className="mobile-menu-footer"><p>{companyName}</p><button className="sign-out" type="button" onClick={onSignOut}>Sign out</button></div>

@@ -80,9 +80,9 @@ export default function Home() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#top" aria-label="engplatform2 home">
-          <span className="brand-mark">e</span>
-          <span>engplatform<span>2</span></span>
+        <a className="brand" href="#top" aria-label="BuildCore home">
+          <span className="brand-mark" aria-hidden="true">B</span>
+          <span className="brand-word">Build<span>Core</span><small>Engineering</small></span>
         </a>
         <nav aria-label="Main navigation">
           {dashboardMenuItems.map((item, index) => item.href.startsWith("#") ? <a className={`nav-link ${index === 0 ? "active" : ""}`} href={item.href} key={item.href}>{item.label} {item.count ? <span className="count">{item.count}</span> : null}</a> : <Link className="nav-link" href={item.href} key={item.href}>{item.label} {item.count ? <span className="count">{item.count}</span> : null}</Link>)}

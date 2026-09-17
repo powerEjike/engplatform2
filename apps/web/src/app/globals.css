@@ -420,6 +420,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .report-history-row { align-items: center; border: 1px solid #e2ebe5; border-radius: 10px; display: grid; gap: 16px; grid-template-columns: 1.3fr 0.6fr 0.6fr 1.4fr; padding: 16px; }
 .report-history-date { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
 .report-history-row h3 { color: #1d4833; font-size: 0.93rem; margin: 6px 0 0; }
+.report-history-row .report-submitter { display: block; font-size: 0.76rem; margin-top: 7px; }
 .report-history-row p { color: #688176; display: grid; font-size: 0.74rem; gap: 4px; margin: 0; }
 .report-history-row strong { color: #294f3c; font-size: 0.9rem; }
 .report-history-note { font-size: 0.82rem !important; line-height: 1.4; }

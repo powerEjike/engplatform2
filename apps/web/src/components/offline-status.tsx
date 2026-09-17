@@ -12,6 +12,7 @@ export function OfflineStatus() {
   const { user, profile, isLoading, isProfileLoading } = useAuth();
   const [isOnline, setIsOnline] = useState(true);
   const [operations, setOperations] = useState<SyncOperation[]>([]);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     const refresh = () => {
@@ -43,11 +44,14 @@ export function OfflineStatus() {
   if (isLoading || isProfileLoading || !user || !profile) return null;
   const pendingCount = operations.filter((operation) => operation.status === "pending").length;
   const failedCount = operations.filter((operation) => operation.status === "failed").length;
+  const queuedOperations = operations.filter((operation) => operation.status === "pending");
   const message = failedCount > 0 ? `${failedCount} change${failedCount === 1 ? "" : "s"} need attention` : pendingCount > 0 ? isOnline ? `Syncing ${pendingCount} change${pendingCount === 1 ? "" : "s"}…` : `${pendingCount} change${pendingCount === 1 ? "" : "s"} saved — waiting for connection` : isOnline ? "All synced" : "Offline — changes will sync when connected";
   const statusClass = failedCount > 0 ? "failed" : pendingCount > 0 || !isOnline ? "offline" : "online";
   return <div className={`connection-status ${statusClass}`} role="status">
     <span aria-hidden="true">{failedCount > 0 ? "!" : isOnline ? "●" : "◉"}</span>
     {message}
     {isOnline && pendingCount > 0 && <button type="button" onClick={() => window.dispatchEvent(new Event(manualSyncEvent))}>Sync now</button>}
+    {operations.length > 0 && <button className="sync-details-toggle" type="button" aria-expanded={detailsOpen} onClick={() => setDetailsOpen((open) => !open)}>Details</button>}
+    {detailsOpen && <div className="sync-details"><strong>Saved on this device</strong><ul>{operations.map((operation) => <li key={operation.id}><span>{operation.status === "failed" ? "Needs attention" : "Waiting to sync"}</span>{operation.type}</li>)}</ul>{queuedOperations.length > 0 && <p>{isOnline ? "The app is sending these changes now." : "They will send automatically when internet returns."}</p>}</div>}
   </div>;
 }

@@ -6,10 +6,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://engplatform2-web.vercel.app"),
   title: "BuildCore Engineering",
   description: "Construction project management for the field and the office",
-  icons: {
-    icon: "/brand/buildcore-app-icon.png",
-    apple: "/brand/buildcore-app-icon.png",
-  },
   openGraph: {
     title: "BuildCore Engineering",
     description: "Construction project management for the field and the office",

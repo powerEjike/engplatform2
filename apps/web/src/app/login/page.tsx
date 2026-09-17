@@ -1,6 +1,7 @@
 "use client";
 
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -60,6 +61,7 @@ export default function LoginPage() {
         <p className="eyebrow">Built for the field and the office</p>
         <h1>Clear projects. Confident decisions.</h1>
         <p>Bring daily site reporting, BOQ progress, variations, and valuations into one dependable workspace.</p>
+        <div className="login-brand-visual" aria-hidden="true"><Image src="/brand/buildcore-brand.png" alt="" fill sizes="(max-width: 800px) 0px, 52vw" priority /></div>
       </section>
 
       <section className="login-panel" aria-labelledby="login-heading">

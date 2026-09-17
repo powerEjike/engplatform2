@@ -27,7 +27,26 @@ export default function NewProjectPage() {
     const assignedManagerId = profile.role === "director" ? projectManagerId : profile.role === "project_manager" ? user.uid : ""; const assignedEngineerId = profile.role === "director" ? siteEngineerId : "";
     const assignedManager = projectManagers.find((member) => member.id === assignedManagerId); const assignedEngineer = siteEngineers.find((member) => member.id === assignedEngineerId);
     setSaving(true); setError("");
-    try { await addDoc(collection(db, "companies", profile.companyId, "projects"), { name: name.trim(), clientName: clientName.trim(), contractSum: value, location: location.trim(), state, startDate, endDate, status: "active", projectManagerId: assignedManagerId || null, projectManagerName: assignedManager?.name ?? (profile.role === "project_manager" ? profile.name : null), siteEngineerId: assignedEngineerId || null, siteEngineerName: assignedEngineer?.name ?? null, createdBy: user.uid, createdAt: serverTimestamp() }); router.replace("/"); }
+    try {
+      const createProject = addDoc(collection(db, "companies", profile.companyId, "projects"), {
+        name: name.trim(), clientName: clientName.trim(), contractSum: value, location: location.trim(), state, startDate, endDate,
+        status: "active", projectManagerId: assignedManagerId || null,
+        projectManagerName: assignedManager?.name ?? (profile.role === "project_manager" ? profile.name : null),
+        siteEngineerId: assignedEngineerId || null, siteEngineerName: assignedEngineer?.name ?? null,
+        createdBy: user.uid, createdAt: serverTimestamp(),
+      });
+
+      // Firestore queues this write in the device cache. Its promise waits for an
+      // internet acknowledgement, so do not keep a field user on this form offline.
+      if (!navigator.onLine) {
+        void createProject.catch(() => undefined);
+        router.replace("/?projectSavedOffline=1");
+        return;
+      }
+
+      await createProject;
+      router.replace("/");
+    }
     catch { setError("We could not create this project. Please try again."); setSaving(false); }
   };
   if (profile && !canManageProject(profile.role)) return <main className="auth-loading">Your role cannot create projects. <Link href="/">Return to workspace</Link></main>;

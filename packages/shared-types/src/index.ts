@@ -50,7 +50,6 @@ export interface Project {
   siteEngineerName?: string;
   createdBy: string;
   createdAt: string;
-  updatedAt?: string;
 }
 
 export interface ProjectMilestone {
@@ -64,6 +63,7 @@ export interface ProjectMilestone {
   note?: string;
   createdBy: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface BoqItem {

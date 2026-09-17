@@ -24,6 +24,11 @@ main { margin: 0 auto; max-width: 1400px; padding: 42px clamp(24px, 5vw, 76px) 7
 .role-banner h2 { font-size: 1.1rem; margin-bottom: 5px; text-transform: capitalize; }
 .role-banner p:last-child { color: #547565; font-size: 0.84rem; margin: 0; }
 .role-banner > span { color: #256140; font-size: 0.78rem; font-weight: 800; text-align: right; }
+.quick-actions { align-items: center; background: #fff; border: 1px solid #dce9e0; border-radius: 13px; display: flex; justify-content: space-between; margin: 0 0 24px; padding: 16px 20px; }
+.quick-actions h2 { font-size: 1.05rem; margin: 3px 0 0; }
+.quick-actions > div:last-child { display: flex; flex-wrap: wrap; gap: 10px; }
+.quick-actions a { background: #edf7f0; border-radius: 999px; color: #17663b; font-size: 0.86rem; font-weight: 800; padding: 10px 14px; text-decoration: none; }
+.quick-actions a:hover { background: #d7efdf; }
 .eyebrow { color: #39855d; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; margin: 0 0 8px; text-transform: uppercase; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { color: #123d29; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.055em; margin-bottom: 0; }
@@ -276,7 +281,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 @media (max-width: 640px) { .update-row { align-items: flex-start; grid-template-columns: 1fr; } .update-row time { text-align: left; } .update-icon { justify-self: start; } }
 @media (max-width: 600px) { .team-management-row { grid-template-columns: 1fr; } .team-heading-actions { align-items: flex-end; flex-direction: column; } }
 @media (max-width: 560px) { .settings-summary p { align-items: flex-start; flex-direction: column; gap: 6px; } .settings-summary strong { text-align: left; } }
-@media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .mobile-dashboard-menu { display: block; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } .portfolio-actions { align-items: stretch; flex-direction: column; width: 100%; } .state-filter select { width: 100%; } .engineer-top .mobile-dashboard-menu { margin-left: auto; } .engineer-sign-out { display: none; } }
+@media (max-width: 720px) { .app-shell { display: block; } .sidebar { display: none; } main { padding: 28px 18px 50px; } .topbar { align-items: flex-start; } .profile { display: none; } .mobile-dashboard-menu { display: block; } .quick-actions { align-items: flex-start; flex-direction: column; } .quick-actions > div:last-child { width: 100%; } .quick-actions a { flex: 1 1 130px; text-align: center; } .summary-grid { grid-template-columns: 1fr; } .section-heading, .attention-card { align-items: flex-start; flex-direction: column; } .portfolio-actions { align-items: stretch; flex-direction: column; width: 100%; } .state-filter select { width: 100%; } .engineer-top .mobile-dashboard-menu { margin-left: auto; } .engineer-sign-out { display: none; } }
 @media (max-width: 720px) { .schedule-alert-card { align-items: flex-start; flex-direction: column; } .schedule-alert-links { align-items: flex-start; } }
 @media (max-width: 620px) { .boq-upload-notice { align-items: flex-start; flex-direction: column; }.boq-upload-notice-actions { width: 100%; }.boq-upload-notice .primary-action { text-align: center; }.notice-dismiss { margin-left: auto; } }
 

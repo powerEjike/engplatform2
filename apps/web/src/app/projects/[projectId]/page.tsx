@@ -232,7 +232,7 @@ export default function ProjectWorkspacePage() {
         <p><span>Labour</span><strong>{report.labourCount}</strong></p><p><span>Issues</span><strong>{report.issues.length}</strong></p>
         <p className="report-history-note">{report.equipmentOnSite.length > 0 && <><b>Equipment</b> · {report.equipmentOnSite.join(", ")}<br /></>}{report.issues[0] ? <><b>{report.issues[0].category.replaceAll("_", " ")}</b> · {report.issues[0].note}</> : report.equipmentOnSite.length === 0 ? "No issues or equipment recorded" : "No issues recorded"}</p>
         <div className="report-comments">
-          {(reportComments[report.id] ?? []).filter((comment) => comment.authorId === user?.uid || comment.recipientIds?.includes(user?.uid ?? "")).map((comment) => <p key={comment.id}><strong>{comment.authorName}:</strong> {comment.message}</p>)}
+          {(reportComments[report.id] ?? []).filter((comment) => comment.authorId === user?.uid || report.submittedBy === user?.uid || comment.recipientIds?.includes(user?.uid ?? "")).map((comment) => <p key={comment.id}><strong>{comment.authorName}:</strong> {comment.message}</p>)}
           {canCommentOnReport && <div><p className="field-hint">Your comment will be sent directly to the person who submitted this report.</p><textarea value={commentText[report.id] ?? ""} onChange={(event) => setCommentText((current) => ({ ...current, [report.id]: event.target.value }))} placeholder="Write a comment for the report sender…" /><button type="button" onClick={() => void addReportComment(report)} disabled={!commentText[report.id]?.trim()}>Send comment</button></div>}
         </div>
       </article>)}</div>}

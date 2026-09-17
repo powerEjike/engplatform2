@@ -79,7 +79,11 @@ export default function ProjectWorkspacePage() {
   }, [profile, projectId]);
   useEffect(() => {
     if (!profile || reports.length === 0) return;
-    const unsubscribers = reports.map((report) => onSnapshot(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments"), (snapshot) => setReportComments((current) => ({ ...current, [report.id]: snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as ReportComment) }))));
+    const unsubscribers = reports.map((report) => onSnapshot(
+      collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments"),
+      (snapshot) => setReportComments((current) => ({ ...current, [report.id]: snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as ReportComment) })),
+      () => setReportComments((current) => ({ ...current, [report.id]: [] }))
+    ));
     return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
   }, [profile, projectId, reports]);
   useEffect(() => {

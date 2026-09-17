@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { AuthProvider } from "@/components/auth-provider";
 import { ChatLauncher } from "@/components/chat-launcher";
 import { OfflineStatus } from "@/components/offline-status";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://engplatform2-web.vercel.app"),
   title: "BuildCore Engineering",
   description: "Construction project management for the field and the office",
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "BuildCore Engineering",
     description: "Construction project management for the field and the office",
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><AuthProvider>{children}<OfflineStatus /><ChatLauncher /></AuthProvider></body>
+      <body><AuthProvider>{children}<ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /></AuthProvider></body>
     </html>
   );
 }

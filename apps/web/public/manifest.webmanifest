@@ -1,0 +1,17 @@
+{
+  "name": "BuildCore Engineering",
+  "short_name": "BuildCore",
+  "description": "Construction project management for the field and the office.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07101f",
+  "theme_color": "#0b3f50",
+  "icons": [
+    {
+      "src": "/brand/buildcore-app-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

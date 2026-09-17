@@ -48,6 +48,15 @@ export default function NewSiteReportPage() {
     if (!profile || !projectId) return;
     return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem)));
   }, [profile, projectId]);
+  useEffect(() => {
+    const saved = window.localStorage.getItem(draftKey(projectId));
+    if (!saved) return;
+    try {
+      const draft = JSON.parse(saved) as { quantities?: Record<string, string>; reportDate?: string; labourCount?: string; labourByTrade?: string; equipment?: string; equipmentHours?: string; issueCategory?: string; issue?: string };
+      const restoreTimer = window.setTimeout(() => { setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setLabourByTrade(draft.labourByTrade ?? ""); setEquipment(draft.equipment ?? ""); setEquipmentHours(draft.equipmentHours ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? ""); setDraftMessage("Your saved draft has been restored on this device."); }, 0);
+      return () => window.clearTimeout(restoreTimer);
+    } catch { window.localStorage.removeItem(draftKey(projectId)); }
+  }, [projectId]);
 
   const saveReport = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,7 +80,7 @@ export default function NewSiteReportPage() {
       await batch.commit(); window.localStorage.removeItem(draftKey(projectId)); router.replace(`/projects/${projectId}`);
     } catch { setError("We could not submit this report. Check that the latest Firestore rules have been published, then try again."); setSaving(false); }
   };
-  const saveDraft = () => { window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, labourByTrade, equipment, equipmentHours, issueCategory, issue })); setDraftMessage("Draft saved on this device. You can load it when you return to this report."); };
+  const saveDraft = () => { try { window.localStorage.setItem(draftKey(projectId), JSON.stringify({ quantities, reportDate, labourCount, labourByTrade, equipment, equipmentHours, issueCategory, issue })); setDraftMessage("Draft saved safely on this device. It will restore automatically when you return to this report."); } catch { setDraftMessage("We could not save the draft on this device. Check that browser storage is available, then try again."); } };
   const loadDraft = () => { const saved = window.localStorage.getItem(draftKey(projectId)); if (!saved) return setDraftMessage("No saved draft was found for this project on this device."); try { const draft = JSON.parse(saved) as { quantities?: Record<string, string>; reportDate?: string; labourCount?: string; labourByTrade?: string; equipment?: string; equipmentHours?: string; issueCategory?: string; issue?: string }; setQuantities(draft.quantities ?? {}); setReportDate(draft.reportDate ?? today()); setLabourCount(draft.labourCount ?? ""); setLabourByTrade(draft.labourByTrade ?? ""); setEquipment(draft.equipment ?? ""); setEquipmentHours(draft.equipmentHours ?? ""); setIssueCategory(draft.issueCategory ?? "other"); setIssue(draft.issue ?? ""); setDraftMessage("Saved draft loaded. Review the details, then submit when ready."); } catch { setDraftMessage("This saved draft could not be read. Start a new report and save it again if needed."); } };
   if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening daily report…</main>;
   if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;

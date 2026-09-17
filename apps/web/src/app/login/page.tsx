@@ -80,7 +80,7 @@ export default function LoginPage() {
           {message && <p className="form-success" role="status">{message}</p>}
           <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Sign in"}</button>
         </form>
-        <div className="login-support"><button className="text-button" type="button" onClick={() => void resetPassword()}>Forgot password?</button><p className="login-help">Need access? Ask your company administrator to invite you.</p></div>
+        <div className="login-support"><button className="text-button" type="button" onClick={() => void resetPassword()}>Forgot password?</button><p className="login-help">Need access? Ask your company administrator to invite you.</p><Link className="demo-link" href="/request-demo">New to BuildCore? Request a demo →</Link></div>
       </section>
     </main>
   );

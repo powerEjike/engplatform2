@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { clearCompletedSyncOperations, offlineSyncChangeEvent, readSyncOperations, type SyncOperation } from "@/lib/offline-sync";
-import { waitForPendingWrites } from "firebase/firestore";
+import { enableNetwork, waitForPendingWrites } from "firebase/firestore";
+
+const manualSyncEvent = "engplatform2:manual-sync";
 
 export function OfflineStatus() {
   const { user, profile, isLoading, isProfileLoading } = useAuth();
@@ -19,7 +21,7 @@ export function OfflineStatus() {
     const syncWhenOnline = () => {
       refresh();
       if (!navigator.onLine || readSyncOperations().filter((operation) => operation.status === "pending").length === 0) return;
-      void waitForPendingWrites(db).then(() => {
+      void enableNetwork(db).catch(() => undefined).then(() => waitForPendingWrites(db)).then(() => {
         clearCompletedSyncOperations();
         refresh();
       }).catch(() => refresh());
@@ -28,11 +30,13 @@ export function OfflineStatus() {
     window.addEventListener("online", syncWhenOnline);
     window.addEventListener("offline", refresh);
     window.addEventListener(offlineSyncChangeEvent, refresh);
+    window.addEventListener(manualSyncEvent, syncWhenOnline);
     return () => {
       window.clearTimeout(initialTimer);
       window.removeEventListener("online", syncWhenOnline);
       window.removeEventListener("offline", refresh);
       window.removeEventListener(offlineSyncChangeEvent, refresh);
+      window.removeEventListener(manualSyncEvent, syncWhenOnline);
     };
   }, []);
 
@@ -44,5 +48,6 @@ export function OfflineStatus() {
   return <div className={`connection-status ${statusClass}`} role="status">
     <span aria-hidden="true">{failedCount > 0 ? "!" : isOnline ? "●" : "◉"}</span>
     {message}
+    {isOnline && pendingCount > 0 && <button type="button" onClick={() => window.dispatchEvent(new Event(manualSyncEvent))}>Sync now</button>}
   </div>;
 }

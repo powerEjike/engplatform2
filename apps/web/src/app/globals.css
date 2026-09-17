@@ -217,6 +217,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .milestone-status { background: #edf1ee; color: #4b6959; }
 .milestone-status.in_progress { background: #fff3d6; color: #936516; }
 .milestone-status.complete { background: #e2f5e9; color: #247345; }
+.milestone-download { font-size: 0.78rem; margin-top: 17px; padding: 9px 11px; }
 .valuation-portfolio-table { background: white; border: 1px solid #dfe8e1; border-radius: 13px; overflow: hidden; }
 .valuation-portfolio-head, .valuation-portfolio-row { align-items: center; display: grid; gap: 16px; grid-template-columns: 0.9fr 1.25fr 0.9fr 1fr 1fr; padding: 18px 21px; }
 .valuation-portfolio-head { background: #f8faf8; color: #789084; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }

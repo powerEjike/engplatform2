@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, serverTimestamp, writeBatch } from "firebase/firestore";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type { BoqItem } from "@engplatform2/shared-types";
@@ -38,7 +38,28 @@ export default function NewVariationPage() {
     if (!description.trim() || !reason.trim() || !Number.isFinite(estimate) || estimate < 0) return setError("Add a description, reason, and valid estimated value.");
     if (selectedItem && (!Number.isFinite(Number(quantityDelta)) || Number(quantityDelta) === 0)) return setError("Enter the quantity increase or decrease for the selected BOQ item.");
     setSaving(true); setError("");
-    try { await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "variations"), { projectId, relatedBoqItemId: boqItemId || null, description: description.trim(), reason: reason.trim(), raisedBy: user.uid, raisedAt: serverTimestamp(), quantityDelta: selectedItem ? Number(quantityDelta) : null, rateOverride: rateOverride.trim() ? Number(rateOverride) : null, estimatedValue: estimate, status: "pending_qs_review", supportingPhotoIds: [] }); await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog"), { action: "variation_raised", summary: `Variation raised: ${description.trim()}.`, actorName: profile.name, createdAt: serverTimestamp() }); router.replace(`/projects/${projectId}`); }
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "variations")), {
+        projectId, relatedBoqItemId: boqItemId || null, description: description.trim(), reason: reason.trim(), raisedBy: user.uid,
+        raisedAt: serverTimestamp(), quantityDelta: selectedItem ? Number(quantityDelta) : null,
+        rateOverride: rateOverride.trim() ? Number(rateOverride) : null, estimatedValue: estimate,
+        status: "pending_qs_review", supportingPhotoIds: [],
+      });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), {
+        action: "variation_raised", summary: `Variation raised: ${description.trim()}.`, actorName: profile.name, createdAt: serverTimestamp(),
+      });
+      const raiseVariation = batch.commit();
+
+      if (!navigator.onLine) {
+        void raiseVariation.catch(() => undefined);
+        router.replace(`/projects/${projectId}?variationSavedOffline=1`);
+        return;
+      }
+
+      await raiseVariation;
+      router.replace(`/projects/${projectId}`);
+    }
     catch { setError("We could not raise this variation. Check the Firestore rules and try again."); setSaving(false); }
   };
   if (isLoading || isProfileLoading || projectsLoading || !user || !profile) return <main className="auth-loading">Opening variation form…</main>;

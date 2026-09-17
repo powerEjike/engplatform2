@@ -13,6 +13,8 @@ import { canWorkOnProject } from "@/lib/project-access";
 import { canRaiseVariation } from "@/lib/permissions";
 import { beginSyncOperation, completeSyncOperation, failSyncOperation } from "@/lib/offline-sync";
 
+const draftKey = (projectId: string) => `engplatform2:variation-draft:${projectId}`;
+
 export default function NewVariationPage() {
   const params = useParams<{ projectId: string }>();
   const projectId = params.projectId;
@@ -25,6 +27,7 @@ export default function NewVariationPage() {
   const [description, setDescription] = useState(""); const [reason, setReason] = useState("");
   const [quantityDelta, setQuantityDelta] = useState(""); const [rateOverride, setRateOverride] = useState(""); const [manualValue, setManualValue] = useState("");
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
+  const [draftReady, setDraftReady] = useState(false); const [draftMessage, setDraftMessage] = useState("");
   const selectedItem = items.find((item) => item.id === boqItemId);
   const estimate = useMemo(() => {
     const quantity = Number(quantityDelta); const rate = rateOverride.trim() ? Number(rateOverride) : (selectedItem?.rate ?? Number.NaN);
@@ -34,6 +37,29 @@ export default function NewVariationPage() {
 
   useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/access"); }, [isLoading, isProfileLoading, profile, router, user]);
   useEffect(() => { if (!profile) return; return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem))); }, [profile, projectId]);
+  useEffect(() => {
+    const saved = window.localStorage.getItem(draftKey(projectId));
+    if (!saved) {
+      const readyTimer = window.setTimeout(() => setDraftReady(true), 0);
+      return () => window.clearTimeout(readyTimer);
+    }
+    try {
+      const draft = JSON.parse(saved) as { boqItemId?: string; description?: string; reason?: string; quantityDelta?: string; rateOverride?: string; manualValue?: string };
+      const restoreTimer = window.setTimeout(() => { setBoqItemId(draft.boqItemId ?? ""); setDescription(draft.description ?? ""); setReason(draft.reason ?? ""); setQuantityDelta(draft.quantityDelta ?? ""); setRateOverride(draft.rateOverride ?? ""); setManualValue(draft.manualValue ?? ""); setDraftMessage("Your variation draft has been restored on this device."); setDraftReady(true); }, 0);
+      return () => window.clearTimeout(restoreTimer);
+    } catch {
+      window.localStorage.removeItem(draftKey(projectId));
+      const readyTimer = window.setTimeout(() => setDraftReady(true), 0);
+      return () => window.clearTimeout(readyTimer);
+    }
+  }, [projectId]);
+  useEffect(() => {
+    if (!draftReady) return;
+    const autosaveTimer = window.setTimeout(() => {
+      try { window.localStorage.setItem(draftKey(projectId), JSON.stringify({ boqItemId, description, reason, quantityDelta, rateOverride, manualValue })); } catch { /* Firestore remains the source of truth after submission. */ }
+    }, 500);
+    return () => window.clearTimeout(autosaveTimer);
+  }, [boqItemId, description, draftReady, manualValue, projectId, quantityDelta, rateOverride, reason]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); if (!profile || !user) return;
     if (!description.trim() || !reason.trim() || !Number.isFinite(estimate) || estimate < 0) return setError("Add a description, reason, and valid estimated value.");
@@ -56,11 +82,13 @@ export default function NewVariationPage() {
 
       if (!navigator.onLine) {
         void raiseVariation.then(() => completeSyncOperation(syncOperationId)).catch(() => failSyncOperation(syncOperationId));
+        window.localStorage.removeItem(draftKey(projectId));
         router.replace(`/projects/${projectId}?variationSavedOffline=1`);
         return;
       }
 
       await raiseVariation;
+      window.localStorage.removeItem(draftKey(projectId));
       completeSyncOperation(syncOperationId);
       router.replace(`/projects/${projectId}`);
     }
@@ -70,5 +98,5 @@ export default function NewVariationPage() {
   if (!project) return <main className="auth-loading">This project could not be found. <Link href="/">Return to dashboard</Link></main>;
   if (!canWorkOnProject(profile.role, user.uid, project)) return <main className="auth-loading">This variation form is only available for your assigned projects. <Link href="/">Return to your assigned projects</Link></main>;
   if (!canRaiseVariation(profile.role)) return <main className="auth-loading">Your role cannot raise variations. <Link href={`/projects/${projectId}`}>Return to project</Link></main>;
-  return <main className="report-page"><div className="report-content"><Link className="back-link" href={`/projects/${projectId}`}>← Back to {project.name}</Link><section className="report-card"><p className="eyebrow">Variation request</p><h1>Raise a variation</h1><p className="report-intro">Record extra work, omissions, or changes before they affect the contract value.</p><form className="report-form" onSubmit={submit}><section className="report-section"><label className="report-date-field">Related BOQ item (optional)<select value={boqItemId} onChange={(event) => setBoqItemId(event.target.value)}><option value="">Standalone variation</option>{items.map((item) => <option key={item.id} value={item.id}>{item.itemNumber} · {item.description}</option>)}</select></label></section><section className="report-section"><label className="report-issue-field">Description<textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Describe the additional work or change." required /></label><label className="report-issue-field">Reason for variation<textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain why this change is required." required /></label></section>{selectedItem ? <section className="report-section"><h2>Pricing</h2><p>The original BOQ rate is used unless you enter a new agreed rate.</p><div className="boq-number-fields"><label className="report-labour-field">Quantity change ({selectedItem.unit})<input inputMode="decimal" value={quantityDelta} onChange={(event) => setQuantityDelta(event.target.value)} placeholder="Use - for omission" /></label><label className="report-labour-field">Rate per {selectedItem.unit} (₦)<input inputMode="decimal" value={rateOverride} onChange={(event) => setRateOverride(event.target.value)} placeholder={`BOQ rate: ${selectedItem.rate}`} /></label></div></section> : <section className="report-section"><label className="report-labour-field">Estimated value (₦)<input inputMode="decimal" value={manualValue} onChange={(event) => setManualValue(event.target.value)} placeholder="0" required /></label></section>}<div className="variation-value"><span>Estimated contract impact</span><strong>{formatNaira(estimate)}</strong></div>{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">The request will first be sent for QS or Project Manager review, then to the Director for final approval.</p><button disabled={saving}>{saving ? "Raising variation…" : "Raise variation"}</button></div></form></section></div></main>;
+  return <main className="report-page"><div className="report-content"><Link className="back-link" href={`/projects/${projectId}`}>← Back to {project.name}</Link><section className="report-card"><p className="eyebrow">Variation request</p><h1>Raise a variation</h1><p className="report-intro">Record extra work, omissions, or changes before they affect the contract value.</p><form className="report-form" onSubmit={submit}><section className="report-section"><label className="report-date-field">Related BOQ item (optional)<select value={boqItemId} onChange={(event) => setBoqItemId(event.target.value)}><option value="">Standalone variation</option>{items.map((item) => <option key={item.id} value={item.id}>{item.itemNumber} · {item.description}</option>)}</select></label></section><section className="report-section"><label className="report-issue-field">Description<textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Describe the additional work or change." required /></label><label className="report-issue-field">Reason for variation<textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain why this change is required." required /></label></section>{selectedItem ? <section className="report-section"><h2>Pricing</h2><p>The original BOQ rate is used unless you enter a new agreed rate.</p><div className="boq-number-fields"><label className="report-labour-field">Quantity change ({selectedItem.unit})<input inputMode="decimal" value={quantityDelta} onChange={(event) => setQuantityDelta(event.target.value)} placeholder="Use - for omission" /></label><label className="report-labour-field">Rate per {selectedItem.unit} (₦)<input inputMode="decimal" value={rateOverride} onChange={(event) => setRateOverride(event.target.value)} placeholder={`BOQ rate: ${selectedItem.rate}`} /></label></div></section> : <section className="report-section"><label className="report-labour-field">Estimated value (₦)<input inputMode="decimal" value={manualValue} onChange={(event) => setManualValue(event.target.value)} placeholder="0" required /></label></section>}<div className="variation-value"><span>Estimated contract impact</span><strong>{formatNaira(estimate)}</strong></div>{draftMessage && <p className="form-success">{draftMessage}</p>}{error && <p className="form-error">{error}</p>}<div className="report-submit-row"><p className="report-intro">This variation is saved automatically on this device while you work. It will then be sent for QS or Project Manager review.</p><button disabled={saving}>{saving ? "Raising variation…" : "Raise variation"}</button></div></form></section></div></main>;
 }

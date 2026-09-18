@@ -89,7 +89,7 @@ export interface BoqUploadEvent {
 
 export interface ProjectActivityEvent {
   id: string;
-  action: "boq_uploaded" | "boq_created" | "boq_edited" | "boq_removed" | "boq_cleared" | "report_submitted" | "variation_raised" | "variation_reviewed" | "variation_approved" | "variation_rejected" | "valuation_issued";
+  action: "boq_uploaded" | "boq_created" | "boq_edited" | "boq_removed" | "boq_cleared" | "report_submitted" | "report_commented" | "variation_raised" | "variation_reviewed" | "variation_approved" | "variation_rejected" | "valuation_issued";
   summary: string;
   actorName: string;
   createdAt: string;

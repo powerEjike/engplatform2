@@ -125,7 +125,19 @@ export default function ProjectWorkspacePage() {
   const printProjectSummary = () => window.print();
   const activityData = (action: ProjectActivityEvent["action"], summary: string) => ({ action, summary, actorName: profile?.name ?? "Team member", createdAt: serverTimestamp() });
   const canCommentOnReport = Boolean(user && profile && (profile.role === "director" || profile.role === "quantity_surveyor" || (profile.role === "project_manager" && project?.projectManagerId === user.uid)));
-  const addReportComment = async (report: SiteReport) => { const message = commentText[report.id]?.trim(); if (!profile || !user || !message) return; try { await addDoc(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments"), { message, authorId: user.uid, authorName: profile.name, recipientIds: [report.submittedBy].filter(Boolean), createdAt: serverTimestamp() }); setCommentText((current) => ({ ...current, [report.id]: "" })); } catch { setError("We could not save this report comment. Publish the latest Firestore rules, then try again."); } };
+  const addReportComment = async (report: SiteReport) => {
+    const message = commentText[report.id]?.trim();
+    if (!profile || !user || !message) return;
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id, "comments")), {
+        message, authorId: user.uid, authorName: profile.name, recipientIds: [report.submittedBy].filter(Boolean), createdAt: serverTimestamp(),
+      });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("report_commented", `${profile.name} commented on the daily report for ${report.reportDate}.`));
+      await batch.commit();
+      setCommentText((current) => ({ ...current, [report.id]: "" }));
+    } catch { setError("We could not save this report comment. Publish the latest Firestore rules, then try again."); }
+  };
   const downloadBoq = () => {
     const quote = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
     const rows = ["itemNumber,description,unit,plannedQuantity,rate,section,cumulativeQuantityCompleted", ...items.map((item) => [item.itemNumber, item.description, item.unit, item.plannedQuantity, item.rate, item.section, item.cumulativeQuantityCompleted].map(quote).join(","))];

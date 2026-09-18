@@ -626,3 +626,78 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .app-shell > main { padding: 24px 16px 58px; }
   .role-banner { margin-top: 0; }
 }
+
+/* Project control workspace: structured registers with familiar table-like hierarchy. */
+.project-workspace { background: var(--bc-bg); color: var(--bc-navy); padding: 30px clamp(16px, 3vw, 46px) 68px; }
+.workspace-content { max-width: 1280px; }
+.project-tabs {
+  background: rgba(248, 250, 252, .96);
+  border-bottom: 1px solid var(--bc-border);
+  gap: 2px;
+  margin-bottom: 24px;
+  padding: 10px 0;
+}
+.project-tabs button, .project-tabs a {
+  border-radius: 6px;
+  color: #475569;
+  font-size: .78rem;
+  letter-spacing: .01em;
+  padding: 9px 12px;
+}
+.project-tabs button:hover, .project-tabs button:focus-visible, .project-tabs a:hover, .project-tabs a:focus-visible {
+  background: #e0e7ff;
+  color: #1d4ed8;
+}
+.project-title-row { border-bottom: 1px solid var(--bc-border); margin-bottom: 20px; padding-bottom: 22px; }
+.project-title-row h1 { color: var(--bc-navy); letter-spacing: -.035em; }
+.project-title-row p:last-child { color: #64748b; }
+.contract-summary { background: #eff6ff; border-color: #bfdbfe; border-radius: 7px; color: #1e3a8a; }
+.site-assignment { background: var(--bc-surface); border-color: var(--bc-border); border-left: 4px solid var(--bc-green); border-radius: 8px; padding: 17px 18px; }
+.site-assignment.unassigned { background: #fffbeb; border-color: #fde68a; border-left-color: var(--bc-amber); }
+.site-assignment h2 { color: var(--bc-navy); }
+.site-assignment p:last-child { color: #64748b; }
+.assignment-status { border-radius: 6px; }
+
+.boq-card, .report-register, .variation-register, .valuation-register, .audit-register {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 22px;
+}
+.boq-card > p, .boq-import > p, .report-intro, .report-section > p { color: #64748b; }
+.boq-card h2, .boq-import h3, .boq-item h3, .report-history-row h3, .variation-row h3, .valuation-row h3 { color: var(--bc-navy); }
+.boq-form label, .report-date-field, .report-labour-field, .report-issue-field { color: var(--bc-slate); }
+.boq-form input, .boq-form select, .report-date-field input, .report-labour-field input, .report-labour-field select, .report-issue-field input, .report-issue-field textarea, .report-line input {
+  border-color: #cbd5e1;
+  border-radius: 6px;
+}
+.boq-total { color: #64748b; }
+.boq-total strong { color: var(--bc-navy); }
+.boq-item, .report-history-row, .variation-row, .valuation-row, .audit-row {
+  border-color: var(--bc-border);
+  border-radius: 6px;
+}
+.boq-item-number, .report-history-date, .valuation-certificate { color: #2563eb; }
+.boq-item strong, .variation-actions strong, .valuation-row strong { color: var(--bc-navy); }
+.boq-item-meta, .boq-item-progress > div:first-child, .report-history-row p, .variation-row p, .valuation-row p, .audit-row p, .audit-row time { color: #64748b; }
+.boq-item-progress strong { color: var(--bc-green); }
+.progress-track { background: #e2e8f0; }
+.progress-track span { background: var(--bc-green); }
+.boq-empty { background: #f8fafc; border-color: #cbd5e1; border-radius: 7px; color: #64748b; }
+.download-boq-button, .edit-boq-button, .outline-button { border-color: #bfdbfe; color: #1d4ed8; }
+.clear-boq-button, .remove-boq-button, .variation-actions .reject-button { border-color: #fecaca; color: #b91c1c; }
+
+.variation-status { border-radius: 5px; letter-spacing: .02em; }
+.variation-status.pending_director_approval { background: #fef3c7; color: #92400e; }
+.variation-status.pending_qs_review { background: #dbeafe; color: #1d4ed8; }
+.variation-status.approved { background: #dcfce7; color: #166534; }
+.variation-status.rejected { background: #fee2e2; color: #b91c1c; }
+.valuation-row .valuation-due strong { color: var(--bc-green); }
+.audit-register { margin-top: 22px; }
+
+@media (max-width: 760px) {
+  .project-workspace { padding: 22px 16px 54px; }
+  .project-tabs { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+  .boq-card, .report-register, .variation-register, .valuation-register, .audit-register { padding: 17px; }
+}

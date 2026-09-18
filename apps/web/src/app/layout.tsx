@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AuthProvider } from "@/components/auth-provider";
 import { ChatLauncher } from "@/components/chat-launcher";
 import { OfflineStatus } from "@/components/offline-status";
+import { ReportCommentNotifier } from "@/components/report-comment-notifier";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><AuthProvider>{children}<ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /></AuthProvider></body>
+      <body><AuthProvider>{children}<ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /><ReportCommentNotifier /></AuthProvider></body>
     </html>
   );
 }

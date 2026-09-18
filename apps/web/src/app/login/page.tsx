@@ -24,6 +24,11 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const nextPath = () => {
+    const requested = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("next");
+    return requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/";
+  };
+
   useEffect(() => {
     if (user) router.replace("/");
   }, [router, user]);
@@ -36,7 +41,7 @@ export default function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      router.push("/");
+      router.push(nextPath());
     } catch (caughtError) {
       const code = typeof caughtError === "object" && caughtError !== null && "code" in caughtError
         ? String(caughtError.code)

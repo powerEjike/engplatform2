@@ -519,3 +519,110 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 .chat-composer { border-top: 1px solid #e2ece7; padding: 15px 20px; }.chat-composer textarea { border: 1px solid #cbdcd5; border-radius: 10px; font: inherit; min-height: 68px; padding: 10px; resize: vertical; width: 100%; }.chat-composer > div { align-items: center; color: #70857b; display: flex; font-size: .72rem; justify-content: space-between; margin-top: 10px; }.chat-composer button { font-size: .8rem; padding: 9px 13px; }.chat-empty { background: white; border: 1px solid #dbe8e5; border-radius: 16px; margin-top: 22px; padding: 34px; }.chat-empty h2 { margin-bottom: 8px; }.chat-empty p { color: #6f857b; margin: 0; }
 @media (max-width: 700px) { .chat-layout { grid-template-columns: 1fr; }.chat-projects { border-bottom: 1px solid #dce9e4; border-right: 0; }.chat-projects button { display: inline-grid; margin-right: 6px; vertical-align: top; width: calc(50% - 6px); }.chat-conversation > header { align-items: flex-start; gap: 12px; }.chat-conversation > header > span { white-space: nowrap; }.chat-messages { min-height: 300px; padding: 18px; }.chat-message { max-width: 88%; }.chat-composer { padding: 14px; } }
 @media print { body { background: white; } .no-print, .back-link, .mobile-dashboard-menu { display: none !important; } .project-workspace { background: white; padding: 0; } .workspace-content { max-width: none; } .project-title-row { break-inside: avoid; } .boq-layout, .variation-register, .report-register, .valuation-register { break-inside: avoid; } }
+
+/* BuildCore operational interface: clear, dense, and practical for site teams. */
+:root {
+  --bc-navy: #0f172a;
+  --bc-slate: #334155;
+  --bc-orange: #f46a27;
+  --bc-amber: #f59e0b;
+  --bc-blue: #2563eb;
+  --bc-green: #16a34a;
+  --bc-red: #dc2626;
+  --bc-bg: #f8fafc;
+  --bc-border: #e2e8f0;
+  --bc-surface: #ffffff;
+  background: var(--bc-bg);
+  color: var(--bc-navy);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body { background: var(--bc-bg); color: var(--bc-navy); }
+.app-shell { background: var(--bc-bg); }
+.sidebar {
+  background: var(--bc-navy);
+  border-right: 1px solid #1e293b;
+  padding: 24px 14px;
+}
+.nav-link { border-radius: 7px; color: #cbd5e1; font-size: .86rem; }
+.nav-link:hover, .nav-link.active {
+  background: #1e293b;
+  box-shadow: inset 3px 0 0 var(--bc-orange);
+  color: #ffffff;
+}
+.sidebar-footer { border-color: #334155; }
+.app-shell > main {
+  background: var(--bc-bg);
+  color: var(--bc-navy);
+  padding: 32px clamp(20px, 3.4vw, 54px) 64px;
+}
+.app-shell > main > * { max-width: 1440px; }
+.topbar { border-bottom: 1px solid var(--bc-border); margin-bottom: 24px; padding-bottom: 21px; }
+.topbar h1, .attention-actions-heading h2, .section-heading h2, .team-section .section-heading h2, .variation-queue .section-heading h2 { color: var(--bc-navy); }
+.app-shell .eyebrow { color: #b45309; }
+.profile, .sign-out { color: var(--bc-slate); }
+.avatar { background: #e2e8f0; color: var(--bc-navy); }
+.dashboard-notifications { background: var(--bc-surface); border-color: var(--bc-border); color: var(--bc-slate); }
+.dashboard-notifications:hover { background: #f1f5f9; }
+.dashboard-notifications em { background: var(--bc-red); border-color: var(--bc-surface); }
+
+.role-banner {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+  border-left: 4px solid var(--bc-blue);
+  border-radius: 8px;
+  box-shadow: none;
+  margin: 0 0 18px;
+}
+.role-banner h2 { color: var(--bc-navy); }
+.role-banner p:last-child, .role-banner > span { color: #64748b; }
+.quick-actions, .metric-card, .project-table, .team-list, .variation-queue-list {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.quick-actions { padding: 16px 18px; }
+.quick-actions a { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 7px; color: #c2410c; }
+.quick-actions a:hover { background: #ffedd5; }
+.metric-card { min-height: 132px; padding: 18px; }
+.metric-card p, .metric-card span { color: #64748b; }
+.metric-card strong { color: var(--bc-navy); }
+.metric-card.highlight { background: var(--bc-surface); border-top: 3px solid var(--bc-blue); }
+.metric-card.warning { background: var(--bc-surface); border-top: 3px solid var(--bc-amber); }
+.metric-card.warning strong { color: #92400e; }
+.project-table-head { background: #f8fafc; color: #64748b; }
+.project-row { border-color: var(--bc-border); }
+
+.primary-action, button:not(.sign-out):not(.mobile-menu-close):not(.notice-dismiss) {
+  background: var(--bc-orange);
+  border-radius: 7px;
+  box-shadow: none;
+}
+.primary-action:hover, button:not(.sign-out):not(.mobile-menu-close):not(.notice-dismiss):hover { background: #d9571d; }
+.secondary, .outline-button { border-color: #cbd5e1 !important; border-radius: 7px; color: #334155 !important; }
+.attention-action-card { border-radius: 8px; box-shadow: none; }
+.guided-empty-state { background: var(--bc-surface); border-color: #cbd5e1; border-radius: 8px; }
+.guided-empty-state > span { background: var(--bc-blue); border-radius: 7px; }
+
+.project-command-bar, .schedule-hero {
+  background: var(--bc-surface) !important;
+  border: 1px solid var(--bc-border) !important;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.schedule-hero { border-left: 4px solid var(--bc-blue) !important; }
+.schedule-hero h1, .schedule-hero h2, .schedule-hero p, .schedule-hero span, .schedule-hero strong { color: var(--bc-navy) !important; }
+.schedule-hero .eyebrow { color: #b45309 !important; }
+.project-command-metrics > div { border-color: var(--bc-border); }
+.project-command-metrics span { color: #64748b; }
+.project-command-metrics strong { color: var(--bc-navy); }
+
+.connection-status { border-radius: 7px; }
+.chat-launcher { background: var(--bc-orange); border-radius: 999px; box-shadow: 0 8px 20px rgba(194, 65, 12, .25); }
+.chat-launcher:hover { background: #d9571d; box-shadow: 0 12px 24px rgba(194, 65, 12, .28); }
+
+@media (max-width: 900px) {
+  .app-shell > main { padding: 24px 16px 58px; }
+  .role-banner { margin-top: 0; }
+}

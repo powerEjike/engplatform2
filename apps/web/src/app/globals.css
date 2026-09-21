@@ -1033,3 +1033,38 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .date-fields { grid-template-columns: 1fr; }
   .project-team-allocation { padding: 16px; }
 }
+
+/* Director settings present governance and workspace health as compact controls. */
+.settings-summary {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: var(--bc-border);
+  border: 1px solid var(--bc-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.settings-summary p {
+  align-items: flex-start;
+  background: #fff;
+  color: #64748b;
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  min-height: 92px;
+  padding: 16px;
+}
+.settings-summary span {
+  color: #64748b;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+.settings-summary strong { color: var(--bc-navy); font-size: .96rem; line-height: 1.35; }
+.settings-summary .text-action { color: var(--bc-blue); font-size: .86rem; font-weight: 800; }
+.report-card .settings-summary + * { margin-top: 18px; }
+@media (max-width: 560px) {
+  .settings-summary { grid-template-columns: 1fr; }
+  .settings-summary p { min-height: unset; }
+}

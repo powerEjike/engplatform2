@@ -1322,7 +1322,8 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 /* Desktop sign-in is a single, complete screen rather than a scrolling document. */
 @media (min-width: 801px) and (min-height: 700px) {
   html:has(.login-page), body:has(.login-page) { height: 100%; overflow: hidden; }
-  .login-page { height: 100dvh; min-height: 0; overflow: hidden; }
-  .login-introduction, .login-panel { min-height: 0; }
-  .login-panel { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+  .login-page { align-items: stretch; height: 100dvh; min-height: 0; overflow: hidden; }
+  .login-introduction, .login-panel { height: 100dvh; min-height: 0; }
+  .login-introduction { padding-top: 36px; }
+  .login-panel { align-self: stretch; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
 }

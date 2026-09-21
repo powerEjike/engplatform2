@@ -890,3 +890,23 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .update-row { gap: 10px; padding: 16px; }
   .update-icon { justify-self: start; }
 }
+
+/* Commercial change control stays readable even when several variations are open. */
+.variation-filter { align-items: end; margin: -8px 0 16px; }
+.variation-filter .state-filter span { color: #64748b; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+.variation-filter select { background: #fff; border-color: #cbd5e1; border-radius: 6px; color: var(--bc-navy); }
+.variation-portfolio-list { background: var(--bc-surface); border-color: var(--bc-border); border-radius: 9px; box-shadow: none; }
+.variation-portfolio-row { border-color: var(--bc-border); grid-template-columns: minmax(0, 1fr) 165px 100px; padding: 19px 20px; }
+.variation-portfolio-row:hover { background: #f8fafc; }
+.variation-portfolio-row h2 { color: var(--bc-navy); font-size: .98rem; }
+.variation-portfolio-row p { color: #64748b; }
+.variation-portfolio-row > strong { color: var(--bc-navy); font-size: .95rem; }
+.variation-queue-list { border-color: var(--bc-border); border-radius: 8px; box-shadow: none; }
+.variation-queue-row { border-color: var(--bc-border); }
+.variation-queue-row h3, .variation-queue-row > strong { color: var(--bc-navy); }
+.variation-queue-row p { color: #64748b; }
+@media (max-width: 640px) {
+  .variation-filter { gap: 12px; margin-top: 0; }
+  .variation-filter .secondary { width: 100%; }
+  .variation-portfolio-row { gap: 11px; padding: 16px; }
+}

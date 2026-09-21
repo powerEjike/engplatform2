@@ -6,6 +6,7 @@ service cloud.firestore {
     function isMember(companyId) { return signedIn() && exists(userDoc(companyId)) && get(userDoc(companyId)).data.active == true; }
     function role(companyId) { return get(userDoc(companyId)).data.role; }
     function isDirector(companyId) { return isMember(companyId) && role(companyId) == "director"; }
+    function isVerifiedDirector(companyId) { return isDirector(companyId) && request.auth.token.email_verified == true; }
     function isProjectManager(companyId) { return isMember(companyId) && role(companyId) == "project_manager"; }
     function isQs(companyId) { return isMember(companyId) && role(companyId) == "quantity_surveyor"; }
     function isSiteEngineer(companyId) { return isMember(companyId) && role(companyId) == "site_engineer"; }
@@ -46,7 +47,7 @@ service cloud.firestore {
     match /companies/{companyId} {
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
       allow read: if isMember(companyId);
-      allow update: if isDirector(companyId);
+      allow update: if isVerifiedDirector(companyId);
       match /users/{userId} {
         allow read: if isMember(companyId);
         // A newly created company must be able to create its first Director profile.
@@ -62,37 +63,37 @@ service cloud.firestore {
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.expiresAt > request.time
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.email == request.auth.token.email
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.role == request.resource.data.role));
-        allow update: if isDirector(companyId);
+        allow update: if isVerifiedDirector(companyId);
       }
       match /invites/{inviteId} {
-        allow create, list: if isDirector(companyId);
+        allow create, list: if isVerifiedDirector(companyId);
         // Invite details are visible only to the invited email or a company Director.
         allow get: if isDirector(companyId) || (signedIn() && resource.data.email == request.auth.token.email);
         allow update: if isDirector(companyId) || canAcceptInvite(companyId, inviteId);
       }
       match /projects/{projectId} {
         allow read: if canAccessProject(companyId, projectId);
-        allow create: if isDirector(companyId) || (isProjectManager(companyId) && request.resource.data.projectManagerId == request.auth.uid);
-        allow update: if isDirector(companyId) || (isAssignedProjectManager(companyId, projectId) && request.resource.data.projectManagerId == request.auth.uid);
+        allow create: if isVerifiedDirector(companyId) || (isProjectManager(companyId) && request.resource.data.projectManagerId == request.auth.uid);
+        allow update: if isVerifiedDirector(companyId) || (isAssignedProjectManager(companyId, projectId) && request.resource.data.projectManagerId == request.auth.uid);
         match /boqItems/{itemId} {
           allow read: if canAccessProject(companyId, projectId);
-          allow create: if isDirector(companyId) || isQs(companyId);
-          allow update: if isDirector(companyId) || isQs(companyId) || (canSubmitSiteUpdate(companyId, projectId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
-          allow delete: if isDirector(companyId) || isQs(companyId);
+          allow create: if isVerifiedDirector(companyId) || isQs(companyId);
+          allow update: if isVerifiedDirector(companyId) || isQs(companyId) || (canSubmitSiteUpdate(companyId, projectId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
+          allow delete: if isVerifiedDirector(companyId) || isQs(companyId);
         }
-        match /boqUploads/{uploadId} { allow read: if canAccessProject(companyId, projectId); allow create: if isDirector(companyId) || isQs(companyId); }
+        match /boqUploads/{uploadId} { allow read: if canAccessProject(companyId, projectId); allow create: if isVerifiedDirector(companyId) || isQs(companyId); }
         match /activityLog/{eventId} { allow read: if canAccessProject(companyId, projectId); allow create: if canSubmitSiteUpdate(companyId, projectId) || isQs(companyId); }
         match /siteReports/{reportId} {
           allow read: if canAccessProject(companyId, projectId);
           allow create: if canSubmitSiteUpdate(companyId, projectId) && request.resource.data.submittedBy == request.auth.uid;
           match /comments/{commentId} {
             allow read: if canAccessProject(companyId, projectId);
-            allow create: if (isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId)) && request.resource.data.authorId == request.auth.uid;
+            allow create: if (isVerifiedDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId)) && request.resource.data.authorId == request.auth.uid;
           }
         }
-        match /milestones/{milestoneId} { allow read: if canAccessProject(companyId, projectId); allow create, update, delete: if isDirector(companyId) || isAssignedProjectManager(companyId, projectId); }
-        match /variations/{variationId} { allow read: if canAccessProject(companyId, projectId); allow create: if (isAssignedProjectManager(companyId, projectId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isDirector(companyId); }
-        match /valuations/{valuationId} { allow read: if canAccessProject(companyId, projectId); allow create, update: if isQs(companyId) || isDirector(companyId); }
+        match /milestones/{milestoneId} { allow read: if canAccessProject(companyId, projectId); allow create, update, delete: if isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId); }
+        match /variations/{variationId} { allow read: if canAccessProject(companyId, projectId); allow create: if (isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId); }
+        match /valuations/{valuationId} { allow read: if canAccessProject(companyId, projectId); allow create, update: if isQs(companyId) || isVerifiedDirector(companyId); }
       }
       match /messages/{messageId} {
         allow read: if isMember(companyId);
@@ -104,7 +105,7 @@ service cloud.firestore {
       // Security records are append-only and visible only to Directors.
       match /securityAudit/{auditId} {
         allow read: if isDirector(companyId);
-        allow create: if isDirector(companyId)
+        allow create: if isVerifiedDirector(companyId)
           && request.resource.data.actorId == request.auth.uid
           && request.resource.data.actorName == get(userDoc(companyId)).data.name
           && request.resource.data.actorRole == "director"

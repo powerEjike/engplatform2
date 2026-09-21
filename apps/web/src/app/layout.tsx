@@ -5,6 +5,7 @@ import { ChatLauncher } from "@/components/chat-launcher";
 import { OfflineStatus } from "@/components/offline-status";
 import { ReportCommentNotifier } from "@/components/report-comment-notifier";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { SessionTimeout } from "@/components/session-timeout";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><a className="skip-to-content" href="#main-content">Skip to main content</a><AuthProvider><div id="main-content" tabIndex={-1}><AuthRouteGuard>{children}</AuthRouteGuard></div><ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /><ReportCommentNotifier /></AuthProvider></body>
+      <body><a className="skip-to-content" href="#main-content">Skip to main content</a><AuthProvider><SessionTimeout /><div id="main-content" tabIndex={-1}><AuthRouteGuard>{children}</AuthRouteGuard></div><ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /><ReportCommentNotifier /></AuthProvider></body>
     </html>
   );
 }

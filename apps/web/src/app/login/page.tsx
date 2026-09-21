@@ -33,6 +33,13 @@ export default function LoginPage() {
     if (user) router.replace("/dashboard");
   }, [router, user]);
 
+  useEffect(() => {
+    if (window.sessionStorage.getItem("buildcore:session-ended") !== "1") return;
+    window.sessionStorage.removeItem("buildcore:session-ended");
+    const timer = window.setTimeout(() => setMessage("For your security, you were signed out after 30 minutes of inactivity."), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");

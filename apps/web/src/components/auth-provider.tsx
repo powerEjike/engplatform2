@@ -42,7 +42,12 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
       const companyId = String(index.data().companyId);
       const profileDocument = await getDoc(doc(db, "companies", companyId, "users", user.uid));
       const companyDocument = await getDoc(doc(db, "companies", companyId));
-      setProfile(profileDocument.exists() ? { companyId, companyName: String(companyDocument.data()?.name ?? "Your company"), name: String(profileDocument.data().name ?? user.email ?? "User"), role: String(profileDocument.data().role ?? "") } : null);
+      if (!profileDocument.exists() || profileDocument.data().active !== true) {
+        setProfile(null);
+        await signOut(auth);
+        return;
+      }
+      setProfile({ companyId, companyName: String(companyDocument.data()?.name ?? "Your company"), name: String(profileDocument.data().name ?? user.email ?? "User"), role: String(profileDocument.data().role ?? "") });
     } catch {
       setProfile(null);
     } finally {

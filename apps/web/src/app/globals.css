@@ -1485,3 +1485,8 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 @media (forced-colors: active) {
   :where(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid Highlight; }
 }
+
+/* Account controls make a disabled workspace identity clear to Directors. */
+.team-management-row.account-disabled { background: #f8fafc; border-left: 4px solid #94a3b8; opacity: .82; }
+.team-management-row.account-disabled h2::after { color: #b45309; content: " · access disabled"; font-size: .7rem; font-weight: 850; letter-spacing: .03em; text-transform: uppercase; }
+.team-management-row > .compact-action { align-self: center; font-size: .72rem; justify-self: start; padding: 9px 11px; }

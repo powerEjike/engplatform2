@@ -18,12 +18,16 @@ export function useProjects(companyId: string | undefined, role: string | undefi
         : role === "site_engineer"
           ? query(projects, where("siteEngineerId", "==", userId), orderBy("createdAt", "desc"))
           : null;
-    if (!projectQuery) { setProjects([]); setIsLoading(false); return; }
-    setIsLoading(true);
-    return onSnapshot(projectQuery, (snapshot) => {
+    if (!projectQuery) {
+      const resetTimer = window.setTimeout(() => { setProjects([]); setIsLoading(false); }, 0);
+      return () => window.clearTimeout(resetTimer);
+    }
+    const loadingTimer = window.setTimeout(() => setIsLoading(true), 0);
+    const unsubscribe = onSnapshot(projectQuery, (snapshot) => {
       setProjects(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Project));
       setIsLoading(false);
     }, () => { setProjects([]); setIsLoading(false); });
+    return () => { window.clearTimeout(loadingTimer); unsubscribe(); };
   }, [companyId, role, userId]);
   return { projects, isLoading };
 }

@@ -99,6 +99,15 @@ service cloud.firestore {
           && request.resource.data.authorName == get(userDoc(companyId)).data.name
           && request.resource.data.authorRole == role(companyId);
       }
+      // Security records are append-only and visible only to Directors.
+      match /securityAudit/{auditId} {
+        allow read: if isDirector(companyId);
+        allow create: if isDirector(companyId)
+          && request.resource.data.actorId == request.auth.uid
+          && request.resource.data.actorName == get(userDoc(companyId)).data.name
+          && request.resource.data.actorRole == "director"
+          && request.resource.data.keys().hasOnly(["actorId", "actorName", "actorRole", "action", "entityType", "entityId", "entityName", "before", "after", "createdAt"]);
+      }
     }
   }
 }

@@ -1318,3 +1318,11 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .public-capability-grid p { color: #cbd5e1; font-size: .88rem; line-height: 1.6; margin: 0; }
 @media (max-width: 800px) { .public-capabilities { padding: 60px 20px; }.public-capability-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px) { .public-capability-grid { grid-template-columns: 1fr; }.public-capability-grid article { min-height: unset; }.public-capability-grid h3 { margin-top: 34px; } }
+
+/* Desktop sign-in is a single, complete screen rather than a scrolling document. */
+@media (min-width: 801px) and (min-height: 700px) {
+  html:has(.login-page), body:has(.login-page) { height: 100%; overflow: hidden; }
+  .login-page { height: 100dvh; min-height: 0; overflow: hidden; }
+  .login-introduction, .login-panel { min-height: 0; }
+  .login-panel { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+}

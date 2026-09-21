@@ -992,3 +992,44 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .issue-filters .secondary { width: 100%; }
   .issue-row { gap: 10px; padding: 16px; }
 }
+
+/* Project setup separates contract details from delivery ownership at a glance. */
+.onboarding-page { background: var(--bc-bg); padding: clamp(22px, 5vw, 56px) 16px; }
+.onboarding-card, .project-form-card {
+  background: var(--bc-surface);
+  border-color: var(--bc-border);
+  border-radius: 9px;
+  box-shadow: none;
+  max-width: 680px;
+  padding: clamp(22px, 4vw, 38px);
+}
+.onboarding-card h1 { color: var(--bc-navy); letter-spacing: -.04em; }
+.onboarding-card > p:not(.eyebrow) { color: #64748b; }
+.onboarding-card label { color: var(--bc-slate); font-size: .78rem; }
+.onboarding-card input, .onboarding-card select {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  border-radius: 6px;
+}
+.onboarding-card input:focus, .onboarding-card select:focus {
+  border-color: var(--bc-blue);
+  box-shadow: 0 0 0 3px #dbeafe;
+  outline: none;
+}
+.project-team-allocation {
+  background: #f8fafc;
+  border-color: var(--bc-border);
+  border-left: 4px solid var(--bc-blue);
+  border-radius: 8px;
+  padding: 18px;
+}
+.project-team-allocation h2 { color: var(--bc-navy); }
+.project-team-allocation > div > p:last-child { color: #64748b; }
+.project-team-allocation select { border-color: #cbd5e1; border-radius: 6px; }
+.date-fields { gap: 14px; }
+@media (max-width: 560px) {
+  .onboarding-page { align-items: flex-start; padding: 20px 16px 44px; }
+  .onboarding-card { padding: 22px 18px; }
+  .date-fields { grid-template-columns: 1fr; }
+  .project-team-allocation { padding: 16px; }
+}

@@ -1391,3 +1391,63 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .updates-project-group .update-row { grid-template-columns: 106px minmax(0, 1fr) 42px 116px; }
 .update-row h3 { color: var(--bc-navy); font-size: .94rem; margin: 0 0 5px; }.update-row.unread { background: #f0fdfa; border-left: 3px solid #0f766e; }.update-row.unread:hover { background: #e6fffa; }.update-row.read { opacity: .74; }.update-state { color: #64748b; font-size: .67rem; font-weight: 800; text-align: center; text-transform: uppercase; }.update-row.unread .update-state { color: #0f766e; }
 @media (max-width: 640px) { .updates-controls { align-items: stretch; flex-direction: column; gap: 10px; }.updates-controls button { width: 100%; }.updates-project-group > header { align-items: flex-start; }.updates-project-group .update-row { grid-template-columns: 1fr; }.update-state { text-align: left; }.update-row time { text-align: left; } }
+
+/* One visual language for every form outcome: completed, queued offline, or needs attention. */
+.form-success, .form-error, .offline-save-notice {
+  align-items: flex-start;
+  border-radius: 8px;
+  display: flex;
+  font-size: .86rem;
+  gap: 10px;
+  line-height: 1.5;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+}
+.form-success::before, .form-error::before, .offline-save-notice::before {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: .7rem;
+  font-weight: 900;
+  height: 19px;
+  justify-content: center;
+  margin-top: 1px;
+  width: 19px;
+}
+.form-success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-left: 4px solid #10b981;
+  color: #166534;
+}
+.form-success::before { background: #10b981; color: #fff; content: "✓"; }
+.form-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #dc2626;
+  color: #991b1b;
+}
+.form-error::before { background: #dc2626; color: #fff; content: "!"; }
+.offline-save-notice {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+.offline-save-notice::before {
+  background: #2563eb;
+  color: #fff;
+  content: "↻";
+  font-size: .95rem;
+}
+.report-form button:disabled, .milestone-form button:disabled, .boq-import button:disabled, .onboarding-card button:disabled, .demo-panel button:disabled, .chat-composer button:disabled {
+  box-shadow: none;
+  cursor: wait;
+  filter: saturate(.55);
+  opacity: .72;
+}
+@media (max-width: 640px) {
+  .form-success, .form-error, .offline-save-notice { font-size: .82rem; padding: 11px 12px; }
+}

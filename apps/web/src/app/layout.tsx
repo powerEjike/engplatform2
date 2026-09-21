@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><AuthProvider><AuthRouteGuard>{children}</AuthRouteGuard><ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /><ReportCommentNotifier /></AuthProvider></body>
+      <body><a className="skip-to-content" href="#main-content">Skip to main content</a><AuthProvider><div id="main-content" tabIndex={-1}><AuthRouteGuard>{children}</AuthRouteGuard></div><ServiceWorkerRegistration /><OfflineStatus /><ChatLauncher /><ReportCommentNotifier /></AuthProvider></body>
     </html>
   );
 }

@@ -32,8 +32,11 @@ export default function UpdatesPage() {
 
   useEffect(() => {
     if (!profile || !user) return;
-    try { setReadIds(JSON.parse(localStorage.getItem(readStorageKey(profile.companyId, user.uid)) ?? "[]") as string[]); }
-    catch { setReadIds([]); }
+    const timer = window.setTimeout(() => {
+      try { setReadIds(JSON.parse(localStorage.getItem(readStorageKey(profile.companyId, user.uid)) ?? "[]") as string[]); }
+      catch { setReadIds([]); }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [profile, user]);
 
   const updates = useMemo(() => {

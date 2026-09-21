@@ -221,7 +221,7 @@ export default function PublicHome() {
 
   return <main className="public-home">
     <header className="public-home-header">
-      <Link className="public-brand" href="/dashboard" aria-label="BuildCore home"><span className="brand-mark" aria-hidden="true">B</span><span className="brand-word">Build<span>Core</span><small>Engineering</small></span></Link>
+      <Link className="public-brand" href="/" aria-label="BuildCore home"><span className="brand-mark" aria-hidden="true">B</span><span className="brand-word">Build<span>Core</span><small>Engineering</small></span></Link>
       <nav aria-label="BuildCore information"><a href="#platform">Platform</a><a href="#workflow">Workflow</a><a href="#roles">Teams</a></nav>
       <div><Link className="public-login-link" href="/login">Sign in</Link><Link className="public-demo-link" href="/request-demo">Request a demo</Link></div>
     </header>

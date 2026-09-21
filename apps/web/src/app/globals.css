@@ -823,3 +823,28 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
     width: 52px;
   }
 }
+
+/* Daily reports are arranged as a short, readable field workflow. */
+.report-page { background: var(--bc-bg); color: var(--bc-navy); }
+.report-content { max-width: 900px; }
+.back-link { color: #2563eb; }
+.report-card { border-color: var(--bc-border); border-radius: 9px; box-shadow: none; padding: clamp(20px, 4vw, 34px); }
+.report-card h1 { color: var(--bc-navy); letter-spacing: -.04em; }
+.report-form { counter-reset: report-step; gap: 28px; }
+.report-section { border-color: var(--bc-border); counter-increment: report-step; padding-top: 25px; position: relative; }
+.report-section::before { color: #2563eb; content: "Step " counter(report-step, decimal-leading-zero); display: block; font-size: .67rem; font-weight: 900; letter-spacing: .1em; margin-bottom: 8px; text-transform: uppercase; }
+.report-section h2 { color: var(--bc-navy); letter-spacing: -.02em; }
+.report-line { background: #fff; border-color: var(--bc-border); border-radius: 7px; }
+.report-line:hover { border-color: #93c5fd; }
+.report-line h3 { color: var(--bc-navy); }
+.report-line span, .report-line label, .field-hint { color: #64748b; }
+.report-submit-row { background: #f8fafc; border: 1px solid var(--bc-border); border-radius: 8px; padding: 16px; }
+.report-submit-row .report-intro { font-size: .8rem; max-width: 390px; }
+.draft-actions .outline-button { background: white !important; }
+@media (max-width: 760px) {
+  .report-page { padding: 22px 16px 44px; }
+  .report-card { padding: 21px 17px; }
+  .report-submit-row { gap: 14px; padding: 14px; }
+  .draft-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .draft-actions button:last-child { grid-column: 1 / -1; min-height: 46px; }
+}

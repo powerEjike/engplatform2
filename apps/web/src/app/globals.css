@@ -1327,3 +1327,24 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .login-introduction { padding-top: 36px; }
   .login-panel { align-self: stretch; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
 }
+
+/* Final workspace polish: decisive summaries, calm feedback, and thumb-friendly mobile actions. */
+.project-command-bar { border-left: 4px solid var(--bc-blue) !important; padding: 19px 20px; }
+.project-command-status .project-status { display: inline-flex; margin-bottom: 1px; }
+.project-command-metrics > div { min-height: 58px; }
+.project-command-metrics > div:first-child { background: #eff6ff; border-left: 0; border-radius: 6px; padding: 10px 12px; }
+.project-command-metrics > div:first-child strong { color: #1d4ed8; }
+.boq-empty, .empty-state { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 7px; color: #64748b; line-height: 1.55; padding: 20px; }
+.form-success { background: #ecfdf5; border-left: 3px solid #10b981; border-radius: 6px; color: #166534; }
+.form-error { background: #fef2f2; border-left: 3px solid #dc2626; border-radius: 6px; color: #991b1b; }
+.project-mobile-actions { display: none; }
+@media (max-width: 760px) {
+  .project-workspace { padding-bottom: 94px; }
+  .project-command-bar { gap: 14px; }
+  .project-command-metrics > div:first-child { grid-column: span 2; }
+  .project-mobile-actions { background: rgba(255, 255, 255, .97); border-top: 1px solid var(--bc-border); bottom: 0; display: grid; gap: 2px; grid-template-columns: repeat(4, 1fr); left: 0; padding: 8px max(12px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-bottom)); position: fixed; right: 0; z-index: 20; }
+  .project-mobile-actions a, .project-mobile-actions button { background: transparent; border-radius: 6px; box-shadow: none; color: #475569; font-size: .68rem; min-height: 42px; padding: 7px 3px; text-align: center; }
+  .project-mobile-actions a:nth-child(3) { background: #0f766e; color: #fff; }
+  .project-mobile-actions a:hover, .project-mobile-actions button:hover { background: #f1f5f9; color: #0f172a; }
+  .project-mobile-actions a:nth-child(3):hover { background: #0f766e; color: #fff; }
+}

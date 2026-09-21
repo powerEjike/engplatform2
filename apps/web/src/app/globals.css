@@ -1095,3 +1095,44 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .onboarding-card::before { margin: -22px -18px 24px; }
   .onboarding-card form { margin-top: 22px; }
 }
+
+/* The demo request is a calm, credible first touchpoint for prospective teams. */
+.demo-page { background: #f8fafc; }
+.demo-introduction {
+  background-color: var(--bc-navy);
+  background-image: linear-gradient(rgba(148, 163, 184, .10) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, .10) 1px, transparent 1px);
+  background-size: 38px 38px;
+  overflow: hidden;
+  position: relative;
+}
+.demo-introduction::after {
+  border: 1px solid rgba(245, 158, 11, .35);
+  border-radius: 50%;
+  content: "";
+  height: 440px;
+  position: absolute;
+  right: -190px;
+  top: -200px;
+  transform-origin: center;
+  width: 440px;
+  animation: demo-orbit 18s linear infinite;
+}
+.demo-introduction > * { position: relative; z-index: 1; }
+.demo-introduction .eyebrow { color: #fbbf24; }
+.demo-introduction h1 { letter-spacing: -.055em; }
+.demo-introduction > p:not(.eyebrow) { color: #cbd5e1; }
+.demo-benefits span { border-left-color: var(--bc-amber); color: #e2e8f0; }
+.demo-panel {
+  border-color: var(--bc-border);
+  border-radius: 9px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, .10);
+}
+.demo-panel h2 { color: var(--bc-navy); letter-spacing: -.03em; }
+.demo-panel .login-help { color: #64748b; }
+.demo-panel label { color: var(--bc-slate); font-size: .78rem; }
+.demo-panel input, .demo-panel select, .demo-panel textarea { background: #f8fafc; border-color: #cbd5e1; border-radius: 6px; }
+.demo-panel input:focus, .demo-panel select:focus, .demo-panel textarea:focus { border-color: var(--bc-blue); box-shadow: 0 0 0 3px #dbeafe; outline: none; }
+.demo-panel button { background: var(--bc-orange); border-radius: 6px; }
+@keyframes demo-orbit { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .demo-introduction::after { animation: none; } }
+@media (max-width: 800px) { .demo-introduction { background-size: 28px 28px; } .demo-introduction::after { height: 270px; right: -110px; top: -130px; width: 270px; } }

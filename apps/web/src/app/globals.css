@@ -972,3 +972,23 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .team-management-row { gap: 10px; }
   .team-management-row select { min-height: 42px; }
 }
+
+/* Issue rows foreground the risk type, project context, and report date. */
+.issue-filters { gap: 12px; margin: -8px 0 16px; }
+.issue-filters .state-filter span { color: #64748b; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+.issue-filters select { background: #fff; border-color: #cbd5e1; border-radius: 6px; color: var(--bc-navy); }
+.issues-list { background: var(--bc-surface); border-color: var(--bc-border); border-radius: 9px; box-shadow: none; }
+.issue-row { border-color: var(--bc-border); padding: 19px 20px; }
+.issue-row:hover { background: #f8fafc; }
+.issue-row h2 { color: var(--bc-navy); }
+.issue-row p, .issue-row time { color: #64748b; }
+.issue-category { border-radius: 5px; font-size: .65rem; letter-spacing: .025em; text-transform: uppercase; }
+.issue-category.weather { background: #dbeafe; color: #1d4ed8; }
+.issue-category.material_shortage { background: #fef3c7; color: #92400e; }
+.issue-category.access { background: #f3e8ff; color: #7e22ce; }
+.issue-category.other { background: #f1f5f9; color: #475569; }
+@media (max-width: 640px) {
+  .issue-filters { gap: 12px; margin-top: 0; }
+  .issue-filters .secondary { width: 100%; }
+  .issue-row { gap: 10px; padding: 16px; }
+}

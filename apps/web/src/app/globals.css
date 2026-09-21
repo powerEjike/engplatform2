@@ -1295,3 +1295,13 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .login-panel button[type="submit"] { background: #14b8a6; box-shadow: 0 9px 18px rgba(13, 148, 136, .2); }.login-panel button[type="submit"]:hover { background: #0f9488; }
   .demo-link { color: #0f766e; }.text-button { color: #0f766e; }
 }
+
+/* Teal and navy replace orange as the product accent; the source logo remains untouched. */
+:root { --bc-orange: #0f766e; --bc-amber: #2563eb; }
+.brand-word > span, .mobile-menu-header .brand-word > span { color: #2dd4bf; }
+.chat-launcher { background: #0f766e; box-shadow: 0 10px 24px rgba(15, 118, 110, .26); }
+.login-orbit::after { background: #2dd4bf; box-shadow: 0 0 13px #2dd4bf; }
+.demo-introduction { background-image: radial-gradient(circle at 80% 15%, rgba(45, 212, 191, .23), transparent 30%); }
+.demo-introduction .eyebrow, .demo-benefits span { border-color: #2dd4bf; color: #5eead4; }
+.public-brand .brand-mark { background: #0f766e; }.public-brand .brand-word > span { color: #2dd4bf; }
+.public-visual-card-change strong { color: #60a5fa; }

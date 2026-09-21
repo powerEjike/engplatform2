@@ -51,6 +51,14 @@ export function DashboardHome() {
     const daysSinceReport = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(reportDay.getFullYear(), reportDay.getMonth(), reportDay.getDate())) / 86_400_000);
     return daysSinceReport >= 3;
   }).length;
+  const activeVisibleProjects = visibleProjects.filter((project) => project.status === "active");
+  const projectsReportingCurrent = Math.max(0, activeVisibleProjects.length - reportsNeedingAttention);
+  const reportingCoverage = activeVisibleProjects.length === 0 ? 0 : Math.round((projectsReportingCurrent / activeVisibleProjects.length) * 100);
+  const portfolioContractValue = visibleProjects.reduce((total, project) => total + project.contractSum, 0);
+  const completedBoqValue = visibleProjects.reduce((total, project) => total + (progressByProject[project.id]?.completedValue ?? 0), 0);
+  const commercialMaxValue = Math.max(portfolioContractValue, completedBoqValue, totalExposure, 1);
+  const costCompletion = portfolioContractValue === 0 ? 0 : Math.min(100, Math.round((completedBoqValue / portfolioContractValue) * 100));
+  const deliveryChartProjects = [...visibleProjects].sort((left, right) => (progressByProject[right.id]?.percentage ?? 0) - (progressByProject[left.id]?.percentage ?? 0)).slice(0, 5);
   const scheduleAlerts = visibleProjects.filter((project) => {
     const progress = progressByProject[project.id];
     return progress?.plannedValue && progress.scheduleHealth !== "on_track";
@@ -129,6 +137,28 @@ export function DashboardHome() {
           </article>
           <article className="metric-card warning">
             <p>Reports needing attention</p><strong>{reportsNeedingAttention}</strong><span>Active projects with no report in 3+ days</span>
+          </article>
+        </section>
+
+        <section className="dashboard-insights" aria-label="Portfolio charts and delivery signals">
+          <article className="dashboard-chart dashboard-progress-chart">
+            <div className="dashboard-chart-heading"><div><p className="eyebrow">Delivery progress</p><h2>BOQ completion by project</h2></div><span>{averageProgress}% average</span></div>
+            {deliveryChartProjects.length === 0 ? <p className="dashboard-chart-empty">Add a project and its BOQ to see delivery progress here.</p> : <div className="progress-chart-list">{deliveryChartProjects.map((project) => { const progress = Math.round(progressByProject[project.id]?.percentage ?? 0); return <Link href={`/projects/${project.id}`} key={project.id}><div><strong>{project.name}</strong><span>{progressByProject[project.id]?.plannedValue ? "BOQ progress" : "BOQ not set up"}</span></div><div className="chart-track" aria-label={`${project.name}: ${progress}% complete`}><i style={{ width: `${progress}%` }} /></div><b>{progress}%</b></Link>; })}</div>}
+            <Link className="chart-footer-link" href="#projects">View projects →</Link>
+          </article>
+
+          <article className="dashboard-chart dashboard-cost-chart">
+            <div className="dashboard-chart-heading"><div><p className="eyebrow">Commercial position</p><h2>Portfolio cost position</h2></div><Link href="/valuations">Valuations →</Link></div>
+            <div className="cost-chart-main"><div className="cost-ring" style={{ background: `conic-gradient(#0f766e ${costCompletion}%, #dbeafe ${costCompletion}% 100%)` }}><div><strong>{costCompletion}%</strong><span>BOQ value</span></div></div><div><strong>{formatNaira(completedBoqValue)}</strong><p>completed BOQ value recorded</p></div></div>
+            <div className="cost-chart-bars"><div><span>Contract sum</span><i><b style={{ width: `${portfolioContractValue / commercialMaxValue * 100}%` }} /></i><strong>{formatNaira(portfolioContractValue)}</strong></div><div><span>BOQ complete</span><i><b style={{ width: `${completedBoqValue / commercialMaxValue * 100}%` }} /></i><strong>{formatNaira(completedBoqValue)}</strong></div><div><span>Variation exposure</span><i><b style={{ width: `${totalExposure / commercialMaxValue * 100}%` }} /></i><strong>{formatNaira(totalExposure)}</strong></div></div>
+          </article>
+
+          <article className="dashboard-chart dashboard-report-chart">
+            <div className="dashboard-chart-heading"><div><p className="eyebrow">Reporting status</p><h2>Site reporting coverage</h2></div><Link href="/reports">Daily reports →</Link></div>
+            <div className="reporting-score"><strong>{reportingCoverage}%</strong><span>of active projects are reporting within the last 3 days</span></div>
+            <div className="reporting-bar" aria-label={`${reportingCoverage}% reporting coverage`}><i style={{ width: `${reportingCoverage}%` }} /></div>
+            <div className="reporting-breakdown"><div><strong>{projectsReportingCurrent}</strong><span>Reporting current</span></div><div><strong>{reportsNeedingAttention}</strong><span>Need follow-up</span></div><div><strong>{activeVisibleProjects.length}</strong><span>Active projects</span></div></div>
+            <p className="chart-note">A project needs attention when no daily report has been received for three or more days.</p>
           </article>
         </section>
 

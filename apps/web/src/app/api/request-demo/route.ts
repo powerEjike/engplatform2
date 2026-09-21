@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
+import { isRateLimited, isSameOriginRequest } from "@/lib/request-security";
 
 const text = (value: unknown, limit: number) => typeof value === "string" ? value.trim().slice(0, limit) : "";
 
 export async function POST(request: Request) {
+  if (!isSameOriginRequest(request)) return NextResponse.json({ error: "This request must come from the BuildCore website." }, { status: 403 });
+  if (isRateLimited(request, "request-demo", 5)) return NextResponse.json({ error: "Too many demo requests from this connection. Please try again in 15 minutes." }, { status: 429 });
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "Demo requests are not configured yet. Please try again later." }, { status: 503 });
 
-  const payload = await request.json() as Record<string, unknown>;
+  let payload: Record<string, unknown>;
+  try { payload = await request.json() as Record<string, unknown>; }
+  catch { return NextResponse.json({ error: "The request details could not be read. Please try again." }, { status: 400 }); }
   const name = text(payload.name, 120);
   const company = text(payload.company, 160);
   const email = text(payload.email, 180);

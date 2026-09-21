@@ -782,3 +782,44 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .login-benefits { display: none; }
   .login-panel { border-radius: 10px; padding: 30px 24px; }
 }
+
+/* A direct, thumb-friendly control strip for site engineers working from a phone. */
+.engineer-mobile-nav { display: none; }
+@media (max-width: 650px) {
+  .engineer-home { padding-bottom: 96px; }
+  .engineer-mobile-nav {
+    align-items: center;
+    background: rgba(255, 255, 255, .97);
+    border-top: 1px solid var(--bc-border);
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    left: 0;
+    padding: 8px 12px max(10px, env(safe-area-inset-bottom));
+    position: fixed;
+    right: 0;
+    z-index: 29;
+  }
+  .engineer-mobile-nav a {
+    align-items: center;
+    color: #64748b;
+    display: flex;
+    font-size: .67rem;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 42px;
+    text-align: center;
+  }
+  .engineer-mobile-nav .engineer-mobile-primary {
+    background: var(--bc-orange);
+    border: 4px solid var(--bc-bg);
+    border-radius: 50%;
+    box-shadow: 0 6px 15px rgba(194, 65, 12, .27);
+    color: white;
+    font-size: 1.55rem;
+    height: 52px;
+    justify-self: center;
+    margin-top: -30px;
+    width: 52px;
+  }
+}

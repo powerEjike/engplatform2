@@ -1490,3 +1490,4 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .team-management-row.account-disabled { background: #f8fafc; border-left: 4px solid #94a3b8; opacity: .82; }
 .team-management-row.account-disabled h2::after { color: #b45309; content: " · access disabled"; font-size: .7rem; font-weight: 850; letter-spacing: .03em; text-transform: uppercase; }
 .team-management-row > .compact-action { align-self: center; font-size: .72rem; justify-self: start; padding: 9px 11px; }
+.reauthentication-card { background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #d97706; border-radius: 10px; margin-top: 24px; padding: 19px; }.reauthentication-card h2 { font-size: 1.08rem; margin: 3px 0 8px; }.reauthentication-card form { display: grid; gap: 13px; max-width: 440px; }.reauthentication-card form > div { display: flex; gap: 9px; }.reauthentication-card form > div button { flex: 1; }

@@ -1278,3 +1278,18 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 @media (max-width: 900px) { .public-home-header nav { display: none; }.public-hero { grid-template-columns: 1fr; min-height: unset; }.public-hero-visual { max-width: 620px; transform: none; width: 100%; }.public-role-section > div { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .public-home-header { padding: 15px 18px; }.public-home-header > div:last-child { gap: 12px; }.public-home-header .public-demo-link { display: none; }.public-hero { padding: 62px 20px; }.public-hero h1 { font-size: clamp(2.75rem, 14vw, 4rem); }.public-hero-actions { flex-direction: column; }.public-hero-actions a { width: 100%; }.public-hero-visual { height: 360px; }.public-visual-card-main { left: 6%; width: 62%; }.public-visual-card-report { right: 5%; top: 180px; }.public-visual-card-change { bottom: 28px; left: 8%; }.public-role-section { padding: 60px 20px; }.public-role-section > div { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .public-hero-visual { transform: none; } }
+
+/* Sign-in carries the same dark-teal BuildCore campaign language as the public home. */
+@media (min-width: 801px) {
+  .login-page { background: #061b2d; gap: 0; grid-template-columns: minmax(0, 1.08fr) minmax(390px, .92fr); padding: 0; }
+  .login-page::before { display: none; }
+  .login-introduction { background-color: #061b2d; border-radius: 0; box-shadow: none; min-height: 100vh; padding: clamp(42px, 7vw, 112px); }
+  .login-introduction::before { border-color: rgba(94, 234, 212, .2); }.login-introduction::after { opacity: .7; }
+  .login-introduction .eyebrow { color: #2dd4bf; }.login-introduction h1 { font-size: clamp(3.3rem, 5vw, 5.7rem); }.login-benefits span { background: rgba(15, 35, 57, .78); border-color: rgba(94, 234, 212, .25); color: #ccfbf1; }
+  .login-live-board { background: rgba(7, 29, 50, .85); border-color: rgba(94, 234, 212, .24); }.login-live-board-head { color: #ccfbf1; }.login-live-board-head b, .login-live-dot { color: #5eead4; }.login-live-dot { background: #2dd4bf; box-shadow: 0 0 0 4px rgba(45, 212, 191, .13); }
+  .login-brand-visual { background: radial-gradient(circle at 50% 50%, rgba(45, 212, 191, .18), transparent 42%), rgba(7, 29, 50, .68); border-color: rgba(94, 234, 212, .25); }
+  .login-panel { background: #fff; border-radius: 0; box-shadow: none; max-width: none; min-height: 100vh; padding: clamp(46px, 8vw, 118px) clamp(34px, 7vw, 90px); }
+  .login-panel::before { background: linear-gradient(135deg, #2dd4bf, #5eead4); }.login-panel .eyebrow { color: #0f766e; }.login-panel h2 { font-size: clamp(1.8rem, 3vw, 2.45rem); }.login-panel input:focus { border-color: #0f766e; box-shadow: 0 3px 0 #2dd4bf; }
+  .login-panel button[type="submit"] { background: #14b8a6; box-shadow: 0 9px 18px rgba(13, 148, 136, .2); }.login-panel button[type="submit"]:hover { background: #0f9488; }
+  .demo-link { color: #0f766e; }.text-button { color: #0f766e; }
+}

@@ -1228,3 +1228,26 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   62% { border-radius: 24px 44px 24px 38px / 30px 22px 36px 26px; opacity: 1; transform: translateX(-3px) scale(1.01); }
   100% { border-radius: 26px; opacity: 1; transform: translateX(0) scale(1); }
 }
+
+/* Mobile dashboard controls keep operational tasks close without crowding the screen. */
+@media (max-width: 720px) {
+  .mobile-menu-toggle { background: var(--bc-navy); border: 1px solid #334155; border-radius: 7px; box-shadow: 0 6px 15px rgba(15, 23, 42, .15); height: 42px; width: 42px; }
+  .mobile-menu-backdrop { animation: mobile-menu-fade .2s ease-out both; background: rgba(15, 23, 42, .48); }
+  .mobile-menu-panel { animation: mobile-menu-slide-in .28s cubic-bezier(.2, .9, .25, 1) both; background: var(--bc-navy); box-shadow: -18px 0 42px rgba(15, 23, 42, .25); padding: 20px 16px max(18px, env(safe-area-inset-bottom)); }
+  .mobile-menu-header { border-bottom: 1px solid #334155; padding: 4px 4px 18px; }
+  .mobile-menu-user { background: #1e293b; border: 1px solid #334155; border-radius: 8px; margin: 18px 0; }
+  .mobile-menu-links { gap: 5px; }
+  .mobile-menu-links a { border: 1px solid transparent; color: #e2e8f0; padding: 13px 12px; }
+  .mobile-menu-links a:hover { background: #1e293b; border-color: #334155; }
+  .mobile-menu-footer { border-color: #334155; }
+  .quick-actions { gap: 14px; padding: 16px; }
+  .quick-actions > div:last-child { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quick-actions a { align-items: center; display: flex; justify-content: center; min-height: 44px; padding: 9px; }
+  .summary-grid { gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metric-card { min-height: 116px; padding: 15px; }
+  .metric-card strong { font-size: clamp(1.4rem, 7vw, 1.9rem); }
+}
+@keyframes mobile-menu-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mobile-menu-slide-in { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 380px) { .quick-actions > div:last-child, .summary-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .mobile-menu-backdrop, .mobile-menu-panel { animation: none; } }

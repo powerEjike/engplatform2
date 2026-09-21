@@ -955,3 +955,20 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 @media (max-width: 820px) {
   .schedule-table-head, .schedule-row { min-width: 720px; }
 }
+
+/* Team administration makes invitations, roles, and allocations easy to verify. */
+.role-guide { background: #f8fafc; border-color: var(--bc-border); border-radius: 8px; }
+.role-guide p { border-color: var(--bc-border); color: #64748b; padding: 13px 15px; }
+.role-guide strong { color: var(--bc-navy); }
+.team-management-list { gap: 9px; }
+.team-management-row { background: #fff; border-color: var(--bc-border); border-radius: 8px; padding: 16px; }
+.team-management-row h2 { color: var(--bc-navy); }
+.team-management-row > div p, .role-change-note { color: #64748b; }
+.team-management-row label { color: #475569; }
+.team-management-row select { background: #f8fafc; border-color: #cbd5e1; border-radius: 6px; color: var(--bc-navy); }
+.team-management-row:has(select:not(:disabled)):hover { border-color: #bfdbfe; }
+.report-card input[readonly] { background: #f8fafc; border-color: #cbd5e1; border-radius: 6px; color: #334155; font-size: .78rem; width: 100%; }
+@media (max-width: 600px) {
+  .team-management-row { gap: 10px; }
+  .team-management-row select { min-height: 42px; }
+}

@@ -24,6 +24,7 @@ service cloud.firestore {
     function canAcceptInvite(companyId, inviteId) {
       return signedIn()
         && resource.data.active == true
+        && resource.data.expiresAt > request.time
         && resource.data.email == request.auth.token.email
         && request.resource.data.active == false
         && request.resource.data.acceptedBy == request.auth.uid
@@ -58,6 +59,7 @@ service cloud.firestore {
             ? request.resource.data.role == "director"
             : (request.resource.data.inviteId is string
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.active == true
+              && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.expiresAt > request.time
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.email == request.auth.token.email
               && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.role == request.resource.data.role));
         allow update: if isDirector(companyId);

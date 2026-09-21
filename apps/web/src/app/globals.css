@@ -1348,3 +1348,35 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .project-mobile-actions a:hover, .project-mobile-actions button:hover { background: #f1f5f9; color: #0f172a; }
   .project-mobile-actions a:nth-child(3):hover { background: #0f766e; color: #fff; }
 }
+
+/* Empty registers now explain the next practical step, not just the missing data. */
+.project-workspace .boq-card .boq-empty, .project-workspace .report-register .boq-empty, .project-workspace .variation-register .boq-empty, .project-workspace .valuation-register .boq-empty {
+  align-items: start;
+  background: #f8fafc;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  margin: 16px 0 0;
+  min-height: 120px;
+  padding: 22px;
+}
+.project-workspace .boq-card .boq-empty::before, .project-workspace .report-register .boq-empty::before, .project-workspace .variation-register .boq-empty::before, .project-workspace .valuation-register .boq-empty::before {
+  color: #0f766e;
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.project-workspace .boq-card .boq-empty::before { content: "BOQ setup · next step"; }
+.project-workspace .report-register .boq-empty::before { content: "Site reporting · next step"; }
+.project-workspace .variation-register .boq-empty::before { content: "Change control · next step"; }
+.project-workspace .valuation-register .boq-empty::before { content: "Commercial control · next step"; }
+.project-workspace .boq-card .boq-empty::after, .project-workspace .report-register .boq-empty::after, .project-workspace .variation-register .boq-empty::after, .project-workspace .valuation-register .boq-empty::after { color: #475569; font-size: .79rem; line-height: 1.45; }
+.project-workspace .boq-card .boq-empty::after { content: "Director or Quantity Surveyor: add contract items or import the BOQ CSV."; }
+.project-workspace .report-register .boq-empty::after { content: "Site Engineer: submit the first daily report to start the activity history."; }
+.project-workspace .variation-register .boq-empty::after { content: "Project team: raise a variation whenever the contract scope changes."; }
+.project-workspace .valuation-register .boq-empty::after { content: "Quantity Surveyor: issue a valuation after BOQ progress is recorded."; }
+.project-workspace .boq-card .boq-empty { border-left: 4px solid #2563eb; }
+.project-workspace .report-register .boq-empty { border-left: 4px solid #0f766e; }
+.project-workspace .variation-register .boq-empty { border-left: 4px solid #7c3aed; }
+.project-workspace .valuation-register .boq-empty { border-left: 4px solid #2563eb; }

@@ -29,7 +29,16 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/companies/$(companyId)/users/$(request.auth.uid)).data.role == resource.data.role;
     }
 
-    match /userIndex/{userId} { allow read, create: if signedIn() && request.auth.uid == userId; }
+    // An account can only point to a company where its matching team profile exists.
+    // This prevents a signed-in user from attaching their index to another workspace.
+    match /userIndex/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.companyId is string
+        && request.resource.data.keys().hasOnly(["companyId", "createdAt"])
+        && (exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)/users/$(userId))
+          || getAfter(/databases/$(database)/documents/companies/$(request.resource.data.companyId)/users/$(userId)).data.companyId == request.resource.data.companyId);
+    }
     match /companies/{companyId} {
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
       allow read: if isMember(companyId);
@@ -38,12 +47,22 @@ service cloud.firestore {
         allow read: if isMember(companyId);
         // A newly created company must be able to create its first Director profile.
         // Afterwards, only the Director can add or change team profiles.
-        allow create: if signedIn() && request.auth.uid == userId && (get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid || (request.resource.data.inviteId is string && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.active == true && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.email == request.auth.token.email && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.role == request.resource.data.role));
+        allow create: if signedIn() && request.auth.uid == userId
+          && request.resource.data.companyId == companyId
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.active == true
+          && (get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid
+            ? request.resource.data.role == "director"
+            : (request.resource.data.inviteId is string
+              && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.active == true
+              && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.email == request.auth.token.email
+              && get(/databases/$(database)/documents/companies/$(companyId)/invites/$(request.resource.data.inviteId)).data.role == request.resource.data.role));
         allow update: if isDirector(companyId);
       }
       match /invites/{inviteId} {
         allow create, list: if isDirector(companyId);
-        allow get: if signedIn();
+        // Invite details are visible only to the invited email or a company Director.
+        allow get: if isDirector(companyId) || (signedIn() && resource.data.email == request.auth.token.email);
         allow update: if isDirector(companyId) || canAcceptInvite(companyId, inviteId);
       }
       match /projects/{projectId} {
@@ -59,18 +78,22 @@ service cloud.firestore {
         match /activityLog/{eventId} { allow read: if isMember(companyId); allow create: if canSubmitSiteUpdate(companyId, projectId) || isQs(companyId); }
         match /siteReports/{reportId} {
           allow read: if isMember(companyId);
-          allow create: if canSubmitSiteUpdate(companyId, projectId);
+          allow create: if canSubmitSiteUpdate(companyId, projectId) && request.resource.data.submittedBy == request.auth.uid;
           match /comments/{commentId} {
             allow read: if isMember(companyId);
-            allow create: if isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId);
+            allow create: if (isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId)) && request.resource.data.authorId == request.auth.uid;
           }
         }
         match /milestones/{milestoneId} { allow read: if isMember(companyId); allow create, update, delete: if isDirector(companyId) || isProjectManager(companyId); }
-        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId); allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
+        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if (isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
         match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }
       }
       match /messages/{messageId} {
-        allow read, create: if isMember(companyId);
+        allow read: if isMember(companyId);
+        allow create: if isMember(companyId)
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.authorName == get(userDoc(companyId)).data.name
+          && request.resource.data.authorRole == role(companyId);
       }
     }
   }

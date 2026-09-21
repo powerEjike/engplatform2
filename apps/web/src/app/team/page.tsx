@@ -23,7 +23,7 @@ export default function TeamPage() {
   const { user, profile, isLoading, isProfileLoading } = useAuth();
   const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId);
   const { invites, isLoading: invitesLoading } = useCompanyInvites(profile?.companyId);
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const [savingId, setSavingId] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");

@@ -12,7 +12,7 @@ import { canWorkOnProject } from "@/lib/project-access";
 export default function VariationsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { variationsByProject } = useProjectProgress(profile?.companyId, projects);
   const [selectedStatus, setSelectedStatus] = useState("All statuses");
   const [selectedProject, setSelectedProject] = useState("All projects");

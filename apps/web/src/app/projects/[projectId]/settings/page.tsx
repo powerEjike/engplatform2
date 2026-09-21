@@ -11,7 +11,7 @@ import { useCompanyUsers } from "@/hooks/use-company-users";
 import { canManageProject } from "@/lib/permissions";
 
 export default function ProjectSettingsPage() {
-  const params = useParams<{ projectId: string }>(); const projectId = params.projectId; const router = useRouter(); const { user, profile, isLoading, isProfileLoading } = useAuth(); const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId); const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId); const project = projects.find((item) => item.id === projectId);
+  const params = useParams<{ projectId: string }>(); const projectId = params.projectId; const router = useRouter(); const { user, profile, isLoading, isProfileLoading } = useAuth(); const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid); const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId); const project = projects.find((item) => item.id === projectId);
   const [name, setName] = useState(""); const [clientName, setClientName] = useState(""); const [location, setLocation] = useState(""); const [startDate, setStartDate] = useState(""); const [endDate, setEndDate] = useState(""); const [status, setStatus] = useState("active"); const [projectManagerId, setProjectManagerId] = useState(""); const [siteEngineerId, setSiteEngineerId] = useState(""); const [saving, setSaving] = useState(false); const [error, setError] = useState("");
   useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/access"); }, [isLoading, isProfileLoading, profile, router, user]);
   const siteEngineers = users.filter((item) => item.role === "site_engineer");

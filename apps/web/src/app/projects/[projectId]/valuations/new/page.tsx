@@ -15,7 +15,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export default function NewValuationPage() {
   const params = useParams<{ projectId: string }>(); const projectId = params.projectId; const router = useRouter();
-  const { user, profile, isLoading, isProfileLoading } = useAuth(); const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { user, profile, isLoading, isProfileLoading } = useAuth(); const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const project = projects.find((item) => item.id === projectId); const [items, setItems] = useState<BoqItem[]>([]); const [variations, setVariations] = useState<Variation[]>([]);
   const [certificateNumber, setCertificateNumber] = useState(""); const [valuationDate, setValuationDate] = useState(today); const [retentionRate, setRetentionRate] = useState("5"); const [saving, setSaving] = useState(false); const [error, setError] = useState("");
   useEffect(() => { if (!isLoading && !user) router.replace("/login"); if (!isProfileLoading && user && !profile) router.replace("/access"); }, [isLoading, isProfileLoading, profile, router, user]);

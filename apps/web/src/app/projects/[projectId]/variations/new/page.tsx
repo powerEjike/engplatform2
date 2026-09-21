@@ -20,7 +20,7 @@ export default function NewVariationPage() {
   const projectId = params.projectId;
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const project = projects.find((item) => item.id === projectId);
   const [items, setItems] = useState<BoqItem[]>([]);
   const [boqItemId, setBoqItemId] = useState("");

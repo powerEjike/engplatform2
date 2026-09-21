@@ -11,7 +11,7 @@ import { canWorkOnProject } from "@/lib/project-access";
 export default function IssuesPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { reportsByProject } = useProjectProgress(profile?.companyId, projects);
   const [selectedProject, setSelectedProject] = useState("All projects");
   const [selectedCategory, setSelectedCategory] = useState("All issue types");

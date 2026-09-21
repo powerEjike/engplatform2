@@ -13,7 +13,7 @@ export default function CompanySettingsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading, refreshProfile } = useAuth();
   const { users, isLoading: usersLoading } = useCompanyUsers(profile?.companyId);
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const [companyName, setCompanyName] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");

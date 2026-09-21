@@ -19,7 +19,7 @@ function expectedProgress(startDate: string, endDate: string) {
 export default function SchedulePage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { progressByProject } = useProjectProgress(profile?.companyId, projects);
 
   useEffect(() => {

@@ -20,7 +20,7 @@ const namedValuesLabel = (values?: Record<string, number>, unit = "") => Object.
 export default function ReportsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { users: companyUsers } = useCompanyUsers(profile?.companyId);
   const { reportsByProject } = useProjectProgress(profile?.companyId, projects);
   const [selectedProject, setSelectedProject] = useState("All projects");

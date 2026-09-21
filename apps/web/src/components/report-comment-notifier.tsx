@@ -11,7 +11,7 @@ type CommentNotice = { id: string; projectId: string; authorName: string; messag
 
 export function ReportCommentNotifier() {
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects } = useProjects(profile?.companyId);
+  const { projects } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const [notice, setNotice] = useState<CommentNotice | null>(null);
   const initializedReports = useRef(new Set<string>());
 

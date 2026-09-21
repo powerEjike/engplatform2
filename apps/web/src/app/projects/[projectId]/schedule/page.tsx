@@ -35,7 +35,7 @@ export default function ProjectMilestonesPage() {
   const projectId = String(params.projectId);
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const [milestones, setMilestones] = useState<ProjectMilestone[]>([]);
   const [title, setTitle] = useState("");
   const [plannedDate, setPlannedDate] = useState("");

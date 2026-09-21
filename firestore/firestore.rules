@@ -16,7 +16,10 @@ service cloud.firestore {
       return isProjectManager(companyId) && get(/databases/$(database)/documents/companies/$(companyId)/projects/$(projectId)).data.projectManagerId == request.auth.uid;
     }
     function canSubmitSiteUpdate(companyId, projectId) {
-      return isDirector(companyId) || isProjectManager(companyId) || isAssignedEngineer(companyId, projectId);
+      return isDirector(companyId) || isAssignedProjectManager(companyId, projectId) || isAssignedEngineer(companyId, projectId);
+    }
+    function canAccessProject(companyId, projectId) {
+      return isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isAssignedEngineer(companyId, projectId);
     }
     function canAcceptInvite(companyId, inviteId) {
       return signedIn()
@@ -66,27 +69,28 @@ service cloud.firestore {
         allow update: if isDirector(companyId) || canAcceptInvite(companyId, inviteId);
       }
       match /projects/{projectId} {
-        allow read: if isMember(companyId);
-        allow create, update: if isDirector(companyId) || isProjectManager(companyId);
+        allow read: if canAccessProject(companyId, projectId);
+        allow create: if isDirector(companyId) || (isProjectManager(companyId) && request.resource.data.projectManagerId == request.auth.uid);
+        allow update: if isDirector(companyId) || (isAssignedProjectManager(companyId, projectId) && request.resource.data.projectManagerId == request.auth.uid);
         match /boqItems/{itemId} {
-          allow read: if isMember(companyId);
+          allow read: if canAccessProject(companyId, projectId);
           allow create: if isDirector(companyId) || isQs(companyId);
           allow update: if isDirector(companyId) || isQs(companyId) || (canSubmitSiteUpdate(companyId, projectId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
           allow delete: if isDirector(companyId) || isQs(companyId);
         }
-        match /boqUploads/{uploadId} { allow read: if isMember(companyId); allow create: if isDirector(companyId) || isQs(companyId); }
-        match /activityLog/{eventId} { allow read: if isMember(companyId); allow create: if canSubmitSiteUpdate(companyId, projectId) || isQs(companyId); }
+        match /boqUploads/{uploadId} { allow read: if canAccessProject(companyId, projectId); allow create: if isDirector(companyId) || isQs(companyId); }
+        match /activityLog/{eventId} { allow read: if canAccessProject(companyId, projectId); allow create: if canSubmitSiteUpdate(companyId, projectId) || isQs(companyId); }
         match /siteReports/{reportId} {
-          allow read: if isMember(companyId);
+          allow read: if canAccessProject(companyId, projectId);
           allow create: if canSubmitSiteUpdate(companyId, projectId) && request.resource.data.submittedBy == request.auth.uid;
           match /comments/{commentId} {
-            allow read: if isMember(companyId);
+            allow read: if canAccessProject(companyId, projectId);
             allow create: if (isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId)) && request.resource.data.authorId == request.auth.uid;
           }
         }
-        match /milestones/{milestoneId} { allow read: if isMember(companyId); allow create, update, delete: if isDirector(companyId) || isProjectManager(companyId); }
-        match /variations/{variationId} { allow read: if isMember(companyId); allow create: if (isProjectManager(companyId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isProjectManager(companyId) || isDirector(companyId); }
-        match /valuations/{valuationId} { allow read: if isMember(companyId); allow create, update: if isQs(companyId) || isDirector(companyId); }
+        match /milestones/{milestoneId} { allow read: if canAccessProject(companyId, projectId); allow create, update, delete: if isDirector(companyId) || isAssignedProjectManager(companyId, projectId); }
+        match /variations/{variationId} { allow read: if canAccessProject(companyId, projectId); allow create: if (isAssignedProjectManager(companyId, projectId) || isDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isDirector(companyId); }
+        match /valuations/{valuationId} { allow read: if canAccessProject(companyId, projectId); allow create, update: if isQs(companyId) || isDirector(companyId); }
       }
       match /messages/{messageId} {
         allow read: if isMember(companyId);

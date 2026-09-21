@@ -19,7 +19,7 @@ const kindLabel = (kind: UpdateKind) => ({ project: "Project", report: "Report",
 export default function UpdatesPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { reportsByProject, variationsByProject, valuationsByProject } = useProjectProgress(profile?.companyId, projects);
   const { eventsByProject } = useBoqUploadEvents(profile?.companyId, projects);
   const { milestones } = useScheduleMilestones(profile?.companyId, projects);

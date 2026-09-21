@@ -12,7 +12,7 @@ import { canWorkOnProject } from "@/lib/project-access";
 export default function ValuationsPage() {
   const router = useRouter();
   const { user, profile, isLoading, isProfileLoading } = useAuth();
-  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: projectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { valuationsByProject } = useProjectProgress(profile?.companyId, projects);
   const [selectedProject, setSelectedProject] = useState("All projects");
 

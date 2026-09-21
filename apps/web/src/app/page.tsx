@@ -18,7 +18,7 @@ import { useScheduleMilestones } from "@/hooks/use-schedule-milestones";
 export function DashboardHome() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
-  const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
+  const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId, profile?.role, user?.uid);
   const { users: companyUsers, isLoading: areUsersLoading } = useCompanyUsers(profile?.companyId);
   const { progressByProject, activityByProject, variationsByProject } = useProjectProgress(profile?.companyId, projects);
   const { eventsByProject } = useBoqUploadEvents(profile?.companyId, projects);

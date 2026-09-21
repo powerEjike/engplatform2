@@ -16,7 +16,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && profile) router.replace("/");
+    if (!isProfileLoading && profile) router.replace("/dashboard");
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -43,7 +43,7 @@ export default function OnboardingPage() {
       });
       await setDoc(doc(db, "userIndex", user.uid), { companyId: company.id, createdAt: serverTimestamp() });
       await refreshProfile();
-      router.replace("/");
+      router.replace("/dashboard");
     } catch {
       setError("We could not create the workspace. If you are joining an existing company, ask its Director to add your account instead. If you are creating the first company, publish the latest Firestore rules and try again.");
     } finally {

@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 
-const publicRoutes = new Set(["/login", "/join", "/request-demo"]);
+const publicRoutes = new Set(["/", "/login", "/join", "/request-demo"]);
 
 export function AuthRouteGuard({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();

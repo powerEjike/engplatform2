@@ -56,7 +56,7 @@ export default function ChatPage() {
   if (isLoading || isProfileLoading || !user || !profile) return <main className="auth-loading">Opening team chat…</main>;
 
   return <main className="report-page"><div className="schedule-content">
-    <Link className="back-link" href="/">← Back to workspace</Link>
+    <Link className="back-link" href="/dashboard">← Back to workspace</Link>
     <section className="schedule-hero"><div><p className="eyebrow">BuildCore team</p><h1>Team chat</h1><p>One secure space for company-wide coordination, questions, and announcements.</p></div></section>
     <section className="chat-layout company-chat">
       <div className="chat-conversation"><header><div><p className="eyebrow">Company conversation</p><h2>{profile.companyName}</h2><p>All BuildCore team members can take part.</p></div><span>Live team chat</span></header>

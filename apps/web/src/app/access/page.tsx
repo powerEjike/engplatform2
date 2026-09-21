@@ -11,7 +11,7 @@ export default function AccessPage() {
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
-    if (!isProfileLoading && profile) router.replace("/");
+    if (!isProfileLoading && profile) router.replace("/dashboard");
   }, [isLoading, isProfileLoading, profile, router, user]);
 
   if (isLoading || isProfileLoading || !user || profile) return <main className="auth-loading">Checking your workspace access…</main>;

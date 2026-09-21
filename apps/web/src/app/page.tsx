@@ -15,7 +15,7 @@ import { useBoqUploadEvents } from "@/hooks/use-boq-upload-events";
 import { canWorkOnProject } from "@/lib/project-access";
 import { useScheduleMilestones } from "@/hooks/use-schedule-milestones";
 
-export default function Home() {
+export function DashboardHome() {
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOutUser } = useAuth();
   const { projects, isLoading: areProjectsLoading } = useProjects(profile?.companyId);
@@ -207,4 +207,29 @@ export default function Home() {
       </main>
     </div>
   );
+}
+
+export default function PublicHome() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && user) router.replace("/dashboard");
+  }, [isLoading, router, user]);
+
+  if (isLoading || user) return <main className="public-home-loading">Opening BuildCore…</main>;
+
+  return <main className="public-home">
+    <header className="public-home-header">
+      <Link className="public-brand" href="/dashboard" aria-label="BuildCore home"><span className="brand-mark" aria-hidden="true">B</span><span className="brand-word">Build<span>Core</span><small>Engineering</small></span></Link>
+      <nav aria-label="BuildCore information"><a href="#platform">Platform</a><a href="#workflow">Workflow</a><a href="#roles">Teams</a></nav>
+      <div><Link className="public-login-link" href="/login">Sign in</Link><Link className="public-demo-link" href="/request-demo">Request a demo</Link></div>
+    </header>
+    <section className="public-hero" id="platform">
+      <div className="public-hero-copy"><p className="eyebrow">Construction project control</p><h1>Every project in view.<br />Every team <span>in control.</span></h1><p>BuildCore brings daily reporting, BOQ progress, variations, valuations, and delivery decisions into one dependable workspace.</p><div className="public-hero-actions"><Link className="public-demo-link" href="/request-demo">Request a demo</Link><Link className="public-outline-link" href="/login">Sign in to workspace →</Link></div></div>
+      <div className="public-hero-visual" aria-hidden="true"><div className="public-visual-top"><span>LIVE PROJECT CONTROL</span><i>●</i></div><div className="public-visual-grid"><span /><span /><span /><span /><span /><span /></div><div className="public-visual-card public-visual-card-main"><small>Portfolio progress</small><strong>68%</strong><i><b /></i><p>Current BOQ value complete</p></div><div className="public-visual-card public-visual-card-report"><small>Site report</small><strong>Submitted</strong><p>Today · 16:40</p></div><div className="public-visual-card public-visual-card-change"><small>Variation review</small><strong>₦ 2.4m</strong><p>Awaiting decision</p></div></div>
+    </section>
+    <section className="public-proof" id="workflow"><p>ONE WORKSPACE FOR THE FIELD AND THE OFFICE</p><div><span>Daily site reporting</span><span>BOQ-led progress</span><span>Controlled variations</span><span>Commercial clarity</span></div></section>
+    <section className="public-role-section" id="roles"><p className="eyebrow">Connected delivery teams</p><h2>Simple for site teams. Clear for management.</h2><div><article><strong>Site Engineers</strong><p>Record the day’s work while it is fresh.</p></article><article><strong>Project Managers</strong><p>See delivery, issues, and required action.</p></article><article><strong>Quantity Surveyors</strong><p>Manage BOQ progress, variations, and valuations.</p></article><article><strong>Directors</strong><p>Keep complete portfolio and approval oversight.</p></article></div></section>
+  </main>;
 }

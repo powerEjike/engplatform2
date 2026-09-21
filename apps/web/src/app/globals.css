@@ -1136,3 +1136,28 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 @keyframes demo-orbit { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .demo-introduction::after { animation: none; } }
 @media (max-width: 800px) { .demo-introduction { background-size: 28px 28px; } .demo-introduction::after { height: 270px; right: -110px; top: -130px; width: 270px; } }
+
+/* A short morph-in makes the sign-in surface feel alive without delaying access. */
+.login-intro-content { animation: login-content-reveal .7s cubic-bezier(.2, .9, .25, 1) both; }
+.login-panel { animation: login-panel-morph .76s cubic-bezier(.22, .9, .25, 1) both; }
+.login-brand-visual { animation: login-visual-morph 9s ease-in-out infinite alternate; }
+.login-live-board { animation: login-board-reveal .72s .2s cubic-bezier(.2, .9, .25, 1) both; }
+.login-panel form label { animation: login-field-reveal .4s cubic-bezier(.2, .9, .25, 1) both; }
+.login-panel form label:nth-of-type(1) { animation-delay: .28s; }
+.login-panel form label:nth-of-type(2) { animation-delay: .36s; }
+.login-panel form button { animation: login-field-reveal .4s .44s cubic-bezier(.2, .9, .25, 1) both; }
+@keyframes login-panel-morph {
+  0% { border-radius: 46% 54% 42% 58% / 20% 24% 76% 80%; opacity: 0; transform: translateX(34px) scale(.95); }
+  62% { border-radius: 18px 34px 18px 28px / 24px 18px 28px 22px; opacity: 1; transform: translateX(-3px) scale(1.01); }
+  100% { border-radius: 10px; opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes login-content-reveal { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes login-board-reveal { from { clip-path: inset(0 100% 0 0 round 9px); opacity: 0; } to { clip-path: inset(0 0 0 0 round 9px); opacity: 1; } }
+@keyframes login-field-reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes login-visual-morph {
+  0%, 100% { border-radius: 11px 42px 18px 34px / 18px 16px 44px 25px; }
+  50% { border-radius: 38px 12px 44px 15px / 25px 40px 16px 42px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-intro-content, .login-panel, .login-brand-visual, .login-live-board, .login-panel form label, .login-panel form button { animation: none !important; }
+}

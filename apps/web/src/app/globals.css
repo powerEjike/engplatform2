@@ -848,3 +848,27 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .draft-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
   .draft-actions button:last-child { grid-column: 1 / -1; min-height: 46px; }
 }
+
+/* Team chat follows the same focused, practical workspace language. */
+.chat-layout, .chat-layout.company-chat { border-color: var(--bc-border); border-radius: 9px; box-shadow: none; max-width: 960px; }
+.chat-conversation > header { background: #fff; border-color: var(--bc-border); padding: 20px 22px; }
+.chat-conversation > header h2 { color: var(--bc-navy); }
+.chat-conversation > header p:last-child { color: #64748b; }
+.chat-conversation > header > span { background: #dcfce7; border-radius: 5px; color: #166534; }
+.chat-messages { background: #f8fafc; min-height: 360px; padding: 20px 22px; }
+.chat-empty-message { color: #64748b; }
+.chat-message { border-color: var(--bc-border); border-radius: 7px 7px 7px 2px; box-shadow: none; }
+.chat-message.own { background: #eff6ff; border-color: #bfdbfe; border-radius: 7px 7px 2px 7px; }
+.chat-message strong { color: var(--bc-navy); }
+.chat-message em { color: #2563eb; }
+.chat-message time { color: #94a3b8; }
+.chat-message p { color: #334155; }
+.chat-composer { background: #fff; border-color: var(--bc-border); padding: 16px 20px; }
+.chat-composer textarea { background: #f8fafc; border-color: #cbd5e1; border-radius: 7px; }
+.chat-composer textarea:focus { border-color: var(--bc-blue); box-shadow: 0 0 0 3px #dbeafe; outline: none; }
+.chat-composer > div { color: #64748b; }
+@media (max-width: 700px) {
+  .chat-layout, .chat-layout.company-chat { border-radius: 8px; margin-top: 16px; }
+  .chat-conversation > header, .chat-composer { padding: 16px; }
+  .chat-messages { min-height: 330px; padding: 16px; }
+}

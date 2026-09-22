@@ -72,7 +72,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!cooldownUntil) return;
-    const timer = window.setTimeout(() => clearAttemptProtection(), remainingCooldown());
+    const timer = window.setTimeout(() => {
+      window.sessionStorage.removeItem(loginAttemptsKey);
+      window.sessionStorage.removeItem(loginLockKey);
+      setCooldownUntil(0);
+    }, Math.max(0, cooldownUntil - Date.now()));
     return () => window.clearTimeout(timer);
   }, [cooldownUntil]);
 

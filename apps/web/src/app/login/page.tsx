@@ -15,6 +15,11 @@ const friendlyError = (code: string) => {
   return "We could not sign you in. Please try again.";
 };
 
+const loginAttemptsKey = "buildcore:login-attempts";
+const loginLockKey = "buildcore:login-lock-until";
+const maxFailedAttempts = 5;
+const cooldownMs = 60_000;
+
 export default function LoginPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -23,6 +28,25 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+
+  const remainingCooldown = () => Math.max(0, cooldownUntil - Date.now());
+
+  const clearAttemptProtection = () => {
+    window.sessionStorage.removeItem(loginAttemptsKey);
+    window.sessionStorage.removeItem(loginLockKey);
+    setCooldownUntil(0);
+  };
+
+  const recordFailedAttempt = () => {
+    const attempts = Number(window.sessionStorage.getItem(loginAttemptsKey) ?? "0") + 1;
+    window.sessionStorage.setItem(loginAttemptsKey, String(attempts));
+    if (attempts < maxFailedAttempts) return false;
+    const lockUntil = Date.now() + cooldownMs;
+    window.sessionStorage.setItem(loginLockKey, String(lockUntil));
+    setCooldownUntil(lockUntil);
+    return true;
+  };
 
   const nextPath = () => {
     const requested = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("next");
@@ -40,20 +64,38 @@ export default function LoginPage() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const storedLock = Number(window.sessionStorage.getItem(loginLockKey) ?? "0");
+    if (storedLock > Date.now()) setCooldownUntil(storedLock);
+    else clearAttemptProtection();
+  }, []);
+
+  useEffect(() => {
+    if (!cooldownUntil) return;
+    const timer = window.setTimeout(() => clearAttemptProtection(), remainingCooldown());
+    return () => window.clearTimeout(timer);
+  }, [cooldownUntil]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (remainingCooldown() > 0) {
+      setError("Too many unsuccessful attempts. Please wait one minute before trying again.");
+      return;
+    }
     setError("");
     setMessage("");
     setIsSubmitting(true);
 
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
+      clearAttemptProtection();
       router.push(nextPath());
     } catch (caughtError) {
       const code = typeof caughtError === "object" && caughtError !== null && "code" in caughtError
         ? String(caughtError.code)
         : "";
-      setError(friendlyError(code));
+      const locked = code === "auth/invalid-credential" && recordFailedAttempt();
+      setError(locked ? "Too many unsuccessful attempts. Please wait one minute before trying again." : friendlyError(code));
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +132,7 @@ export default function LoginPage() {
           </label>
           {error && <p className="form-error" role="alert">{error}</p>}
           {message && <p className="form-success" role="status">{message}</p>}
-          <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Sign in"}</button>
+          <button type="submit" disabled={isSubmitting || remainingCooldown() > 0}>{isSubmitting ? "Signing in…" : remainingCooldown() > 0 ? "Try again shortly" : "Sign in"}</button>
         </form>
         <div className="login-support"><button className="text-button" type="button" onClick={() => void resetPassword()}>Forgot password?</button><p className="login-help">Need access? Ask your company administrator to invite you.</p><Link className="demo-link" href="/request-demo">New to BuildCore? Request a demo →</Link></div>
       </section>

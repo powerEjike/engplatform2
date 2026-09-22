@@ -33,6 +33,9 @@ jobs:
       - name: Scan for committed secrets
         run: node scripts/secret-scan.mjs
 
+      - name: Verify critical security controls
+        run: npm run security:verify
+
       - name: Check dependencies for known high-severity issues
         run: npm audit --omit=dev --audit-level=high
 

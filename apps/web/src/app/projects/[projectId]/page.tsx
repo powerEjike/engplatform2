@@ -123,7 +123,7 @@ export default function ProjectWorkspacePage() {
   const teamMemberName = (id: string | undefined) => companyUsers.find((member) => member.id === id)?.name ?? "A team member";
   const approvalDate = (value: unknown) => value && typeof value === "object" && "toDate" in value ? (value as { toDate: () => Date }).toDate().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : value ? new Date(String(value)).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) : "";
   const printProjectSummary = () => window.print();
-  const activityData = (action: ProjectActivityEvent["action"], summary: string) => ({ action, summary, actorName: profile?.name ?? "Team member", createdAt: serverTimestamp() });
+  const activityData = (action: ProjectActivityEvent["action"], summary: string) => ({ action, summary, actorId: user?.uid ?? "", actorName: profile?.name ?? "Team member", actorRole: profile?.role ?? "", createdAt: serverTimestamp() });
   const canCommentOnReport = Boolean(user && profile && (profile.role === "director" || profile.role === "quantity_surveyor" || (profile.role === "project_manager" && project?.projectManagerId === user.uid)));
   const addReportComment = async (report: SiteReport) => {
     const message = commentText[report.id]?.trim();

@@ -76,7 +76,7 @@ export default function NewVariationPage() {
         status: "pending_qs_review", supportingPhotoIds: [],
       });
       batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), {
-        action: "variation_raised", summary: `Variation raised: ${description.trim()}.`, actorName: profile.name, createdAt: serverTimestamp(),
+        action: "variation_raised", summary: `Variation raised: ${description.trim()}.`, actorId: user.uid, actorName: profile.name, actorRole: profile.role, createdAt: serverTimestamp(),
       });
       const raiseVariation = batch.commit();
 

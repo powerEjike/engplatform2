@@ -99,7 +99,7 @@ export default function NewSiteReportPage() {
       syncOperationId = beginSyncOperation("daily report");
       const batch = writeBatch(db); const reports = collection(db, "companies", profile.companyId, "projects", projectId, "siteReports"); const report = doc(reports, clientGeneratedId);
       batch.set(report, { projectId, submittedBy: user.uid, reportDate, status: "synced", lineItems, labourCount: labour, labourByTrade: labourBreakdown, equipmentOnSite, equipmentHours: equipmentBreakdown, issues: issue.trim() ? [{ category: issueCategory, note: issue.trim() }] : [], photoIds: [], clientGeneratedId, createdAt: serverTimestamp(), syncedAt: serverTimestamp() });
-      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), { action: "report_submitted", summary: `Daily report submitted for ${reportDate}.`, actorName: profile.name, createdAt: serverTimestamp() });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), { action: "report_submitted", summary: `Daily report submitted for ${reportDate}.`, actorId: user.uid, actorName: profile.name, actorRole: profile.role, createdAt: serverTimestamp() });
       lineItems.forEach((lineItem) => { const item = items.find((current) => current.id === lineItem.boqItemId); if (item) batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "boqItems", item.id), { cumulativeQuantityCompleted: item.cumulativeQuantityCompleted + lineItem.quantityCompleted }); });
       const submitReport = batch.commit();
       window.localStorage.removeItem(draftKey(projectId));

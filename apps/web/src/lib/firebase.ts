@@ -1,4 +1,5 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
+import { getAppCheck, initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { getAuth } from "firebase/auth";
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
@@ -13,6 +14,23 @@ const firebaseConfig = {
 };
 
 const firebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+const appCheckSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
+
+// App Check runs only in the browser. Keeping it in monitoring mode in Firebase
+// lets us verify real traffic before enforcement is enabled for any API.
+export const appCheck = typeof window === "undefined" || !appCheckSiteKey
+  ? null
+  : (() => {
+      try {
+        return getAppCheck(firebaseApp);
+      } catch {
+        return initializeAppCheck(firebaseApp, {
+          provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+          isTokenAutoRefreshEnabled: true,
+        });
+      }
+    })();
 
 export const auth = getAuth(firebaseApp);
 export const db = typeof window === "undefined"

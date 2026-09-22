@@ -19,6 +19,7 @@ const loginAttemptsKey = "buildcore:login-attempts";
 const loginLockKey = "buildcore:login-lock-until";
 const maxFailedAttempts = 5;
 const cooldownMs = 60_000;
+const currentTime = () => Date.now();
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,22 +30,25 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [isCooldown, setIsCooldown] = useState(false);
 
-  const remainingCooldown = () => Math.max(0, cooldownUntil - Date.now());
+  const isCooldownActive = () => cooldownUntil > currentTime();
 
   const clearAttemptProtection = () => {
     window.sessionStorage.removeItem(loginAttemptsKey);
     window.sessionStorage.removeItem(loginLockKey);
     setCooldownUntil(0);
+    setIsCooldown(false);
   };
 
   const recordFailedAttempt = () => {
     const attempts = Number(window.sessionStorage.getItem(loginAttemptsKey) ?? "0") + 1;
     window.sessionStorage.setItem(loginAttemptsKey, String(attempts));
     if (attempts < maxFailedAttempts) return false;
-    const lockUntil = Date.now() + cooldownMs;
+    const lockUntil = currentTime() + cooldownMs;
     window.sessionStorage.setItem(loginLockKey, String(lockUntil));
     setCooldownUntil(lockUntil);
+    setIsCooldown(true);
     return true;
   };
 
@@ -66,8 +70,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     const storedLock = Number(window.sessionStorage.getItem(loginLockKey) ?? "0");
-    if (storedLock > Date.now()) setCooldownUntil(storedLock);
-    else clearAttemptProtection();
+    const timer = window.setTimeout(() => {
+      if (storedLock > currentTime()) {
+        setCooldownUntil(storedLock);
+        setIsCooldown(true);
+      } else {
+        window.sessionStorage.removeItem(loginAttemptsKey);
+        window.sessionStorage.removeItem(loginLockKey);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -76,13 +88,14 @@ export default function LoginPage() {
       window.sessionStorage.removeItem(loginAttemptsKey);
       window.sessionStorage.removeItem(loginLockKey);
       setCooldownUntil(0);
-    }, Math.max(0, cooldownUntil - Date.now()));
+      setIsCooldown(false);
+    }, Math.max(0, cooldownUntil - currentTime()));
     return () => window.clearTimeout(timer);
   }, [cooldownUntil]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (remainingCooldown() > 0) {
+    if (isCooldownActive()) {
       setError("Too many unsuccessful attempts. Please wait one minute before trying again.");
       return;
     }
@@ -136,7 +149,7 @@ export default function LoginPage() {
           </label>
           {error && <p className="form-error" role="alert">{error}</p>}
           {message && <p className="form-success" role="status">{message}</p>}
-          <button type="submit" disabled={isSubmitting || remainingCooldown() > 0}>{isSubmitting ? "Signing in…" : remainingCooldown() > 0 ? "Try again shortly" : "Sign in"}</button>
+          <button type="submit" disabled={isSubmitting || isCooldown}>{isSubmitting ? "Signing in…" : isCooldown ? "Try again shortly" : "Sign in"}</button>
         </form>
         <div className="login-support"><button className="text-button" type="button" onClick={() => void resetPassword()}>Forgot password?</button><p className="login-help">Need access? Ask your company administrator to invite you.</p><Link className="demo-link" href="/request-demo">New to BuildCore? Request a demo →</Link></div>
       </section>

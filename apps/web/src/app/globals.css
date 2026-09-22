@@ -1236,10 +1236,15 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
   .mobile-menu-panel { animation: mobile-menu-slide-in .28s cubic-bezier(.2, .9, .25, 1) both; background: var(--bc-navy); box-shadow: -18px 0 42px rgba(15, 23, 42, .25); padding: 20px 16px max(18px, env(safe-area-inset-bottom)); }
   .mobile-menu-header { border-bottom: 1px solid #334155; padding: 4px 4px 18px; }
   .mobile-menu-user { background: #1e293b; border: 1px solid #334155; border-radius: 8px; margin: 18px 0; }
-  .mobile-menu-links { gap: 5px; }
-  .mobile-menu-links a { border: 1px solid transparent; color: #e2e8f0; padding: 13px 12px; }
-  .mobile-menu-links a:hover { background: #1e293b; border-color: #334155; }
-  .mobile-menu-footer { border-color: #334155; }
+.mobile-menu-links { gap: 5px; }
+.mobile-menu-links { min-height: 0; overflow-y: auto; padding-right: 2px; }
+.mobile-menu-links a { border: 1px solid transparent; color: #e2e8f0; padding: 13px 12px; }
+.mobile-menu-links .mobile-menu-home { background: #0f766e; border-color: #2dd4bf; color: #fff; gap: 9px; justify-content: flex-start; margin-bottom: 5px; }
+.mobile-menu-links .mobile-menu-home:hover { background: #0d655f; border-color: #5eead4; color: #fff; }
+.mobile-menu-links a:hover { background: #1e293b; border-color: #334155; }
+.mobile-menu-footer { border-color: #334155; }
+.mobile-menu-footer .sign-out { align-items: center; color: #f8fafc; display: inline-flex; font-weight: 800; gap: 7px; min-height: 44px; padding: 8px 2px; text-decoration: none; }
+.mobile-menu-footer .sign-out:hover { color: #5eead4; }
   .quick-actions { gap: 14px; padding: 16px; }
   .quick-actions > div:last-child { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .quick-actions a { align-items: center; display: flex; justify-content: center; min-height: 44px; padding: 9px; }

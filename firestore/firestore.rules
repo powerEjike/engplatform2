@@ -73,8 +73,9 @@ service cloud.firestore {
       }
       match /projects/{projectId} {
         allow read: if canAccessProject(companyId, projectId);
-        allow create: if isVerifiedDirector(companyId) || (isProjectManager(companyId) && request.resource.data.projectManagerId == request.auth.uid);
-        allow update: if isVerifiedDirector(companyId) || (isAssignedProjectManager(companyId, projectId) && request.resource.data.projectManagerId == request.auth.uid);
+        // Contract details, programme settings, and team allocation are Director-controlled.
+        // Project Managers retain access to their assigned project's delivery tools below.
+        allow create, update: if isVerifiedDirector(companyId);
         match /boqItems/{itemId} {
           allow read: if canAccessProject(companyId, projectId);
           allow create: if isVerifiedDirector(companyId) || isQs(companyId);

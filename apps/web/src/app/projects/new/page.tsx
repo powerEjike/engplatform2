@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
-import { canManageProject } from "@/lib/permissions";
 import { useCompanyUsers } from "@/hooks/use-company-users";
 import { beginSyncOperation, completeSyncOperation, failSyncOperation } from "@/lib/offline-sync";
 import Link from "next/link";
@@ -52,7 +51,7 @@ export default function NewProjectPage() {
     event.preventDefault(); if (!user || !profile) return; const value = Number(contractSum);
     if (!Number.isFinite(value) || value < 0) return setError("Enter a valid contract sum in Naira.");
     if (endDate < startDate) return setError("The end date must be after the start date.");
-    const assignedManagerId = profile.role === "director" ? projectManagerId : profile.role === "project_manager" ? user.uid : ""; const assignedEngineerId = profile.role === "director" ? siteEngineerId : "";
+    const assignedManagerId = projectManagerId; const assignedEngineerId = siteEngineerId;
     const assignedManager = projectManagers.find((member) => member.id === assignedManagerId); const assignedEngineer = siteEngineers.find((member) => member.id === assignedEngineerId);
     setSaving(true); setError("");
     let syncOperationId = "";
@@ -61,7 +60,7 @@ export default function NewProjectPage() {
       const createProject = addDoc(collection(db, "companies", profile.companyId, "projects"), {
         name: name.trim(), clientName: clientName.trim(), contractSum: value, location: location.trim(), state, startDate, endDate,
         status: "active", projectManagerId: assignedManagerId || null,
-        projectManagerName: assignedManager?.name ?? (profile.role === "project_manager" ? profile.name : null),
+        projectManagerName: assignedManager?.name ?? null,
         siteEngineerId: assignedEngineerId || null, siteEngineerName: assignedEngineer?.name ?? null,
         createdBy: user.uid, createdAt: serverTimestamp(),
       });
@@ -82,8 +81,8 @@ export default function NewProjectPage() {
     }
     catch { if (syncOperationId) failSyncOperation(syncOperationId); setError("We could not create this project. Please try again."); setSaving(false); }
   };
-  if (profile && !canManageProject(profile.role)) return <main className="auth-loading">Your role cannot create projects. <Link href="/dashboard">Return to workspace</Link></main>;
-  return <main className="onboarding-page"><section className="onboarding-card project-form-card"><p className="eyebrow">Project setup</p><h1>Add a project</h1><p>Start with the contract details. BOQ items come next. Projects created by a Project Manager are automatically assigned to them.</p><form onSubmit={submit}>
+  if (profile && profile.role !== "director") return <main className="auth-loading">Only Directors can create projects and assign delivery teams. <Link href="/dashboard">Return to workspace</Link></main>;
+  return <main className="onboarding-page"><section className="onboarding-card project-form-card"><p className="eyebrow">Project setup</p><h1>Add a project</h1><p>Start with the contract details, then assign the delivery team. BOQ items come next.</p><form onSubmit={submit}>
     <label>Project name<input value={name} onChange={(e) => setName(e.target.value)} required /></label><label>Client name<input value={clientName} onChange={(e) => setClientName(e.target.value)} required /></label><label>Contract sum (₦)<input inputMode="decimal" value={contractSum} onChange={(e) => setContractSum(e.target.value)} required /></label><label>Project location<input value={location} onChange={(e) => setLocation(e.target.value)} required /></label><label>State<select value={state} onChange={(e) => setState(e.target.value)}>{states.map((item) => <option key={item}>{item}</option>)}</select></label><div className="date-fields"><label>Start date<input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required /></label><label>Planned end date<input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required /></label></div>{profile?.role === "director" && <section className="project-team-allocation"><div><p className="eyebrow">Assign project team</p><h2>Choose who will deliver this project</h2><p>Assign a Project Manager for delivery oversight and a Site Engineer for daily site reporting.</p></div><label>Project Manager<select value={projectManagerId} onChange={(event) => setProjectManagerId(event.target.value)} disabled={usersLoading}><option value="">Not assigned yet</option>{projectManagers.map((manager) => <option key={manager.id} value={manager.id}>{manager.name} — {manager.email}</option>)}</select></label><label>Site Engineer<select value={siteEngineerId} onChange={(event) => setSiteEngineerId(event.target.value)} disabled={usersLoading}><option value="">Not assigned yet</option>{siteEngineers.map((engineer) => <option key={engineer.id} value={engineer.id}>{engineer.name} — {engineer.email}</option>)}</select></label>{!usersLoading && projectManagers.length === 0 && <p className="form-error">No Project Manager is available yet. Invite one from Team before assigning this project.</p>}{!usersLoading && siteEngineers.length === 0 && <p className="form-error">No Site Engineer is available yet. Invite one from Team before assigning this project.</p>}</section>}{draftMessage && <p className="form-success">{draftMessage}</p>}{error && <p className="form-error">{error}</p>}<button disabled={saving}>{saving ? "Creating project…" : "Create project"}</button>
   </form></section></main>;
 }

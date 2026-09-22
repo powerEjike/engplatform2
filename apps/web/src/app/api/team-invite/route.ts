@@ -1,9 +1,25 @@
 import { NextResponse } from "next/server";
 import { isRateLimited, isSameOriginRequest } from "@/lib/request-security";
-import { getFirebaseAdmin } from "@/lib/firebase-admin";
 
 const text = (value: unknown, limit: number) => typeof value === "string" ? value.trim().slice(0, limit) : "";
 const documentId = (value: string) => /^[A-Za-z0-9_-]{1,160}$/.test(value);
+type FirestoreDocument = { fields?: Record<string, { stringValue?: string; booleanValue?: boolean; timestampValue?: string }> };
+type FirebaseIdentity = { users?: Array<{ localId?: string; emailVerified?: boolean }> };
+
+async function readFirebaseDocument(projectId: string, path: string, token: string) {
+  const response = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${path}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+  if (!response.ok) return null;
+  return response.json() as Promise<FirestoreDocument>;
+}
+
+async function readFirebaseIdentity(apiKey: string, token: string) {
+  const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idToken: token }), cache: "no-store" });
+  if (!response.ok) return null;
+  return response.json() as Promise<FirebaseIdentity>;
+}
+
+const fieldText = (document: FirestoreDocument, field: string) => document.fields?.[field]?.stringValue ?? "";
+const fieldBoolean = (document: FirestoreDocument, field: string) => document.fields?.[field]?.booleanValue === true;
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: "This request must come from the BuildCore website." }, { status: 403 });
@@ -23,24 +39,27 @@ export async function POST(request: Request) {
   const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";
   if (!token) return NextResponse.json({ error: "Sign in again before sending an invitation." }, { status: 401 });
 
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const firebaseApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!projectId || !firebaseApiKey) return NextResponse.json({ error: "Secure invitation delivery is not configured yet." }, { status: 503 });
+
   let companyName = "";
   let role = "";
   try {
-    const { auth, firestore } = getFirebaseAdmin();
-    const identity = await auth.verifyIdToken(token, true);
-    if (!identity.email_verified) return NextResponse.json({ error: "Verify your Director email before sending an invitation." }, { status: 403 });
+    const identity = await readFirebaseIdentity(firebaseApiKey, token);
+    const signedInUser = identity?.users?.[0];
+    if (!signedInUser?.localId || !signedInUser.emailVerified) return NextResponse.json({ error: "Verify your Director email before sending an invitation." }, { status: 403 });
     const [directorProfile, invite] = await Promise.all([
-      firestore.doc(`companies/${companyId}/users/${identity.uid}`).get(),
-      firestore.doc(`companies/${companyId}/invites/${inviteId}`).get(),
+      readFirebaseDocument(projectId, `companies/${companyId}/users/${signedInUser.localId}`, token),
+      readFirebaseDocument(projectId, `companies/${companyId}/invites/${inviteId}`, token),
     ]);
-    if (!directorProfile.exists || directorProfile.data()?.active !== true || directorProfile.data()?.role !== "director") return NextResponse.json({ error: "Only an active Director can send invitations." }, { status: 403 });
-    const expiresAt = invite.data()?.expiresAt as { toMillis?: () => number } | undefined;
-    if (!invite.exists || invite.data()?.active !== true || !expiresAt?.toMillis || expiresAt.toMillis() <= Date.now() || String(invite.data()?.email ?? "").toLowerCase() !== email) return NextResponse.json({ error: "This invitation is no longer active. Create a new invitation and try again." }, { status: 403 });
-    companyName = text(invite.data()?.companyName, 160);
-    role = text(invite.data()?.role, 80);
+    if (!directorProfile || !fieldBoolean(directorProfile, "active") || fieldText(directorProfile, "role") !== "director") return NextResponse.json({ error: "Only an active Director can send invitations." }, { status: 403 });
+    const expiresAt = Date.parse(invite?.fields?.expiresAt?.timestampValue ?? "");
+    if (!invite || !fieldBoolean(invite, "active") || !Number.isFinite(expiresAt) || expiresAt <= Date.now() || fieldText(invite, "email").toLowerCase() !== email) return NextResponse.json({ error: "This invitation is no longer active. Create a new invitation and try again." }, { status: 403 });
+    companyName = text(fieldText(invite, "companyName"), 160);
+    role = text(fieldText(invite, "role"), 80);
     if (!companyName || !role) return NextResponse.json({ error: "The saved invitation is incomplete. Create a new invitation and try again." }, { status: 400 });
-  } catch (error) {
-    if (error instanceof Error && error.message === "Firebase server credentials are not configured.") return NextResponse.json({ error: "Secure invitation delivery is not configured yet." }, { status: 503 });
+  } catch {
     return NextResponse.json({ error: "Your secure sign-in could not be verified. Sign in again and try once more." }, { status: 401 });
   }
 

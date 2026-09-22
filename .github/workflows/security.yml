@@ -1,0 +1,41 @@
+name: Security checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate code and dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting safety
+        run: git diff --check HEAD~1 HEAD
+
+      - name: Scan for committed secrets
+        run: node scripts/secret-scan.mjs
+
+      - name: Check dependencies for known high-severity issues
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Run lint checks
+        run: npm run lint
+
+      - name: Run type checks
+        run: npm run typecheck

@@ -1,0 +1,43 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function userDoc(companyId) { return /databases/(default)/documents/companies/$(companyId)/users/$(request.auth.uid); }
+    function isMember(companyId) { return signedIn() && firestore.exists(userDoc(companyId)) && firestore.get(userDoc(companyId)).data.active == true; }
+    function role(companyId) { return firestore.get(userDoc(companyId)).data.role; }
+    function isDirector(companyId) { return isMember(companyId) && role(companyId) == "director"; }
+    function isQs(companyId) { return isMember(companyId) && role(companyId) == "quantity_surveyor"; }
+    function isAssignedProjectManager(companyId, projectId) {
+      return isMember(companyId)
+        && role(companyId) == "project_manager"
+        && firestore.get(/databases/(default)/documents/companies/$(companyId)/projects/$(projectId)).data.projectManagerId == request.auth.uid;
+    }
+    function isAssignedEngineer(companyId, projectId) {
+      return isMember(companyId)
+        && role(companyId) == "site_engineer"
+        && firestore.get(/databases/(default)/documents/companies/$(companyId)/projects/$(projectId)).data.siteEngineerId == request.auth.uid;
+    }
+    function canAccessProject(companyId, projectId) {
+      return isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isAssignedEngineer(companyId, projectId);
+    }
+    function canUploadProjectFile(companyId, projectId) {
+      return isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isAssignedEngineer(companyId, projectId);
+    }
+    function isAllowedFile() {
+      return request.resource.size < 15 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+    }
+
+    // Keep project evidence inside its company/project path. Uploaded files are immutable;
+    // corrections should create a replacement file and retain the original audit trail.
+    match /companies/{companyId}/projects/{projectId}/{filePath=**} {
+      allow read: if canAccessProject(companyId, projectId);
+      allow create: if canUploadProjectFile(companyId, projectId) && isAllowedFile();
+      allow update, delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

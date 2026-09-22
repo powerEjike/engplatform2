@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { getAppCheck, initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { getAuth } from "firebase/auth";
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
@@ -23,12 +23,13 @@ export const appCheck = typeof window === "undefined" || !appCheckSiteKey
   ? null
   : (() => {
       try {
-        return getAppCheck(firebaseApp);
-      } catch {
         return initializeAppCheck(firebaseApp, {
           provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
           isTokenAutoRefreshEnabled: true,
         });
+      } catch {
+        // The browser can reuse an existing App Check instance after hot reload.
+        return null;
       }
     })();
 

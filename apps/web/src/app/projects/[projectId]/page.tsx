@@ -54,7 +54,11 @@ const parseBoqCsv = (text: string): ImportedBoqRow[] => {
   const rate = column("rate", "unitrate", "rateperunit");
   const section = column("section", "category", "worksection");
   if ([itemNumber, description, unit, plannedQuantity, rate].some((index) => index < 0)) throw new Error("We could not find the required headings. Use Item Number (or Item No.), Description, Unit (or UOM), Planned Quantity (or Qty), and Rate.");
-  return rows.slice(1).map((cells, index) => {
+  // The downloadable BuildCore template includes a "Before importing" note
+  // section after the BOQ table. It is guidance, not additional BOQ data.
+  const dataRows = rows.slice(1);
+  const instructionStart = dataRows.findIndex((cells) => normaliseHeading(cells[0] ?? "") === "beforeimporting");
+  return (instructionStart >= 0 ? dataRows.slice(0, instructionStart) : dataRows).map((cells, index) => {
     const quantity = numericValue(cells[plannedQuantity] ?? ""); const amount = numericValue(cells[rate] ?? "");
     const row = { itemNumber: cells[itemNumber] ?? "", description: cells[description] ?? "", unit: cells[unit] ?? "", plannedQuantity: quantity, rate: amount, section: section >= 0 ? cells[section] ?? "" : "" };
     if (!row.itemNumber || !row.description || !row.unit || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(amount) || amount < 0) throw new Error("Check row " + (index + 2) + ": item number, description, unit, quantity above zero, and rate are required.");

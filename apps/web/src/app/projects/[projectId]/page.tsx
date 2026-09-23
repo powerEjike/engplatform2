@@ -19,23 +19,45 @@ type BoqForm = { itemNumber: string; description: string; section: string; unit:
 const initialForm: BoqForm = { itemNumber: "", description: "", section: "", unit: "", plannedQuantity: "", rate: "" };
 type ImportedBoqRow = { itemNumber: string; description: string; unit: string; plannedQuantity: number; rate: number; section: string };
 
-const csvLine = (line: string) => {
-  const cells: string[] = []; let current = ""; let quoted = false;
-  for (let index = 0; index < line.length; index += 1) { const character = line[index]; if (character === '"') { if (quoted && line[index + 1] === '"') { current += '"'; index += 1; } else quoted = !quoted; } else if (character === "," && !quoted) { cells.push(current.trim()); current = ""; } else current += character; }
-  cells.push(current.trim()); return cells;
+const normaliseHeading = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+const numericValue = (value: string) => Number(value.replace(/[₦]/g, "").replace(/ngn/gi, "").replace(/[ ,]/g, "").trim());
+
+const csvRows = (text: string) => {
+  const firstLine = text.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] ?? "";
+  const delimiter = [",", ";", "\t"].sort((left, right) => firstLine.split(right).length - firstLine.split(left).length)[0] ?? ",";
+  const rows: string[][] = []; let row: string[] = []; let cell = ""; let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '"') {
+      if (quoted && text[index + 1] === '"') { cell += '"'; index += 1; }
+      else quoted = !quoted;
+    } else if (character === delimiter && !quoted) { row.push(cell.trim()); cell = ""; }
+    else if ((character === "\n" || character === "\r") && !quoted) {
+      if (character === "\r" && text[index + 1] === "\n") index += 1;
+      row.push(cell.trim()); if (row.some(Boolean)) rows.push(row); row = []; cell = "";
+    } else cell += character;
+  }
+  if (quoted) throw new Error("The CSV has an opening quotation mark without a matching closing quotation mark.");
+  row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
+  return rows;
 };
 
 const parseBoqCsv = (text: string): ImportedBoqRow[] => {
-  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
-  if (lines.length < 2) throw new Error("The CSV needs a header row and at least one BOQ item.");
-  const headers = csvLine(lines[0]!).map((header) => header.toLowerCase().replace(/[ _-]/g, ""));
-  const column = (name: string) => headers.indexOf(name);
-  const itemNumber = column("itemnumber"); const description = column("description"); const unit = column("unit"); const plannedQuantity = column("plannedquantity"); const rate = column("rate"); const section = column("section");
-  if ([itemNumber, description, unit, plannedQuantity, rate].some((index) => index < 0)) throw new Error("Use these CSV headings: itemNumber, description, unit, plannedQuantity, rate, section.");
-  return lines.slice(1).map((line, index) => {
-    const cells = csvLine(line); const quantity = Number((cells[plannedQuantity] ?? "").replace(/,/g, "")); const amount = Number((cells[rate] ?? "").replace(/[₦,]/g, ""));
+  const rows = csvRows(text.replace(/^\uFEFF/, ""));
+  if (rows.length < 2) throw new Error("The CSV needs a heading row and at least one BOQ item.");
+  const headers = rows[0]!.map(normaliseHeading);
+  const column = (...names: string[]) => headers.findIndex((header) => names.includes(header));
+  const itemNumber = column("itemnumber", "itemno", "item", "serialnumber", "sno");
+  const description = column("description", "itemdescription", "workdescription");
+  const unit = column("unit", "uom", "unitofmeasure");
+  const plannedQuantity = column("plannedquantity", "quantity", "qty", "boqquantity");
+  const rate = column("rate", "unitrate", "rateperunit");
+  const section = column("section", "category", "worksection");
+  if ([itemNumber, description, unit, plannedQuantity, rate].some((index) => index < 0)) throw new Error("We could not find the required headings. Use Item Number (or Item No.), Description, Unit (or UOM), Planned Quantity (or Qty), and Rate.");
+  return rows.slice(1).map((cells, index) => {
+    const quantity = numericValue(cells[plannedQuantity] ?? ""); const amount = numericValue(cells[rate] ?? "");
     const row = { itemNumber: cells[itemNumber] ?? "", description: cells[description] ?? "", unit: cells[unit] ?? "", plannedQuantity: quantity, rate: amount, section: section >= 0 ? cells[section] ?? "" : "" };
-    if (!row.itemNumber || !row.description || !row.unit || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(amount) || amount < 0) throw new Error(`Check row ${index + 2}: item number, description, unit, quantity above zero, and rate are required.`);
+    if (!row.itemNumber || !row.description || !row.unit || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(amount) || amount < 0) throw new Error("Check row " + (index + 2) + ": item number, description, unit, quantity above zero, and rate are required.");
     return row;
   });
 };

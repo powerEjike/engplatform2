@@ -22,6 +22,17 @@ service cloud.firestore {
     function canAccessProject(companyId, projectId) {
       return isDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isAssignedEngineer(companyId, projectId);
     }
+    // This version is deliberately based on the project being read. Firestore
+    // can prove the role-filtered list queries used by PM and Site Engineer
+    // dashboards (where projectManagerId/siteEngineerId equals the signed-in
+    // user's ID), whereas a get() of a dynamic project path cannot be proven
+    // for a collection query.
+    function canReadProjectListItem(companyId) {
+      return isDirector(companyId)
+        || isQs(companyId)
+        || (isProjectManager(companyId) && resource.data.projectManagerId == request.auth.uid)
+        || (isSiteEngineer(companyId) && resource.data.siteEngineerId == request.auth.uid);
+    }
     function canAcceptInvite(companyId, inviteId) {
       return signedIn()
         && resource.data.active == true
@@ -72,7 +83,9 @@ service cloud.firestore {
         allow update: if isDirector(companyId) || canAcceptInvite(companyId, inviteId);
       }
       match /projects/{projectId} {
-        allow read: if canAccessProject(companyId, projectId);
+        // PMs and Site Engineers can list only projects assigned to them.
+        // Nested project records retain the project-ID access check below.
+        allow read: if canReadProjectListItem(companyId);
         // Contract details, programme settings, and team allocation are Director-controlled.
         // Project Managers retain access to their assigned project's delivery tools below.
         allow create, update: if isVerifiedDirector(companyId);

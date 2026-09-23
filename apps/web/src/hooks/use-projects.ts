@@ -14,9 +14,12 @@ export function useProjects(companyId: string | undefined, role: string | undefi
     const projectQuery = role === "director" || role === "quantity_surveyor"
       ? query(projects, orderBy("createdAt", "desc"))
       : role === "project_manager"
-        ? query(projects, where("projectManagerId", "==", userId), orderBy("createdAt", "desc"))
+        // Do not add orderBy here: equality + orderBy needs a composite
+        // Firestore index. Without it, assigned users receive an empty
+        // dashboard. The small result set is sorted safely after it arrives.
+        ? query(projects, where("projectManagerId", "==", userId))
         : role === "site_engineer"
-          ? query(projects, where("siteEngineerId", "==", userId), orderBy("createdAt", "desc"))
+          ? query(projects, where("siteEngineerId", "==", userId))
           : null;
     if (!projectQuery) {
       const resetTimer = window.setTimeout(() => { setProjects([]); setIsLoading(false); }, 0);
@@ -24,7 +27,11 @@ export function useProjects(companyId: string | undefined, role: string | undefi
     }
     const loadingTimer = window.setTimeout(() => setIsLoading(true), 0);
     const unsubscribe = onSnapshot(projectQuery, (snapshot) => {
-      setProjects(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Project));
+      const updatedProjects = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Project).sort((left, right) => {
+        const toMillis = (value: unknown) => value && typeof value === "object" && "toMillis" in value ? Number((value as { toMillis: () => number }).toMillis()) : 0;
+        return toMillis(right.createdAt) - toMillis(left.createdAt);
+      });
+      setProjects(updatedProjects);
       setIsLoading(false);
     }, () => { setProjects([]); setIsLoading(false); });
     return () => { window.clearTimeout(loadingTimer); unsubscribe(); };

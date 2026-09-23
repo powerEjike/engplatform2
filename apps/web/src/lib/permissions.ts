@@ -4,4 +4,6 @@ export const canManageBoq = (role: string) => ["quantity_surveyor", "director"].
 export const canReviewVariation = (role: string) => ["quantity_surveyor", "project_manager"].includes(role);
 export const canFinalApproveVariation = (role: string) => role === "director";
 export const canGenerateValuation = (role: string) => ["quantity_surveyor", "director"].includes(role);
-export const canManageProject = (role: string) => ["project_manager", "director"].includes(role);
+// Creating a project and allocating its team are Director-controlled actions.
+// Project Managers manage delivery within projects assigned to them.
+export const canManageProject = (role: string) => role === "director";

@@ -62,7 +62,9 @@ export default function NewProjectPage() {
         status: "active", projectManagerId: assignedManagerId || null,
         projectManagerName: assignedManager?.name ?? null,
         siteEngineerId: assignedEngineerId || null, siteEngineerName: assignedEngineer?.name ?? null,
-        createdBy: user.uid, createdAt: serverTimestamp(),
+        // A dedicated assignment time makes the recipient's notification
+        // unambiguous, even if the project is edited later.
+        assignmentUpdatedAt: serverTimestamp(), createdBy: user.uid, createdAt: serverTimestamp(),
       });
 
       // Firestore queues this write in the device cache. Its promise waits for an

@@ -47,7 +47,10 @@ export default function UpdatesPage() {
     accessibleProjects.forEach((project) => {
       const base = { projectId: project.id, projectName: project.name };
       const isAssignedProject = (profile.role === "project_manager" && project.projectManagerId === user.uid) || (profile.role === "site_engineer" && project.siteEngineerId === user.uid);
-      if (isAssignedProject) items.push({ ...base, id: `project-${project.id}-${user.uid}`, kind: "project", title: "Project assigned to you", detail: `${project.location}, ${project.state}`, date: updateDate(project.createdAt), href: `/projects/${project.id}` });
+      if (isAssignedProject) {
+        const assignmentDate = updateDate(project.assignmentUpdatedAt) || updateDate(project.createdAt);
+        items.push({ ...base, id: `project-${project.id}-${user.uid}-${assignmentDate}`, kind: "project", title: "Project assigned to you", detail: `${project.location}, ${project.state}`, date: assignmentDate, href: `/projects/${project.id}` });
+      }
       (reportsByProject[project.id] ?? []).forEach((report) => items.push({ ...base, id: `report-${project.id}-${report.id}`, kind: "report", title: "Daily report submitted", detail: `${report.labourCount} people on site${report.issues.length ? ` · ${report.issues.length} issue${report.issues.length === 1 ? "" : "s"} logged` : ""}`, date: updateDate(report.createdAt) || report.reportDate, href: `/projects/${project.id}` }));
       (variationsByProject[project.id] ?? []).forEach((variation) => items.push({ ...base, id: `variation-${project.id}-${variation.id}`, kind: "variation", title: `Variation ${variation.status.replaceAll("_", " ")}`, detail: variation.description, date: updateDate(variation.approvedAt || variation.reviewedAt || variation.raisedAt), href: `/projects/${project.id}` }));
       if (canSeeValuations) (valuationsByProject[project.id] ?? []).forEach((valuation) => items.push({ ...base, id: `valuation-${project.id}-${valuation.id}`, kind: "valuation", title: `Valuation ${valuation.status}`, detail: valuation.certificateNumber, date: updateDate(valuation.createdAt) || valuation.valuationDate, href: `/projects/${project.id}` }));

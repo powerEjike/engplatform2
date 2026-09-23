@@ -48,6 +48,7 @@ export interface Project {
   projectManagerName?: string;
   siteEngineerId?: string;
   siteEngineerName?: string;
+  assignmentUpdatedAt?: string;
   createdBy: string;
   createdAt: string;
 }

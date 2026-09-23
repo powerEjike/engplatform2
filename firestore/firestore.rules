@@ -120,7 +120,12 @@ service cloud.firestore {
         allow create: if isMember(companyId)
           && request.resource.data.authorId == request.auth.uid
           && request.resource.data.authorName == get(userDoc(companyId)).data.name
-          && request.resource.data.authorRole == role(companyId);
+          && request.resource.data.authorRole == role(companyId)
+          && request.resource.data.keys().hasOnly(["authorId", "authorName", "authorRole", "message", "createdAt"])
+          && request.resource.data.message is string
+          && request.resource.data.message.size() > 0
+          && request.resource.data.message.size() <= 1000
+          && request.resource.data.createdAt == request.time;
       }
       // Security records are append-only and visible only to Directors.
       match /securityAudit/{auditId} {
@@ -129,7 +134,19 @@ service cloud.firestore {
           && request.resource.data.actorId == request.auth.uid
           && request.resource.data.actorName == get(userDoc(companyId)).data.name
           && request.resource.data.actorRole == "director"
-          && request.resource.data.keys().hasOnly(["actorId", "actorName", "actorRole", "action", "entityType", "entityId", "entityName", "before", "after", "createdAt"]);
+          && request.resource.data.keys().hasOnly(["actorId", "actorName", "actorRole", "action", "entityType", "entityId", "entityName", "before", "after", "createdAt"])
+          && request.resource.data.action is string
+          && request.resource.data.action.size() > 0
+          && request.resource.data.action.size() <= 80
+          && request.resource.data.entityType is string
+          && request.resource.data.entityType.size() <= 40
+          && request.resource.data.entityId is string
+          && request.resource.data.entityId.size() <= 128
+          && request.resource.data.entityName is string
+          && request.resource.data.entityName.size() <= 200
+          && request.resource.data.before is map
+          && request.resource.data.after is map
+          && request.resource.data.createdAt == request.time;
       }
     }
   }

@@ -30,6 +30,8 @@ requireText(storageRules, "request.resource.size < 15 * 1024 * 1024", "Storage u
 requireText(nextConfig, "X-Content-Type-Options", "MIME sniffing protection header must remain enabled");
 requireText(nextConfig, "Cross-Origin-Opener-Policy", "cross-origin opener isolation must remain enabled");
 requireText(nextConfig, "Strict-Transport-Security", "HTTPS transport protection header must remain enabled");
+requireText(nextConfig, "Content-Security-Policy", "Content Security Policy must remain enabled");
+requireText(nextConfig, "frame-ancestors 'none'", "the app must not be embedded by another site");
 
 requireText(inviteRoute, "readFirebaseIdentity", "invitation sender identity must be verified");
 requireText(inviteRoute, "isSameOriginRequest", "invitation endpoint must reject cross-site requests");

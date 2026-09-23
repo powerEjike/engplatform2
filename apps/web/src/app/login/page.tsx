@@ -106,6 +106,8 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       clearAttemptProtection();
+      window.sessionStorage.removeItem("buildcore:session-started-at");
+      window.sessionStorage.removeItem("buildcore:session-last-activity");
       router.push(nextPath());
     } catch (caughtError) {
       const code = typeof caughtError === "object" && caughtError !== null && "code" in caughtError

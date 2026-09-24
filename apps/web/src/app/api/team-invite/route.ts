@@ -3,6 +3,7 @@ import { isRateLimited, isSameOriginRequest } from "@/lib/request-security";
 
 const text = (value: unknown, limit: number) => typeof value === "string" ? value.trim().slice(0, limit) : "";
 const documentId = (value: string) => /^[A-Za-z0-9_-]{1,160}$/.test(value);
+const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 type FirestoreDocument = { fields?: Record<string, { stringValue?: string; booleanValue?: boolean; timestampValue?: string }> };
 type FirebaseIdentity = { users?: Array<{ localId?: string; emailVerified?: boolean }> };
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   const email = text(payload.email, 180).toLowerCase();
   const companyId = text(payload.companyId, 160);
   const inviteId = text(payload.inviteId, 160);
-  if (!email.includes("@") || !documentId(companyId) || !documentId(inviteId)) return NextResponse.json({ error: "The invitation details are incomplete." }, { status: 400 });
+  if (!validEmail(email) || !documentId(companyId) || !documentId(inviteId)) return NextResponse.json({ error: "The invitation details are incomplete." }, { status: 400 });
 
   const authorization = request.headers.get("authorization");
   const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";

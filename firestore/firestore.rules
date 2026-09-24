@@ -101,7 +101,15 @@ service cloud.firestore {
           allow create: if (canSubmitSiteUpdate(companyId, projectId) || isQs(companyId))
             && request.resource.data.actorId == request.auth.uid
             && request.resource.data.actorName == get(userDoc(companyId)).data.name
-            && request.resource.data.actorRole == role(companyId);
+            && request.resource.data.actorRole == role(companyId)
+            && request.resource.data.keys().hasOnly(["action", "summary", "actorId", "actorName", "actorRole", "createdAt"])
+            && request.resource.data.action is string
+            && request.resource.data.action.size() > 0
+            && request.resource.data.action.size() <= 80
+            && request.resource.data.summary is string
+            && request.resource.data.summary.size() > 0
+            && request.resource.data.summary.size() <= 1000
+            && request.resource.data.createdAt == request.time;
         }
         match /siteReports/{reportId} {
           allow read: if canAccessProject(companyId, projectId);

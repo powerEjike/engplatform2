@@ -23,6 +23,7 @@ requireText(firestoreRules, "allow create, update: if isVerifiedDirector(company
 requireText(firestoreRules, "request.resource.data.authorId == request.auth.uid", "message author identity must be enforced");
 requireText(firestoreRules, "request.resource.data.message.size() <= 1000", "chat message size must be limited");
 requireText(firestoreRules, "request.resource.data.createdAt == request.time", "chat messages must use a server timestamp");
+requireText(firestoreRules, "request.resource.data.summary.size() <= 1000", "activity summaries must be limited");
 requireText(firestoreRules, "match /securityAudit/{auditId}", "append-only security audit collection must exist");
 
 rejectText(storageRules, "allow read, write: if true", "Storage must never be open to everyone");

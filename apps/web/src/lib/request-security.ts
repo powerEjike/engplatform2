@@ -13,6 +13,13 @@ export function isSameOriginRequest(request: Request) {
   catch { return false; }
 }
 
+// Public forms only need a few short text fields. Refuse abnormally large
+// requests before parsing them, so they cannot be used to consume server time.
+export function hasAcceptableJsonSize(request: Request, maximumBytes = 16_384) {
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  return !Number.isFinite(contentLength) || contentLength <= maximumBytes;
+}
+
 // A lightweight first line of defence for public form endpoints. Hosting platforms
 // may run more than one instance, so this complements—not replaces—provider limits.
 export function isRateLimited(request: Request, scope: string, maxAttempts: number) {
@@ -27,4 +34,3 @@ export function isRateLimited(request: Request, scope: string, maxAttempts: numb
   current.count += 1;
   return false;
 }
-

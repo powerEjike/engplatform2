@@ -10,11 +10,12 @@ const rejectText = (source, unsafe, label) => {
   if (source.includes(unsafe)) throw new Error(`Security verification failed: ${label}.`);
 };
 
-const [firestoreRules, storageRules, nextConfig, inviteRoute] = await Promise.all([
+const [firestoreRules, storageRules, nextConfig, inviteRoute, demoRoute] = await Promise.all([
   read("firestore/firestore.rules"),
   read("storage/storage.rules"),
   read("apps/web/next.config.ts"),
   read("apps/web/src/app/api/team-invite/route.ts"),
+  read("apps/web/src/app/api/request-demo/route.ts"),
 ]);
 
 rejectText(firestoreRules, "allow read, write: if true", "Firestore must never be open to everyone");
@@ -39,5 +40,7 @@ requireText(nextConfig, "frame-ancestors 'none'", "the app must not be embedded 
 requireText(inviteRoute, "readFirebaseIdentity", "invitation sender identity must be verified");
 requireText(inviteRoute, "isSameOriginRequest", "invitation endpoint must reject cross-site requests");
 requireText(inviteRoute, "isRateLimited", "invitation endpoint must be rate limited");
+requireText(inviteRoute, "hasAcceptableJsonSize", "invitation endpoint must restrict request size");
+requireText(demoRoute, "hasAcceptableJsonSize", "demo endpoint must restrict request size");
 
 console.log("Security regression checks passed.");

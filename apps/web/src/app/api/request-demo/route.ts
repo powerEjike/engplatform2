@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isRateLimited, isSameOriginRequest } from "@/lib/request-security";
+import { hasAcceptableJsonSize, isRateLimited, isSameOriginRequest } from "@/lib/request-security";
 
 const text = (value: unknown, limit: number) => typeof value === "string" ? value.trim().slice(0, limit) : "";
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -8,6 +8,7 @@ const projectRanges = new Set(["1–3 projects", "4–10 projects", "11–25 pro
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: "This request must come from the BuildCore website." }, { status: 403 });
   if (!request.headers.get("content-type")?.includes("application/json")) return NextResponse.json({ error: "Invalid request format." }, { status: 415 });
+  if (!hasAcceptableJsonSize(request)) return NextResponse.json({ error: "This request is too large. Please keep your message brief and try again." }, { status: 413 });
   if (isRateLimited(request, "request-demo", 5)) return NextResponse.json({ error: "Too many demo requests from this connection. Please try again in 15 minutes." }, { status: 429 });
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "Demo requests are not configured yet. Please try again later." }, { status: 503 });
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
   let payload: Record<string, unknown>;
   try { payload = await request.json() as Record<string, unknown>; }
   catch { return NextResponse.json({ error: "The request details could not be read. Please try again." }, { status: 400 }); }
+  if (!Object.keys(payload).every((key) => ["name", "company", "email", "projects", "message"].includes(key))) return NextResponse.json({ error: "Invalid request fields." }, { status: 400 });
   const name = text(payload.name, 120);
   const company = text(payload.company, 160);
   const email = text(payload.email, 180);

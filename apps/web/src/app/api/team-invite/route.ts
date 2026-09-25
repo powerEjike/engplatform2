@@ -24,6 +24,7 @@ const fieldBoolean = (document: FirestoreDocument, field: string) => document.fi
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: "This request must come from the BuildCore website." }, { status: 403 });
+  if (!request.headers.get("content-type")?.includes("application/json")) return NextResponse.json({ error: "Invalid request format." }, { status: 415 });
   if (isRateLimited(request, "team-invite", 10)) return NextResponse.json({ error: "Too many invitations from this connection. Please wait 15 minutes before trying again." }, { status: 429 });
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "Email invitations are not configured yet." }, { status: 503 });

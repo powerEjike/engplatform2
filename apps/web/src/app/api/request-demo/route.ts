@@ -7,6 +7,7 @@ const projectRanges = new Set(["1–3 projects", "4–10 projects", "11–25 pro
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ error: "This request must come from the BuildCore website." }, { status: 403 });
+  if (!request.headers.get("content-type")?.includes("application/json")) return NextResponse.json({ error: "Invalid request format." }, { status: 415 });
   if (isRateLimited(request, "request-demo", 5)) return NextResponse.json({ error: "Too many demo requests from this connection. Please try again in 15 minutes." }, { status: 429 });
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "Demo requests are not configured yet. Please try again later." }, { status: 503 });

@@ -135,6 +135,7 @@ export default function LoginPage() {
       </section>
 
       <section className="login-panel" aria-labelledby="login-heading">
+        <Link className="login-home-link" href="/">← Back to BuildCore home</Link>
         <div>
           <p className="eyebrow">Welcome back</p>
           <h2 id="login-heading">Sign in to your workspace</h2>

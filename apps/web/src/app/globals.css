@@ -1568,3 +1568,12 @@ button:hover, .primary-action:hover { background: #12a890; }
 .sign-out { align-items: center; background: transparent; border: 1px solid var(--buildcore-border); border-radius: 999px; color: var(--buildcore-navy); display: inline-flex; font-size: .72rem; font-weight: 800; gap: 6px; padding: 8px 11px; text-decoration: none; }
 .sign-out svg { height: 15px; width: 15px; }
 .sign-out:hover { background: #f3f8f9; border-color: var(--buildcore-teal); color: var(--buildcore-navy); }
+
+/* Gentle navigation feedback. Browsers that support view transitions animate
+   the change between the public site, sign-in, and workspace automatically. */
+@view-transition { navigation: auto; }
+@keyframes buildcore-page-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.login-page, .public-home, .app-shell, .engineer-home, .project-workspace, .report-page { animation: buildcore-page-enter .28s ease-out both; }
+.login-home-link { align-items: center; color: var(--buildcore-navy); display: inline-flex; font-size: .78rem; font-weight: 800; gap: 6px; margin: 0 0 25px; text-decoration: none; }
+.login-home-link:hover { color: #0d8574; text-decoration: underline; text-underline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .login-page, .public-home, .app-shell, .engineer-home, .project-workspace, .report-page { animation: none; } }

@@ -1577,3 +1577,20 @@ button:hover, .primary-action:hover { background: #12a890; }
 .login-home-link { align-items: center; color: var(--buildcore-navy); display: inline-flex; font-size: .78rem; font-weight: 800; gap: 6px; margin: 0 0 25px; text-decoration: none; }
 .login-home-link:hover { color: #0d8574; text-decoration: underline; text-underline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { .login-page, .public-home, .app-shell, .engineer-home, .project-workspace, .report-page { animation: none; } }
+
+/* Project control uses navy as the dominant operational colour. Teal remains
+   the accent for the primary next step, so it is easy to find at a glance. */
+.project-workspace .project-tabs { background: #f5f8f9; border-color: var(--buildcore-border); padding: 12px; }
+.project-workspace .project-tabs button, .project-workspace .project-tabs a { background: var(--buildcore-navy); color: white; }
+.project-workspace .project-tabs button:hover, .project-workspace .project-tabs button:focus-visible, .project-workspace .project-tabs a:hover, .project-workspace .project-tabs a:focus-visible { background: var(--buildcore-teal); color: var(--buildcore-navy); }
+.project-workspace .project-title-row { align-items: flex-start; background: linear-gradient(125deg, var(--buildcore-navy), #0b4056); border-radius: 16px; color: white; margin-bottom: 18px; padding: clamp(22px, 3vw, 34px); }
+.project-workspace .project-title-row h1 { color: white; }
+.project-workspace .project-title-row p:last-child { color: #d4e5e9; }
+.project-workspace .project-title-row .eyebrow { color: var(--buildcore-teal); }
+.project-workspace .project-title-actions .primary-action { background: var(--buildcore-teal); color: var(--buildcore-navy); }
+.project-workspace .project-title-actions .primary-action:hover { background: #4cd9c5; }
+.project-workspace .project-title-actions .secondary, .project-workspace .project-title-actions .print-summary-button { background: transparent; border-color: #6f95a3; color: white; }
+.project-workspace .project-title-actions .secondary:hover, .project-workspace .project-title-actions .print-summary-button:hover { background: rgba(255, 255, 255, .12); border-color: white; }
+.project-workspace .project-title-actions .text-action { color: #d9f8f3; }
+.project-workspace .contract-summary { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .24); color: white; }
+.project-workspace .contract-summary strong { color: white; }

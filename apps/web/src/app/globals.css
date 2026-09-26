@@ -522,7 +522,7 @@ h2 { color: #123d29; font-size: 1.45rem; letter-spacing: -0.035em; margin-bottom
 
 /* BuildCore operational interface: clear, dense, and practical for site teams. */
 :root {
-  --bc-navy: #0f172a;
+  --bc-navy: #030a3d;
   --bc-slate: #334155;
   --bc-orange: #f46a27;
   --bc-amber: #f59e0b;
@@ -1520,7 +1520,7 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 /* BuildCore dashboard palette: navy for structure, teal for action, slate for calm surfaces.
    Red and amber remain reserved for error and warning states only. */
 :root {
-  --buildcore-navy: #062b3b;
+  --buildcore-navy: #030a3d;
   --buildcore-teal: #18bfa5;
   --buildcore-slate: #eaf0f2;
   --buildcore-border: #cbd9de;
@@ -1582,8 +1582,8 @@ button:hover, .primary-action:hover { background: #12a890; }
    the accent for the primary next step, so it is easy to find at a glance. */
 .project-workspace .project-tabs { background: #f5f8f9; border-color: var(--buildcore-border); padding: 12px; }
 .project-workspace .project-tabs button, .project-workspace .project-tabs a { background: var(--buildcore-navy) !important; color: white !important; }
-.project-workspace .project-tabs button:hover, .project-workspace .project-tabs button:focus-visible, .project-workspace .project-tabs a:hover, .project-workspace .project-tabs a:focus-visible { background: #0b4056 !important; color: white !important; }
-.project-workspace .project-title-row { align-items: flex-start; background: linear-gradient(125deg, var(--buildcore-navy), #0b4056); border-radius: 16px; color: white; margin-bottom: 18px; padding: clamp(22px, 3vw, 34px); }
+.project-workspace .project-tabs button:hover, .project-workspace .project-tabs button:focus-visible, .project-workspace .project-tabs a:hover, .project-workspace .project-tabs a:focus-visible { background: #111b58 !important; color: white !important; }
+.project-workspace .project-title-row { align-items: flex-start; background: linear-gradient(125deg, var(--buildcore-navy), #0a1652); border-radius: 16px; color: white; margin-bottom: 18px; padding: clamp(22px, 3vw, 34px); }
 .project-workspace .project-title-row h1 { color: white; }
 .project-workspace .project-title-row p:last-child { color: #d4e5e9; }
 .project-workspace .project-title-row .eyebrow { color: var(--buildcore-teal); }

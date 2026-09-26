@@ -86,9 +86,17 @@ service cloud.firestore {
         // PMs and Site Engineers can list only projects assigned to them.
         // Nested project records retain the project-ID access check below.
         allow read: if canReadProjectListItem(companyId);
-        // Contract details, programme settings, and team allocation are Director-controlled.
-        // Project Managers retain access to their assigned project's delivery tools below.
-        allow create, update: if isVerifiedDirector(companyId);
+        // Directors control commercial details. An assigned PM may allocate a
+        // Site Engineer for their own project, but cannot change the contract
+        // or replace the Project Manager.
+        allow create: if isVerifiedDirector(companyId);
+        allow update: if isVerifiedDirector(companyId)
+          || (isAssignedProjectManager(companyId, projectId)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["siteEngineerId", "siteEngineerName", "assignmentUpdatedAt"])
+            && request.resource.data.siteEngineerId is string
+            && request.resource.data.siteEngineerName is string
+            && get(/databases/$(database)/documents/companies/$(companyId)/users/$(request.resource.data.siteEngineerId)).data.role == "site_engineer"
+            && get(/databases/$(database)/documents/companies/$(companyId)/users/$(request.resource.data.siteEngineerId)).data.active == true);
         match /boqItems/{itemId} {
           allow read: if canAccessProject(companyId, projectId);
           allow create: if isVerifiedDirector(companyId) || isQs(companyId);
@@ -114,6 +122,13 @@ service cloud.firestore {
         match /siteReports/{reportId} {
           allow read: if canAccessProject(companyId, projectId);
           allow create: if canSubmitSiteUpdate(companyId, projectId) && request.resource.data.submittedBy == request.auth.uid;
+          allow update: if (isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["reviewStatus", "reviewedBy", "reviewedAt", "reviewReason"])
+            && request.resource.data.reviewStatus in ["reviewed", "queried", "accepted"]
+            && request.resource.data.reviewedBy == request.auth.uid
+            && request.resource.data.reviewedAt == request.time
+            && request.resource.data.reviewReason is string
+            && request.resource.data.reviewReason.size() <= 1000;
           match /comments/{commentId} {
             allow read: if canAccessProject(companyId, projectId);
             allow create: if (isVerifiedDirector(companyId) || isQs(companyId) || isAssignedProjectManager(companyId, projectId)) && request.resource.data.authorId == request.auth.uid;
@@ -121,7 +136,30 @@ service cloud.firestore {
         }
         match /milestones/{milestoneId} { allow read: if canAccessProject(companyId, projectId); allow create, update, delete: if isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId); }
         match /variations/{variationId} { allow read: if canAccessProject(companyId, projectId); allow create: if (isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId); }
-        match /valuations/{valuationId} { allow read: if canAccessProject(companyId, projectId); allow create, update: if isQs(companyId) || isVerifiedDirector(companyId); }
+        match /valuations/{valuationId} {
+          allow read: if canAccessProject(companyId, projectId);
+          allow create: if isQs(companyId) || isVerifiedDirector(companyId);
+          allow update: if isQs(companyId) || isVerifiedDirector(companyId)
+            || (isAssignedProjectManager(companyId, projectId)
+              && resource.data.status == "pending_project_manager_review"
+              && request.resource.data.status == "pending_director_approval"
+              && request.resource.data.recommendedBy == request.auth.uid
+              && request.resource.data.recommendedAt == request.time
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "recommendedBy", "recommendedAt"]));
+        }
+        match /projectActions/{actionId} {
+          allow read: if canAccessProject(companyId, projectId);
+          allow create: if (isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId))
+            && request.resource.data.createdBy == request.auth.uid
+            && request.resource.data.createdAt == request.time;
+          allow update: if isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId)
+            || (canAccessProject(companyId, projectId)
+              && resource.data.assignedTo == request.auth.uid
+              && resource.data.status == "open"
+              && request.resource.data.status == "complete"
+              && request.resource.data.completedAt == request.time
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "completedAt"]));
+        }
       }
       match /messages/{messageId} {
         allow read: if isMember(companyId);

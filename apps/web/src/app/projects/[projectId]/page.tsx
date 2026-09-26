@@ -4,7 +4,7 @@ import Link from "next/link";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import type { BoqItem, ProjectActivityEvent, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
+import type { BoqItem, ProjectAction, ProjectActivityEvent, SiteReport, Valuation, Variation } from "@engplatform2/shared-types";
 import { useAuth } from "@/components/auth-provider";
 import { db } from "@/lib/firebase";
 import { formatNaira } from "@/lib/dashboard-data";
@@ -81,6 +81,7 @@ export default function ProjectWorkspacePage() {
   const [reportComments, setReportComments] = useState<Record<string, ReportComment[]>>({});
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [activity, setActivity] = useState<ProjectActivityEvent[]>([]);
+  const [actions, setActions] = useState<ProjectAction[]>([]);
   const [form, setForm] = useState<BoqForm>(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -101,6 +102,10 @@ export default function ProjectWorkspacePage() {
     return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "boqItems"), orderBy("itemNumber")), (snapshot) => {
       setItems(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as BoqItem));
     });
+  }, [profile, projectId]);
+  useEffect(() => {
+    if (!profile || !projectId) return;
+    return onSnapshot(query(collection(db, "companies", profile.companyId, "projects", projectId, "projectActions"), orderBy("createdAt", "desc")), (snapshot) => setActions(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as ProjectAction)));
   }, [profile, projectId]);
   useEffect(() => {
     if (!profile || reports.length === 0) return;
@@ -163,6 +168,58 @@ export default function ProjectWorkspacePage() {
       await batch.commit();
       setCommentText((current) => ({ ...current, [report.id]: "" }));
     } catch { setError("We could not save this report comment. Publish the latest Firestore rules, then try again."); }
+  };
+  const reviewReport = async (report: SiteReport, reviewStatus: "reviewed" | "queried" | "accepted") => {
+    if (!profile || !user) return;
+    const reviewReason = reviewStatus === "queried" ? window.prompt("What needs to be clarified or corrected?")?.trim() : "";
+    if (reviewStatus === "queried" && !reviewReason) return;
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "siteReports", report.id), { reviewStatus, reviewedBy: user.uid, reviewedAt: serverTimestamp(), reviewReason });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("report_reviewed", `${profile.name} ${reviewStatus} the daily report for ${report.reportDate}.`));
+      await batch.commit();
+    } catch { setError("We could not save the report decision. Publish the latest Firestore rules, then try again."); }
+  };
+  const createAction = async () => {
+    if (!profile || !user) return;
+    const title = window.prompt("What follow-up action is required?")?.trim();
+    if (!title) return;
+    const eligibleUsers = companyUsers.filter((member) => member.active && member.id !== user.uid);
+    const choices = eligibleUsers.map((member, index) => `${index + 1}. ${member.name} (${member.role.replaceAll("_", " ")})`).join("\n");
+    const selected = Number(window.prompt(`Assign this action to:\n${choices}`));
+    const assignee = eligibleUsers[selected - 1];
+    if (!assignee) return setError("Choose a team member from the numbered list.");
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "projectActions")), { projectId, title, assignedTo: assignee.id, assignedToName: assignee.name, status: "open", createdBy: user.uid, createdByName: profile.name, createdAt: serverTimestamp() });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("action_assigned", `${profile.name} assigned an action to ${assignee.name}: ${title}.`));
+      await batch.commit();
+    } catch { setError("We could not create this follow-up action. Publish the latest Firestore rules, then try again."); }
+  };
+  const completeAction = async (action: ProjectAction) => {
+    if (!profile || !user || action.assignedTo !== user.uid) return;
+    try { await updateDoc(doc(db, "companies", profile.companyId, "projects", projectId, "projectActions", action.id), { status: "complete", completedAt: serverTimestamp() }); }
+    catch { setError("We could not mark this action complete. Please try again."); }
+  };
+  const recommendValuation = async (valuation: Valuation) => {
+    if (!profile || !user) return;
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "valuations", valuation.id), { status: "pending_director_approval", recommendedBy: user.uid, recommendedAt: serverTimestamp() });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData("valuation_recommended", `${profile.name} recommended valuation ${valuation.certificateNumber} for Director approval.`));
+      await batch.commit();
+    } catch { setError("We could not recommend this valuation. Publish the latest Firestore rules, then try again."); }
+  };
+  const decideValuation = async (valuation: Valuation, approved: boolean) => {
+    if (!profile || !user) return;
+    const rejectionReason = approved ? "" : window.prompt("Why is this valuation being rejected?")?.trim();
+    if (!approved && !rejectionReason) return;
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "companies", profile.companyId, "projects", projectId, "valuations", valuation.id), approved ? { status: "approved", approvedBy: user.uid, approvedAt: serverTimestamp() } : { status: "rejected", approvedBy: user.uid, approvedAt: serverTimestamp(), rejectionReason });
+      batch.set(doc(collection(db, "companies", profile.companyId, "projects", projectId, "activityLog")), activityData(approved ? "valuation_approved" : "valuation_rejected", `Valuation ${valuation.certificateNumber} was ${approved ? "approved" : "rejected"}.`));
+      await batch.commit();
+    } catch { setError("We could not save the valuation decision. Publish the latest Firestore rules, then try again."); }
   };
   const downloadBoq = () => {
     const quote = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
@@ -266,17 +323,19 @@ export default function ProjectWorkspacePage() {
     <section className="report-register">
       <div className="boq-header"><div><p className="eyebrow">Site activity</p><h2>Daily reports</h2></div>{canSubmitReport(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/reports/new`}>Add report</Link>}</div>
       {reports.length === 0 ? <p className="boq-empty">No daily reports have been submitted for this project.</p> : <div className="report-history">{reports.map((report) => <article className="report-history-row" key={report.id}>
-        <div><span className="report-history-date">{new Date(`${report.reportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span><h3>{report.lineItems.length} BOQ item{report.lineItems.length === 1 ? "" : "s"} updated</h3><p className="report-submitter">Submitted by <strong>{teamMemberName(report.submittedBy)}</strong></p></div>
+        <div><span className="report-history-date">{new Date(`${report.reportDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span><h3>{report.lineItems.length} BOQ item{report.lineItems.length === 1 ? "" : "s"} updated</h3><p className="report-submitter">Submitted by <strong>{teamMemberName(report.submittedBy)}</strong></p><p className="field-hint">Review: <strong>{(report.reviewStatus ?? "submitted").replaceAll("_", " ")}</strong>{report.reviewReason ? ` · ${report.reviewReason}` : ""}</p></div>
         <p><span>Labour</span><strong>{report.labourCount}</strong></p><p><span>Issues</span><strong>{report.issues.length}</strong></p>
         <p className="report-history-note">{report.equipmentOnSite.length > 0 && <><b>Equipment</b> · {report.equipmentOnSite.join(", ")}<br /></>}{report.issues[0] ? <><b>{report.issues[0].category.replaceAll("_", " ")}</b> · {report.issues[0].note}</> : report.equipmentOnSite.length === 0 ? "No issues or equipment recorded" : "No issues recorded"}</p>
         <div className="report-comments">
           {(reportComments[report.id] ?? []).filter((comment) => comment.authorId === user?.uid || report.submittedBy === user?.uid || comment.recipientIds?.includes(user?.uid ?? "")).map((comment) => <p key={comment.id}><strong>{comment.authorName}:</strong> {comment.message}</p>)}
           {canCommentOnReport && <div><p className="field-hint">Your comment will be sent directly to the person who submitted this report.</p><textarea value={commentText[report.id] ?? ""} onChange={(event) => setCommentText((current) => ({ ...current, [report.id]: event.target.value }))} placeholder="Write a comment for the report sender…" /><button type="button" onClick={() => void addReportComment(report)} disabled={!commentText[report.id]?.trim()}>Send comment</button></div>}
+          {(profile.role === "director" || (profile.role === "project_manager" && project.projectManagerId === user.uid)) && <div className="draft-actions"><button type="button" className="outline-button" onClick={() => void reviewReport(report, "reviewed")}>Mark reviewed</button><button type="button" className="outline-button" onClick={() => void reviewReport(report, "queried")}>Query report</button><button type="button" onClick={() => void reviewReport(report, "accepted")}>Accept report</button></div>}
         </div>
       </article>)}</div>}
     </section>
+    <section className="report-register"><div className="boq-header"><div><p className="eyebrow">Delivery actions</p><h2>Follow-up actions</h2></div>{(profile.role === "director" || (profile.role === "project_manager" && project.projectManagerId === user.uid)) && <button type="button" className="secondary compact-action" onClick={() => void createAction()}>Assign action</button>}</div>{actions.length === 0 ? <p className="boq-empty">No follow-up actions have been assigned yet.</p> : <div className="report-history">{actions.map((action) => <article className="report-history-row" key={action.id}><div><span className="report-history-date">{action.status}</span><h3>{action.title}</h3><p className="report-submitter">Assigned to <strong>{action.assignedToName}</strong> by {action.createdByName}</p></div>{action.assignedTo === user.uid && action.status === "open" && <button type="button" onClick={() => void completeAction(action)}>Mark complete</button>}</article>)}</div>}</section>
     <section className="variation-register"><div className="boq-header"><div><p className="eyebrow">Change control</p><h2>Variation register</h2></div><p className="boq-total">Open exposure<strong>{formatNaira(variationExposure)}</strong></p></div>{variations.length === 0 ? <p className="boq-empty">No variations have been raised for this project.</p> : <div className="variation-list">{variations.map((variation) => <article className="variation-row" key={variation.id}><div><span className={`variation-status ${variation.status}`}>{variation.status.replaceAll("_", " ")}</span><h3>{variation.description}</h3><p>{variation.reason}</p><div className="approval-history"><span>Raised {approvalDate(variation.raisedAt)}</span>{variation.reviewedAt && <span>Reviewed by {teamMemberName(variation.reviewedBy)} · {approvalDate(variation.reviewedAt)}</span>}{variation.approvedAt && <span>{variation.status === "approved" ? "Approved" : "Rejected"} by {teamMemberName(variation.approvedBy)} · {approvalDate(variation.approvedAt)}</span>}</div></div><div className="variation-actions"><strong>{formatNaira(variation.estimatedValue)}</strong>{variation.status === "pending_qs_review" && canReviewVariation(profile.role) && <div><button type="button" onClick={() => void forwardVariation(variation)}>{profile.role === "quantity_surveyor" ? "Complete QS review" : "Recommend to Director"}</button></div>}{variation.status === "pending_director_approval" && canFinalApproveVariation(profile.role) && <div><button type="button" onClick={() => void updateVariation(variation, true)}>Approve</button><button className="reject-button" type="button" onClick={() => void updateVariation(variation, false)}>Reject</button></div>}</div></article>)}</div>}</section>
-    <section className="valuation-register"><div className="boq-header"><div><p className="eyebrow">Payment certificates</p><h2>Valuation register</h2></div>{canGenerateValuation(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/valuations/new`}>Create valuation</Link>}</div>{valuations.length === 0 ? <p className="boq-empty">No payment certificates have been issued for this project.</p> : <div className="valuation-list">{valuations.map((valuation) => <article className="valuation-row" key={valuation.id}><div><span className="valuation-certificate">{valuation.certificateNumber}</span><h3>{new Date(`${valuation.valuationDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</h3></div><p><span>Gross value</span><strong>{formatNaira(valuation.grossValue)}</strong></p><p><span>Retention</span><strong>{formatNaira(valuation.retentionAmount)}</strong></p><p className="valuation-due"><span>Net due</span><strong>{formatNaira(valuation.netAmountDue)}</strong></p></article>)}</div>}</section>
+    <section className="valuation-register"><div className="boq-header"><div><p className="eyebrow">Payment certificates</p><h2>Valuation register</h2></div>{canGenerateValuation(profile.role) && <Link className="secondary compact-action" href={`/projects/${projectId}/valuations/new`}>Create valuation</Link>}</div>{valuations.length === 0 ? <p className="boq-empty">No payment certificates have been prepared yet.</p> : <div className="valuation-list">{valuations.map((valuation) => <article className="valuation-row" key={valuation.id}><div><span className="valuation-certificate">{valuation.certificateNumber}</span><h3>{new Date(`${valuation.valuationDate}T00:00:00`).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</h3><p className="field-hint">{valuation.status.replaceAll("_", " ")}{valuation.rejectionReason ? ` · ${valuation.rejectionReason}` : ""}</p></div><p><span>Gross value</span><strong>{formatNaira(valuation.grossValue)}</strong></p><p><span>Retention</span><strong>{formatNaira(valuation.retentionAmount)}</strong></p><p className="valuation-due"><span>Net due</span><strong>{formatNaira(valuation.netAmountDue)}</strong></p>{profile.role === "project_manager" && project.projectManagerId === user.uid && valuation.status === "pending_project_manager_review" && <button type="button" onClick={() => void recommendValuation(valuation)}>Recommend to Director</button>}{profile.role === "director" && valuation.status === "pending_director_approval" && <div className="draft-actions"><button type="button" onClick={() => void decideValuation(valuation, true)}>Approve</button><button type="button" className="reject-button" onClick={() => void decideValuation(valuation, false)}>Reject</button></div>}</article>)}</div>}</section>
     <section className="audit-register"><div className="boq-header"><div><p className="eyebrow">Audit history</p><h2>Project activity</h2></div></div>{activity.length === 0 ? <p className="boq-empty">BOQ work, reports, variations, and valuations will be recorded here.</p> : <div className="audit-list">{activity.slice(0, 12).map((event) => <article className="audit-row" key={event.id}><div><strong>{event.summary}</strong><p>{event.actorName}</p></div><time>{approvalDate(event.createdAt)}</time></article>)}</div>}</section>
   <nav className="project-mobile-actions no-print" aria-label="Project quick actions">{canRaiseVariation(profile.role) ? <Link href={`/projects/${projectId}/variations/new`}>Variation</Link> : <button type="button" onClick={() => document.querySelector(".variation-register")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Variations</button>}<button type="button" onClick={() => document.querySelector(".boq-layout")?.scrollIntoView({ behavior: "smooth", block: "start" })}>BOQ</button>{canSubmitReport(profile.role) ? <Link href={`/projects/${projectId}/reports/new`}>Report</Link> : <button type="button" onClick={() => document.querySelector(".report-register")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Reports</button>}<Link href="/chat">Chat</Link></nav>
   </div></main>;

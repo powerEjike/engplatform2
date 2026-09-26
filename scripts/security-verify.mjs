@@ -20,7 +20,8 @@ const [firestoreRules, storageRules, nextConfig, inviteRoute, demoRoute] = await
 
 rejectText(firestoreRules, "allow read, write: if true", "Firestore must never be open to everyone");
 requireText(firestoreRules, "function isVerifiedDirector", "verified Director guard must exist");
-requireText(firestoreRules, "allow create, update: if isVerifiedDirector(companyId);", "project changes must remain Director-controlled");
+requireText(firestoreRules, "allow create: if isVerifiedDirector(companyId);", "project creation must remain Director-controlled");
+requireText(firestoreRules, "affectedKeys().hasOnly([\"siteEngineerId\", \"siteEngineerName\", \"assignmentUpdatedAt\"])", "Project Managers must only be able to change their project's Site Engineer allocation");
 requireText(firestoreRules, "request.resource.data.authorId == request.auth.uid", "message author identity must be enforced");
 requireText(firestoreRules, "request.resource.data.message.size() <= 1000", "chat message size must be limited");
 requireText(firestoreRules, "request.resource.data.createdAt == request.time", "chat messages must use a server timestamp");

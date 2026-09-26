@@ -90,7 +90,7 @@ export interface BoqUploadEvent {
 
 export interface ProjectActivityEvent {
   id: string;
-  action: "boq_uploaded" | "boq_created" | "boq_edited" | "boq_removed" | "boq_cleared" | "report_submitted" | "report_commented" | "variation_raised" | "variation_reviewed" | "variation_approved" | "variation_rejected" | "valuation_issued";
+  action: "boq_uploaded" | "boq_created" | "boq_edited" | "boq_removed" | "boq_cleared" | "report_submitted" | "report_commented" | "report_reviewed" | "action_assigned" | "variation_raised" | "variation_reviewed" | "variation_approved" | "variation_rejected" | "valuation_issued" | "valuation_created" | "valuation_recommended" | "valuation_approved" | "valuation_rejected";
   summary: string;
   actorName: string;
   createdAt: string;
@@ -122,6 +122,10 @@ export interface SiteReport {
   clientGeneratedId: string;
   createdAt: string;
   syncedAt?: string;
+  reviewStatus?: "submitted" | "reviewed" | "queried" | "accepted";
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewReason?: string;
 }
 
 export interface Variation {
@@ -155,9 +159,28 @@ export interface Valuation {
   retentionRate: number;
   retentionAmount: number;
   netAmountDue: number;
-  status: "draft" | "issued";
+  status: "draft" | "issued" | "pending_project_manager_review" | "pending_director_approval" | "approved" | "rejected";
   createdBy: string;
   createdAt: string;
+  recommendedBy?: string;
+  recommendedAt?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
+}
+
+export interface ProjectAction {
+  id: string;
+  projectId: string;
+  title: string;
+  detail?: string;
+  assignedTo: string;
+  assignedToName: string;
+  status: "open" | "complete";
+  createdBy: string;
+  createdByName: string;
+  createdAt: string;
+  completedAt?: string;
 }
 
 export interface ValidationIssue {

@@ -1587,8 +1587,8 @@ button:hover, .primary-action:hover { background: #12a890; }
 .project-workspace .project-title-row h1 { color: white; }
 .project-workspace .project-title-row p:last-child { color: #d4e5e9; }
 .project-workspace .project-title-row .eyebrow { color: var(--buildcore-teal); }
-.project-workspace .project-title-actions .primary-action, .project-workspace .project-title-actions .secondary, .project-workspace .project-title-actions .print-summary-button, .project-workspace .project-title-actions .text-action { background: #bfe9e3; border: 1px solid #78ccc0; border-radius: 9px; color: var(--buildcore-navy); text-decoration: none; }
-.project-workspace .project-title-actions .primary-action:hover, .project-workspace .project-title-actions .secondary:hover, .project-workspace .project-title-actions .print-summary-button:hover, .project-workspace .project-title-actions .text-action:hover { background: #d9f5f0; border-color: #bfe9e3; color: var(--buildcore-navy); }
+.project-workspace .project-title-actions .primary-action, .project-workspace .project-title-actions .secondary, .project-workspace .project-title-actions .print-summary-button, .project-workspace .project-title-actions .text-action { background: white; border: 1px solid #d5e0e5; border-radius: 9px; color: var(--buildcore-navy); text-decoration: none; }
+.project-workspace .project-title-actions .primary-action:hover, .project-workspace .project-title-actions .secondary:hover, .project-workspace .project-title-actions .print-summary-button:hover, .project-workspace .project-title-actions .text-action:hover { background: #f2f7f8; border-color: white; color: var(--buildcore-navy); }
 .project-workspace .project-title-actions .text-action { padding: 10px 12px; }
 .project-workspace .contract-summary { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .24); color: white; }
 .project-workspace .contract-summary strong { color: white; }

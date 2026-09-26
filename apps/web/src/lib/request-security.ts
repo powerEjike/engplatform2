@@ -1,9 +1,24 @@
 const windowMs = 15 * 60 * 1000;
+const maximumRateLimitRecords = 5_000;
 const attempts = new Map<string, { count: number; startedAt: number }>();
 
-const clientAddress = (request: Request) => request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+const clientAddress = (request: Request) => request.headers.get("x-forwarded-for")?.split(",")[0]?.trim().slice(0, 120)
   ?? request.headers.get("x-real-ip")
   ?? "unknown";
+
+function trimRateLimitRecords(now: number) {
+  if (attempts.size < maximumRateLimitRecords) return;
+  for (const [key, attempt] of attempts) {
+    if (now - attempt.startedAt > windowMs) attempts.delete(key);
+  }
+  // A flood of unique addresses should not make a server instance retain an
+  // unbounded number of records. Removing the oldest remaining record keeps
+  // the lightweight limiter safe while provider-level protections remain on.
+  if (attempts.size >= maximumRateLimitRecords) {
+    const oldestKey = attempts.keys().next().value;
+    if (oldestKey) attempts.delete(oldestKey);
+  }
+}
 
 export function isSameOriginRequest(request: Request) {
   const origin = request.headers.get("origin");
@@ -27,6 +42,7 @@ export function isRateLimited(request: Request, scope: string, maxAttempts: numb
   const now = Date.now();
   const current = attempts.get(key);
   if (!current || now - current.startedAt > windowMs) {
+    trimRateLimitRecords(now);
     attempts.set(key, { count: 1, startedAt: now });
     return false;
   }

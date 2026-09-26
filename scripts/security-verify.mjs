@@ -42,5 +42,7 @@ requireText(inviteRoute, "isSameOriginRequest", "invitation endpoint must reject
 requireText(inviteRoute, "isRateLimited", "invitation endpoint must be rate limited");
 requireText(inviteRoute, "hasAcceptableJsonSize", "invitation endpoint must restrict request size");
 requireText(demoRoute, "hasAcceptableJsonSize", "demo endpoint must restrict request size");
+const requestSecurity = await read("apps/web/src/lib/request-security.ts");
+requireText(requestSecurity, "maximumRateLimitRecords", "public rate limiting must cap retained records");
 
 console.log("Security regression checks passed.");

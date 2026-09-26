@@ -1559,3 +1559,6 @@ button:hover, .primary-action:hover { background: #12a890; }
 
 /* Colour is retained only where it communicates status rather than decoration. */
 .form-success, .status.on_track, .project-status.active, .boq-readiness.ready, .delivery-status.on-track { background: #dff6f2; color: #075f52; }
+.dashboard-notifications { align-items: center; border-color: var(--buildcore-border); box-shadow: 0 2px 8px rgba(6, 43, 59, .06); gap: 8px; padding: 8px 12px; }
+.dashboard-notifications .notification-bell { color: var(--buildcore-teal); height: 18px; stroke-width: 2; width: 18px; }
+.dashboard-notifications em { background: #e53e3e; border-color: white; box-shadow: 0 0 0 2px var(--buildcore-slate); }

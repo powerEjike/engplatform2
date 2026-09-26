@@ -1516,3 +1516,46 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .public-home-footer { align-items: center; border-top: 1px solid rgba(148, 163, 184, .18); color: #94a3b8; display: flex; font-size: .78rem; gap: 20px; justify-content: space-between; margin: 0 auto; max-width: 1440px; padding: 24px clamp(20px, 5vw, 76px) 30px; }.public-home-footer > div { display: flex; gap: 22px; }.public-home-footer span { color: #cbd5e1; font-weight: 700; }.public-home-footer p { margin: 0; }
 @media (max-width: 900px) { .public-impact-strip { grid-template-columns: repeat(2, 1fr); }.public-impact-strip article:nth-child(2) { border-right: 0; }.public-capability-grid { grid-template-columns: repeat(2, 1fr); }.public-final-cta { align-items: flex-start; flex-direction: column; } }
 @media (max-width: 560px) { .public-home-header { position: relative; }.public-hero { min-height: 0; }.public-hero-visual { height: 430px; }.public-visual-summary > div { gap: 5px; }.public-visual-summary b { font-size: .9rem; }.public-visual-card-main { top: 175px; }.public-visual-card-report { top: 261px; }.public-visual-schedule { bottom: 25px; right: 5%; width: 33%; }.public-impact-strip { grid-template-columns: 1fr; }.public-impact-strip article { border-bottom: 1px solid rgba(148, 163, 184, .18); border-right: 0; min-height: 0; }.public-capability-grid { grid-template-columns: 1fr; }.public-final-cta { padding: 64px 20px; }.public-home-footer { align-items: flex-start; flex-direction: column; gap: 13px; padding: 22px 20px 28px; }.public-home-footer > div { gap: 18px; } }
+
+/* BuildCore dashboard palette: navy for structure, teal for action, slate for calm surfaces.
+   Red and amber remain reserved for error and warning states only. */
+:root {
+  --buildcore-navy: #062b3b;
+  --buildcore-teal: #18bfa5;
+  --buildcore-slate: #eaf0f2;
+  --buildcore-border: #cbd9de;
+  --buildcore-muted: #45616c;
+}
+
+body { background: var(--buildcore-slate); color: var(--buildcore-navy); }
+h1, h2, h3 { color: var(--buildcore-navy); }
+.app-shell main, .engineer-home, .project-workspace, .report-page, .onboarding-page { background: var(--buildcore-slate); }
+
+.sidebar, .mobile-menu-panel, .mobile-menu-toggle { background: var(--buildcore-navy); }
+.nav-link:hover, .nav-link.active, .mobile-menu-links a:hover, .mobile-menu-user { background: #0b4056; }
+.brand-word > span, .mobile-menu-header .brand-word > span, .eyebrow, .boq-item-number, .engineer-project-card span { color: var(--buildcore-teal); }
+.sidebar-footer { border-color: #285467; }
+
+button, .primary-action { background: var(--buildcore-teal); color: var(--buildcore-navy); }
+button:hover, .primary-action:hover { background: #12a890; }
+.secondary, .outline-button, .edit-boq-button, .download-boq-button, .print-summary-button { background: white; border-color: var(--buildcore-teal); color: var(--buildcore-navy); }
+.secondary:hover, .outline-button:hover, .edit-boq-button:hover, .download-boq-button:hover, .print-summary-button:hover { background: #e2f8f4; }
+
+.role-banner, .quick-actions, .metric-card, .project-table, .team-list, .variation-queue-list, .variation-portfolio-list, .valuation-portfolio-table, .reports-portfolio-list, .updates-list, .issues-list, .report-card, .boq-card, .delivery-snapshot, .site-assignment, .project-command-bar, .engineer-project-card, .engineer-milestones, .onboarding-card { border-color: var(--buildcore-border); }
+.role-banner, .guided-empty-state, .attention-card, .boq-upload-notice, .contract-summary, .variation-value { background: #f7fbfc; border-color: var(--buildcore-border); }
+.quick-actions a, .avatar, .team-member-avatar { background: #dff6f2; color: var(--buildcore-navy); }
+.quick-actions a:hover, .dashboard-notifications:hover { background: #c9eee8; }
+.dashboard-notifications, .state-filter select, .state-filter input { border-color: var(--buildcore-border); color: var(--buildcore-navy); }
+.project-tabs { background: rgba(234, 240, 242, .96); border-color: var(--buildcore-border); }
+.project-tabs button, .project-tabs a, .back-link, .text-action { color: var(--buildcore-navy); }
+.project-tabs button:hover, .project-tabs button:focus-visible, .project-tabs a:hover, .project-tabs a:focus-visible { background: #dff6f2; color: var(--buildcore-navy); }
+.progress-track, .delivery-track { background: #d9e5e9; }
+.progress-track span, .delivery-track span, .delivery-timeline em { background: var(--buildcore-teal); }
+.delivery-track.expected span, .delivery-timeline b { background: var(--buildcore-navy); }
+.project-command-bar { background: linear-gradient(120deg, #fff, #f4fafb); }
+.project-command-metrics > div { border-color: var(--buildcore-border); }
+.contract-summary { color: var(--buildcore-navy); }
+.field-hint, .report-intro, .project-title-row p:last-child, .boq-card > p, .boq-empty, .empty-state { color: var(--buildcore-muted); }
+
+/* Colour is retained only where it communicates status rather than decoration. */
+.form-success, .status.on_track, .project-status.active, .boq-readiness.ready, .delivery-status.on-track { background: #dff6f2; color: #075f52; }

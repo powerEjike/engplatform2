@@ -1562,3 +1562,9 @@ button:hover, .primary-action:hover { background: #12a890; }
 .dashboard-notifications { align-items: center; border-color: var(--buildcore-border); box-shadow: 0 2px 8px rgba(6, 43, 59, .06); gap: 8px; padding: 8px 12px; }
 .dashboard-notifications .notification-bell { color: var(--buildcore-teal); height: 18px; stroke-width: 2; width: 18px; }
 .dashboard-notifications em { background: #e53e3e; border-color: white; box-shadow: 0 0 0 2px var(--buildcore-slate); }
+.profile { gap: 10px; }
+.role-label { align-items: center; background: #e1f4f1; border: 1px solid #bde8e0; border-radius: 999px; color: var(--buildcore-navy); display: inline-flex; font-size: .72rem; font-weight: 800; gap: 6px; padding: 8px 11px; text-transform: capitalize; }
+.role-label i { background: var(--buildcore-teal); border-radius: 50%; height: 6px; width: 6px; }
+.sign-out { align-items: center; background: transparent; border: 1px solid var(--buildcore-border); border-radius: 999px; color: var(--buildcore-navy); display: inline-flex; font-size: .72rem; font-weight: 800; gap: 6px; padding: 8px 11px; text-decoration: none; }
+.sign-out svg { height: 15px; width: 15px; }
+.sign-out:hover { background: #f3f8f9; border-color: var(--buildcore-teal); color: var(--buildcore-navy); }

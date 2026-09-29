@@ -100,7 +100,15 @@ service cloud.firestore {
         match /boqItems/{itemId} {
           allow read: if canAccessProject(companyId, projectId);
           allow create: if isVerifiedDirector(companyId) || isQs(companyId);
-          allow update: if isVerifiedDirector(companyId) || isQs(companyId) || (canSubmitSiteUpdate(companyId, projectId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"]));
+          // Progress can only increase within the agreed BOQ quantity. This
+          // prevents any client from reducing progress or recording more work
+          // than was planned for the item.
+          allow update: if isVerifiedDirector(companyId) || isQs(companyId)
+            || (canSubmitSiteUpdate(companyId, projectId)
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cumulativeQuantityCompleted"])
+              && request.resource.data.cumulativeQuantityCompleted is number
+              && request.resource.data.cumulativeQuantityCompleted >= resource.data.cumulativeQuantityCompleted
+              && request.resource.data.cumulativeQuantityCompleted <= resource.data.plannedQuantity);
           allow delete: if isVerifiedDirector(companyId) || isQs(companyId);
         }
         match /boqUploads/{uploadId} { allow read: if canAccessProject(companyId, projectId); allow create: if isVerifiedDirector(companyId) || isQs(companyId); }
@@ -135,11 +143,52 @@ service cloud.firestore {
           }
         }
         match /milestones/{milestoneId} { allow read: if canAccessProject(companyId, projectId); allow create, update, delete: if isVerifiedDirector(companyId) || isAssignedProjectManager(companyId, projectId); }
-        match /variations/{variationId} { allow read: if canAccessProject(companyId, projectId); allow create: if (isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId) || isAssignedEngineer(companyId, projectId)) && request.resource.data.raisedBy == request.auth.uid; allow update: if isQs(companyId) || isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId); }
+        match /variations/{variationId} {
+          allow read: if canAccessProject(companyId, projectId);
+          allow create: if (isAssignedProjectManager(companyId, projectId) || isVerifiedDirector(companyId) || isAssignedEngineer(companyId, projectId))
+            && request.resource.data.raisedBy == request.auth.uid;
+          // QS or PM may only send a pending variation to the Director.
+          allow update: if ((isQs(companyId) || isAssignedProjectManager(companyId, projectId))
+            && resource.data.status == "pending_qs_review"
+            && request.resource.data.status == "pending_director_approval"
+            && request.resource.data.reviewedBy == request.auth.uid
+            && request.resource.data.reviewedAt == request.time
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "reviewedBy", "reviewedAt"]))
+            // Only a verified Director can make the final commercial decision.
+            || (isVerifiedDirector(companyId)
+              && resource.data.status == "pending_director_approval"
+              && request.resource.data.approvedBy == request.auth.uid
+              && request.resource.data.approvedAt == request.time
+              && ((request.resource.data.status == "approved"
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "approvedBy", "approvedAt"]))
+                || (request.resource.data.status == "rejected"
+                  && request.resource.data.rejectionReason is string
+                  && request.resource.data.rejectionReason.size() > 0
+                  && request.resource.data.rejectionReason.size() <= 1000
+                  && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "approvedBy", "approvedAt", "rejectionReason"])));
+        }
         match /valuations/{valuationId} {
           allow read: if canAccessProject(companyId, projectId);
-          allow create: if isQs(companyId) || isVerifiedDirector(companyId);
-          allow update: if isQs(companyId) || isVerifiedDirector(companyId)
+          // QS prepares a valuation; a Director may prepare one directly for
+          // their own approval queue. Neither role can self-mark it approved
+          // through a broad write permission.
+          allow create: if (isQs(companyId)
+              && request.resource.data.status == "pending_project_manager_review"
+              && request.resource.data.createdBy == request.auth.uid)
+            || (isVerifiedDirector(companyId)
+              && request.resource.data.status == "pending_director_approval"
+              && request.resource.data.createdBy == request.auth.uid);
+          allow update: if (isVerifiedDirector(companyId)
+              && resource.data.status == "pending_director_approval"
+              && request.resource.data.approvedBy == request.auth.uid
+              && request.resource.data.approvedAt == request.time
+              && ((request.resource.data.status == "approved"
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "approvedBy", "approvedAt"]))
+                || (request.resource.data.status == "rejected"
+                  && request.resource.data.rejectionReason is string
+                  && request.resource.data.rejectionReason.size() > 0
+                  && request.resource.data.rejectionReason.size() <= 1000
+                  && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "approvedBy", "approvedAt", "rejectionReason"])))
             || (isAssignedProjectManager(companyId, projectId)
               && resource.data.status == "pending_project_manager_review"
               && request.resource.data.status == "pending_director_approval"

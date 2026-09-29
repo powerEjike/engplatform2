@@ -27,6 +27,8 @@ requireText(firestoreRules, "request.resource.data.message.size() <= 1000", "cha
 requireText(firestoreRules, "request.resource.data.createdAt == request.time", "chat messages must use a server timestamp");
 requireText(firestoreRules, "request.resource.data.summary.size() <= 1000", "activity summaries must be limited");
 requireText(firestoreRules, "match /securityAudit/{auditId}", "append-only security audit collection must exist");
+requireText(firestoreRules, "resource.data.status == \"pending_director_approval\"", "commercial decisions must require a Director approval stage");
+requireText(firestoreRules, "request.resource.data.cumulativeQuantityCompleted <= resource.data.plannedQuantity", "BOQ progress must not exceed the planned quantity");
 
 rejectText(storageRules, "allow read, write: if true", "Storage must never be open to everyone");
 requireText(storageRules, "allow update, delete: if false;", "project evidence must remain immutable");

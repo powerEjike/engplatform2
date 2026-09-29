@@ -159,6 +159,20 @@ export interface Valuation {
   retentionRate: number;
   retentionAmount: number;
   netAmountDue: number;
+  /** Cumulative value certified by this certificate. */
+  cumulativeGrossValue?: number;
+  /** Value already certified before this certificate. */
+  previousCertifiedValue?: number;
+  /** New work value included in this certificate only. */
+  workThisCertificate?: number;
+  cumulativeRetentionAmount?: number;
+  previousRetentionAmount?: number;
+  retentionThisCertificate?: number;
+  advanceRecoveryAmount?: number;
+  otherDeductionsAmount?: number;
+  vatRate?: number;
+  vatAmount?: number;
+  previousNetCertifiedAmount?: number;
   status: "draft" | "issued" | "pending_project_manager_review" | "pending_director_approval" | "approved" | "rejected";
   createdBy: string;
   createdAt: string;

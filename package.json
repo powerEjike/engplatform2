@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "description": "Engineering and construction project management platform",
-  "workspaces": ["apps/*", "packages/*", "functions"],
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "functions"
+  ],
   "scripts": {
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
@@ -11,5 +15,10 @@
     "security:scan": "node scripts/secret-scan.mjs",
     "security:verify": "node scripts/security-verify.mjs"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.5"
+  }
 }

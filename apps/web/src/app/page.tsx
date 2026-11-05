@@ -264,6 +264,7 @@ export default function PublicHome() {
       <div><Link className="public-login-link" href="/login">Sign in</Link><Link className="public-demo-link" href="/request-demo">Request a demo</Link></div>
     </header>
     <section className="public-hero public-hero-site" id="platform">
+      <div className="public-site-motion" aria-hidden="true"><span className="site-scan site-scan-one" /><span className="site-scan site-scan-two" /><span className="site-crane-line" /><span className="site-crane-cable" /><span className="site-crane-load" /><span className="site-signal site-signal-one" /><span className="site-signal site-signal-two" /></div>
       <div className="public-hero-copy"><p className="eyebrow">Engineering project management</p><h1>Every site.<br />Every variable.<br /><span>Under control.</span></h1><p>BuildCore gives your field teams and decision-makers one dependable source for daily reporting, BOQ progress, variations, valuations, and delivery action.</p><div className="public-hero-actions"><Link className="public-demo-link" href="/request-demo">Request a demo</Link><Link className="public-outline-link" href="/login">Open workspace →</Link></div><p className="public-hero-assurance">Built for Directors, Project Managers, Quantity Surveyors, and Site Engineers.</p></div>
     </section>
     <section className="public-proof"><p>ONE WORKSPACE FOR THE FIELD AND THE OFFICE</p><div><span>Daily site reporting</span><span>BOQ-led progress</span><span>Controlled variations</span><span>Commercial clarity</span></div></section>

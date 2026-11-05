@@ -1513,13 +1513,30 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .public-hero { min-height: 730px; }
 .public-hero-site {
   background-image: linear-gradient(90deg, rgba(1, 12, 38, .94) 0%, rgba(2, 17, 49, .82) 42%, rgba(2, 12, 35, .34) 100%), url("/images/buildcore-construction-site-hero.png");
-  background-position: center;
+  background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: cover;
+  animation: buildcore-site-drift 28s ease-in-out infinite alternate;
   grid-template-columns: minmax(0, 690px);
   isolation: isolate;
 }
 .public-hero-site::before { display: none; }
+.public-site-motion { inset: 0; overflow: hidden; pointer-events: none; position: absolute; z-index: 0; }
+.site-scan { background: linear-gradient(90deg, transparent, rgba(94, 234, 212, .32), transparent); height: 1px; left: 42%; opacity: .45; position: absolute; transform: rotate(-20deg); transform-origin: left center; width: 54%; }
+.site-scan-one { animation: buildcore-scan 10s ease-in-out infinite; top: 31%; }.site-scan-two { animation: buildcore-scan 13s 2.4s ease-in-out infinite reverse; top: 66%; }
+.site-crane-line { border-top: 1px solid rgba(153, 246, 228, .5); position: absolute; right: 8%; top: 27%; transform-origin: right center; width: min(35vw, 520px); animation: buildcore-boom-sway 9s ease-in-out infinite; }
+.site-crane-cable { background: linear-gradient(rgba(153, 246, 228, .45), rgba(153, 246, 228, .06)); height: 190px; position: absolute; right: 18%; top: 27%; transform-origin: top center; width: 1px; animation: buildcore-load-sway 9s ease-in-out infinite; }
+.site-crane-load { background: #2dd4bf; border: 2px solid rgba(240, 253, 250, .86); border-radius: 50%; box-shadow: 0 0 0 8px rgba(45, 212, 191, .1), 0 0 26px rgba(45, 212, 191, .7); height: 11px; position: absolute; right: calc(18% - 5px); top: calc(27% + 186px); width: 11px; animation: buildcore-load-float 9s ease-in-out infinite; }
+.site-signal { background: #5eead4; border-radius: 50%; box-shadow: 0 0 0 6px rgba(94, 234, 212, .1), 0 0 18px rgba(94, 234, 212, .75); height: 5px; opacity: .7; position: absolute; width: 5px; }.site-signal-one { animation: buildcore-pulse 3.4s ease-in-out infinite; right: 36%; top: 54%; }.site-signal-two { animation: buildcore-pulse 4.1s 1.5s ease-in-out infinite; right: 9%; top: 69%; }
+.public-hero-site .public-hero-copy { animation: buildcore-hero-rise .7s ease-out both; }
+@keyframes buildcore-site-drift { from { background-position: 48% 50%; } to { background-position: 54% 47%; } }
+@keyframes buildcore-hero-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes buildcore-scan { 0%, 100% { opacity: 0; transform: translateX(-8%) rotate(-20deg); } 42%, 58% { opacity: .55; } 50% { transform: translateX(12%) rotate(-20deg); } }
+@keyframes buildcore-boom-sway { 0%, 100% { transform: rotate(-1.3deg); } 50% { transform: rotate(1deg); } }
+@keyframes buildcore-load-sway { 0%, 100% { transform: rotate(-1.3deg); } 50% { transform: rotate(1deg); } }
+@keyframes buildcore-load-float { 0%, 100% { transform: translateX(-3px) translateY(0); } 50% { transform: translateX(5px) translateY(7px); } }
+@keyframes buildcore-pulse { 0%, 100% { opacity: .2; transform: scale(.7); } 50% { opacity: .9; transform: scale(1.35); } }
+@media (prefers-reduced-motion: reduce) { .public-hero-site, .public-hero-site .public-hero-copy, .site-scan, .site-crane-line, .site-crane-cable, .site-crane-load, .site-signal { animation: none; } }
 .public-hero-site .public-hero-copy { max-width: 650px; }
 .public-hero-site .public-hero-assurance { color: #dbeafe; }
 .public-hero-copy .eyebrow { align-items: center; display: flex; gap: 10px; }.public-hero-copy .eyebrow::before { background: #2dd4bf; content: ""; height: 7px; width: 7px; }
@@ -1533,7 +1550,7 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .public-final-cta { align-items: center; background: linear-gradient(120deg, #061b2d, #0b4655); color: #fff; display: flex; gap: 40px; justify-content: space-between; padding: 92px clamp(20px, 8vw, 140px); }.public-final-cta > div { max-width: 800px; }.public-final-cta .eyebrow { color: #5eead4; }.public-final-cta h2 { font-size: clamp(2rem, 4vw, 4rem); letter-spacing: -.06em; line-height: 1; margin: 12px 0 18px; }.public-final-cta p:last-child { color: #cbd5e1; line-height: 1.65; max-width: 600px; }.public-final-cta .public-demo-link { flex: 0 0 auto; }
 .public-home-footer { align-items: center; border-top: 1px solid rgba(148, 163, 184, .18); color: #94a3b8; display: flex; font-size: .78rem; gap: 20px; justify-content: space-between; margin: 0 auto; max-width: 1440px; padding: 24px clamp(20px, 5vw, 76px) 30px; }.public-home-footer > div { display: flex; gap: 22px; }.public-home-footer span { color: #cbd5e1; font-weight: 700; }.public-home-footer p { margin: 0; }
 @media (max-width: 900px) { .public-impact-strip { grid-template-columns: repeat(2, 1fr); }.public-impact-strip article:nth-child(2) { border-right: 0; }.public-capability-grid { grid-template-columns: repeat(2, 1fr); }.public-final-cta { align-items: flex-start; flex-direction: column; } }
-@media (max-width: 560px) { .public-home-header { position: relative; }.public-hero { min-height: 0; }.public-hero-site { background-position: 62% center; }.public-hero-visual { height: 430px; }.public-visual-summary > div { gap: 5px; }.public-visual-summary b { font-size: .9rem; }.public-visual-card-main { top: 175px; }.public-visual-card-report { top: 261px; }.public-visual-schedule { bottom: 25px; right: 5%; width: 33%; }.public-impact-strip { grid-template-columns: 1fr; }.public-impact-strip article { border-bottom: 1px solid rgba(148, 163, 184, .18); border-right: 0; min-height: 0; }.public-capability-grid { grid-template-columns: 1fr; }.public-final-cta { padding: 64px 20px; }.public-home-footer { align-items: flex-start; flex-direction: column; gap: 13px; padding: 22px 20px 28px; }.public-home-footer > div { gap: 18px; } }
+@media (max-width: 560px) { .public-home-header { position: relative; }.public-hero { min-height: 0; }.public-hero-site { background-position: 62% center; }.public-hero-visual { height: 430px; }.public-visual-summary > div { gap: 5px; }.public-visual-summary b { font-size: .9rem; }.public-visual-card-main { top: 175px; }.public-visual-card-report { top: 261px; }.public-visual-schedule { bottom: 25px; right: 5%; width: 33%; }.public-impact-strip { grid-template-columns: 1fr; }.public-impact-strip article { border-bottom: 1px solid rgba(148, 163, 184, .18); border-right: 0; min-height: 0; }.public-capability-grid { grid-template-columns: 1fr; }.public-final-cta { padding: 64px 20px; }.public-home-footer { align-items: flex-start; flex-direction: column; gap: 13px; padding: 22px 20px 28px; }.public-home-footer > div { gap: 18px; }.site-crane-line { right: -17%; top: 19%; width: 82vw; }.site-crane-cable { height: 142px; right: 21%; top: 19%; }.site-crane-load { right: calc(21% - 5px); top: calc(19% + 138px); } }
 
 /* BuildCore dashboard palette: navy for structure, teal for action, slate for calm surfaces.
    Red and amber remain reserved for error and warning states only. */

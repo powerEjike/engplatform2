@@ -1505,7 +1505,7 @@ body { background: var(--bc-bg); color: var(--bc-navy); }
 .reauthentication-card { background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #d97706; border-radius: 10px; margin-top: 24px; padding: 19px; }.reauthentication-card h2 { font-size: 1.08rem; margin: 3px 0 8px; }.reauthentication-card form { display: grid; gap: 13px; max-width: 440px; }.reauthentication-card form > div { display: flex; gap: 9px; }.reauthentication-card form > div button { flex: 1; }
 
 /* Public campaign: an executive project-control entrance inspired by the SiteAxis reference, using BuildCore's own visual language. */
-.public-home { background: #041a2d; overflow: hidden; }
+.public-home { background: #041a2d; margin: 0; max-width: none; overflow: hidden; padding: 0; width: 100%; }
 .public-home::before { background-image: linear-gradient(rgba(94, 234, 212, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(94, 234, 212, .045) 1px, transparent 1px); background-size: 56px 56px; content: ""; inset: 0; pointer-events: none; position: absolute; z-index: 0; }
 .public-home > * { position: relative; z-index: 1; }
 .public-home-header { backdrop-filter: blur(15px); background: rgba(4, 26, 45, .82); max-width: none; position: sticky; top: 0; z-index: 10; }

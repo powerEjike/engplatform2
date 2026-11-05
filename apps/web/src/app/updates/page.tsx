@@ -10,11 +10,17 @@ import { useBoqUploadEvents } from "@/hooks/use-boq-upload-events";
 import { useScheduleMilestones } from "@/hooks/use-schedule-milestones";
 import { canWorkOnProject } from "@/lib/project-access";
 
-type UpdateKind = "report" | "variation" | "valuation" | "boq" | "milestone" | "project";
+type UpdateKind = "report" | "report_reminder" | "variation" | "valuation" | "boq" | "milestone" | "project";
 type UpdateItem = { id: string; projectId: string; projectName: string; title: string; detail: string; date: string; href: string; kind: UpdateKind };
 const updateDate = (value: unknown) => value && typeof value === "object" && "toDate" in value ? (value as { toDate: () => Date }).toDate().toISOString() : String(value ?? "");
+const reportSubmissionTime = (createdAt: unknown, reportDate: string) => {
+  const submittedAt = updateDate(createdAt);
+  const timestamp = submittedAt ? new Date(submittedAt).getTime() : new Date(`${reportDate}T12:00:00`).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
+const reportReminderDelayMs = 72 * 60 * 60 * 1000;
 const readStorageKey = (companyId: string, userId: string) => `engplatform2:workspace-updates-read:${companyId}:${userId}`;
-const kindLabel = (kind: UpdateKind) => ({ project: "Project", report: "Report", variation: "Variation", boq: "BOQ", milestone: "Milestone", valuation: "Valuation" })[kind];
+const kindLabel = (kind: UpdateKind) => ({ project: "Project", report: "Report", report_reminder: "Reminder", variation: "Variation", boq: "BOQ", milestone: "Milestone", valuation: "Valuation" })[kind];
 
 export default function UpdatesPage() {
   const router = useRouter();
@@ -24,6 +30,7 @@ export default function UpdatesPage() {
   const { eventsByProject } = useBoqUploadEvents(profile?.companyId, projects);
   const { milestones } = useScheduleMilestones(profile?.companyId, projects);
   const [readIds, setReadIds] = useState<string[]>([]);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
@@ -39,6 +46,12 @@ export default function UpdatesPage() {
     return () => window.clearTimeout(timer);
   }, [profile, user]);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setCurrentTime(Date.now()), 0);
+    const refresh = window.setInterval(() => setCurrentTime(Date.now()), 60_000);
+    return () => { window.clearTimeout(timer); window.clearInterval(refresh); };
+  }, []);
+
   const updates = useMemo(() => {
     if (!profile || !user) return [];
     const accessibleProjects = projects.filter((project) => profile.role === "project_manager" ? project.projectManagerId === user.uid : canWorkOnProject(profile.role, user.uid, project));
@@ -52,13 +65,22 @@ export default function UpdatesPage() {
         items.push({ ...base, id: `project-${project.id}-${user.uid}-${assignmentDate}`, kind: "project", title: "Project assigned to you", detail: `${project.location}, ${project.state}`, date: assignmentDate, href: `/projects/${project.id}` });
       }
       (reportsByProject[project.id] ?? []).forEach((report) => items.push({ ...base, id: `report-${project.id}-${report.id}`, kind: "report", title: "Daily report submitted", detail: `${report.labourCount} people on site${report.issues.length ? ` · ${report.issues.length} issue${report.issues.length === 1 ? "" : "s"} logged` : ""}`, date: updateDate(report.createdAt) || report.reportDate, href: `/projects/${project.id}` }));
+      const isReportReviewer = profile.role === "director" || (profile.role === "project_manager" && project.projectManagerId === user.uid);
+      if (isReportReviewer && currentTime) {
+        (reportsByProject[project.id] ?? []).filter((report) => !report.reviewStatus || report.reviewStatus === "submitted").forEach((report) => {
+          const submittedAt = reportSubmissionTime(report.createdAt, report.reportDate);
+          if (submittedAt && currentTime >= submittedAt + reportReminderDelayMs) {
+            items.push({ ...base, id: `report-reminder-${project.id}-${report.id}`, kind: "report_reminder", title: "72-hour review reminder", detail: `Daily report from ${report.reportDate} is still awaiting your review.`, date: new Date(submittedAt + reportReminderDelayMs).toISOString(), href: `/projects/${project.id}` });
+          }
+        });
+      }
       (variationsByProject[project.id] ?? []).forEach((variation) => items.push({ ...base, id: `variation-${project.id}-${variation.id}`, kind: "variation", title: `Variation ${variation.status.replaceAll("_", " ")}`, detail: variation.description, date: updateDate(variation.approvedAt || variation.reviewedAt || variation.raisedAt), href: `/projects/${project.id}` }));
       if (canSeeValuations) (valuationsByProject[project.id] ?? []).forEach((valuation) => items.push({ ...base, id: `valuation-${project.id}-${valuation.id}`, kind: "valuation", title: `Valuation ${valuation.status}`, detail: valuation.certificateNumber, date: updateDate(valuation.createdAt) || valuation.valuationDate, href: `/projects/${project.id}` }));
       (eventsByProject[project.id] ?? []).forEach((upload) => items.push({ ...base, id: `boq-${project.id}-${upload.id}`, kind: "boq", title: "BOQ uploaded", detail: `${upload.itemCount} BOQ item${upload.itemCount === 1 ? "" : "s"} are now ready for project delivery.`, date: updateDate(upload.createdAt), href: `/projects/${project.id}` }));
     });
     milestones.filter((milestone) => accessibleProjects.some((project) => project.id === milestone.projectId)).forEach((milestone) => items.push({ projectId: milestone.projectId, projectName: milestone.projectName, id: `milestone-${milestone.projectId}-${milestone.id}`, kind: "milestone", title: `Milestone ${milestone.status.replaceAll("_", " ")}`, detail: `${milestone.title} · ${milestone.progress}% progress`, date: updateDate(milestone.updatedAt || milestone.createdAt) || milestone.plannedDate, href: `/projects/${milestone.projectId}/schedule` }));
     return items.sort((left, right) => right.date.localeCompare(left.date));
-  }, [eventsByProject, milestones, profile, projects, reportsByProject, user, valuationsByProject, variationsByProject]);
+  }, [currentTime, eventsByProject, milestones, profile, projects, reportsByProject, user, valuationsByProject, variationsByProject]);
 
   const readSet = useMemo(() => new Set(readIds), [readIds]);
   const unreadCount = updates.filter((update) => !readSet.has(update.id)).length;
